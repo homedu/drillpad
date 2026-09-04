@@ -1,0 +1,54 @@
+97f23828-8dcf-4359-ab2e-55d80af77159	You are using an Infrastructure as a Service (IaaS) offering from a cloud provider. Under the shared responsibility model, who is responsible for patching the "operating" system?	The cloud provider	The customer	Both the cloud provider and the customer equally	Neither party; the OS patches itself automatically				The customer
+5b49629a-6811-41e7-8795-e222df05ae8c	A company wants to keep sensitive financial data on infrastructure it fully controls, but also wants to use a public cloud provider's elastic compute resources during periods of unusually high demand. Which cloud deployment model best fits this requirement?	Public cloud	Private cloud	Hybrid cloud	Community cloud				Hybrid cloud
+98a35889-0006-4dcd-993a-19d9dbcac979	Which pricing model allows a customer to pay only for the compute resources they actually consume, with no upfront commitment or long-term contract?	Reserved Instances	Spot pricing	Pay-as-you-go	Capital expenditure (CapEx)				Pay-as-you-go
+c881a4eb-f1cd-4838-b025-1c662b329135	A development team wants to run short-lived, event-triggered code (e.g., resizing an image whenever it's uploaded) without provisioning or managing any servers, and only pay when the code actually runs. Which type of cloud computing model should they use?	Infrastructure as a Service (IaaS)	Platform as a Service (PaaS)	Serverless computing	Private cloud				Serverless computing
+8e18574a-b18b-4d02-8842-4dc75f8f2721	Which statement correctly describes the difference between capital expenditure (CapEx) and operational expenditure (OpEx)?	CapEx is a recurring, pay-as-you-go expense, while OpEx requires large upfront investment	CapEx requires upfront investment in physical infrastructure, while OpEx is an ongoing expense based on consumption	CapEx and OpEx are the same thing, just different accounting terms	Cloud computing always uses a CapEx model				CapEx requires upfront investment in physical infrastructure, while OpEx is an ongoing expense based on consumption
+cd6f3bfe-c67e-4544-8ad2-80d62ff4ce33	A company wants to increase the processing power of a single virtual machine by adding more CPU and memory to handle increased demand, without adding additional VMs. Which type of scaling does this describe?	Horizontal scaling (scale out)	Vertical scaling (scale up)	Auto-scaling	Load balancing				Vertical scaling (scale up)
+51131dff-75e2-47f6-826e-bb396442e348	Which Azure concept refers to a set of physically separate datacenters within a single region, each with independent power, cooling, and networking, used to protect applications from datacenter-level failures?	Region pairs	Resource groups	Availability zones	Management groups				Availability zones
+3846d45a-df1f-489c-914b-0f64e6d58973	A company needs to determine the maximum amount of data (measured in time) it can afford to lose in the event of a disaster. Which term describes this metric?	Recovery Time Objective (RTO)	Recovery Point Objective (RPO)	Service Level Agreement (SLA)	Mean Time to Recovery (MTTR)				Recovery Point Objective (RPO)
+3c8e0fb4-a515-4f29-99fb-d912e2c892c1	Which Azure tool would you use to enforce organization-wide rules, such as requiring all resources to be deployed only to specific regions or requiring cost-center tags on every resource?	Microsoft Defender for Cloud	Azure Monitor	Azure Policy	Azure Advisor				Azure Policy
+9b673d92-29a7-4dcf-b485-5da429adb5f0	Which of the following best describes "cost predictability" as a benefit of cloud computing?	The ability to guarantee that cloud costs will never increase	The ability to forecast and plan for expected cloud spending using tools like pricing calculators and budgets	The ability to eliminate all operational expenses	The ability to automatically reduce the price of reserved instances over time				The ability to forecast and plan for expected cloud spending using tools like pricing calculators and budgets
+a9cf168d-fdaf-4a62-acca-f5788b5bddd2	Which of the following is an example of managing Azure resources "through the cloud" rather than "of the cloud"?	Auto-scaling a virtual machine scale set based on CPU usage	Using the Azure Portal to create and configure a new storage account	Automatically restarting a failed VM instance	Load balancing traffic across multiple VM instances				Using the Azure Portal to create and configure a new storage account
+e23a57ab-7c8e-4ebf-89a9-a21c826ab878	A company is migrating an on-premises application to Azure. The company wants to retain full control over the operating system, including the ability to install custom software and apply specific OS-level configurations. Which cloud service type should they choose?	Software as a Service (SaaS)	Platform as a Service (PaaS)	Infrastructure as a Service (IaaS)	Function as a Service (FaaS)				Infrastructure as a Service (IaaS)
+2c73872e-e46f-4e6b-b293-d0e76a597b1d									
+7c679e44-2758-49ed-80ec-37bd4488c92b									
+51341ac5-4af3-4c8e-8a4e-13ae72eaf864									
+019e5188-bb0e-49af-ab5a-2e2c6287b146									
+99a5268d-6809-4f23-b89b-b939eddbdcca									
+6d0acf33-e556-4d53-9c3b-9197a9e60116									
+74df9874-415c-4a2f-9084-6f7b9f39efc6									
+eb451b91-251b-42a8-a70d-2fc215c8736e									
+f3f348cb-9374-40ac-a1f9-2ef8d51bb02f									
+35001fef-2d66-4969-8b47-adcb9d7f62bf									
+db307e49-2ead-4de5-bec0-b6a64306c52f									
+36708f41-1a33-4a7e-91ec-686d600b6963									
+b66ce822-80bf-4c6e-8b04-7987aedc4966									
+b78b95f3-03f4-46e3-a4ce-6dcff77b1b0c									
+0941762f-a209-4145-bbce-203fc8d32d9d									
+ffe9b799-7f3d-4374-9c21-3128ab3e983d									
+67196d59-225d-4ae4-ac91-81836163adcd									
+76b2d161-c0db-40a9-9675-a9f0401aac7d									
+fb8b6dde-ad66-4941-a330-7b3e2be036d4									
+4d2a25c7-161c-440d-80a3-a4f85345625a									
+20e9b5dc-8485-42e2-b7eb-4ef18fc79cac									
+f5718a0a-3d03-4080-92ba-6e11ec17c74c									
+1535c6eb-7ce4-4c63-918a-4aea7156a05c									
+81635d6c-005d-4c19-9bf1-459e86e03ddf									
+09153f45-cce2-4a47-b82a-2b154187e33c									
+89289bda-e6e1-4d83-b9d8-1d69ad60e2dd									
+93ba3ba4-599a-4c7b-a3e6-23be866d40f5									
+efd0e017-b3b3-48a5-9637-1b20de83a0c8									
+5ba358b2-bbb3-4dae-88c5-a3b0f07159ef									
+a9fc4661-3304-4cb7-a244-3004c15f58a5									
+75819e53-d266-48fb-8ed1-89caeac363db									
+7f1b4c85-9b73-4461-975e-2c0640fa9e26									
+b46802c2-ee66-45ef-9d3f-8b0f3952d05f									
+10648e4d-9286-4b94-b5ba-eb57be658082									
+e5e1340d-0b07-4bab-824c-b2ff5727ff9c									
+184e603d-e69c-4824-803a-44e02879aabf									
+42c69b77-ac85-418d-9615-e57abb21766d									
+8c9df955-fc7d-4242-8198-49ca603ee7eb									
+7d37b6b7-4679-4da5-9b2f-468fa1623ec2									
+362aaee5-00ae-4872-a143-84c603f672b9									
+f7d69e71-14f6-4839-afc7-8dfff3ead4ad	Which statement about Availability Zones is correct?	Availability zones protect against failures across an entire geography	Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking	Every Azure region has availability zones	Availability zones replace the need for region pairs				Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking
+349d5db3-6b0e-4dbf-9209-34233842e5b0	What happens to the resources contained within a resource group if that resource group is deleted?	The resources are moved to the default resource group automatically	The resources are deleted along with the resource group	The resources remain but become inaccessible	Azure prevents the resource group from being deleted if it contains resources				The resources are deleted along with the resource group

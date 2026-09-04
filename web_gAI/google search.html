@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>谷歌自动搜索（默认 AI 模式）</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; }
+        /* 伪装成超链接样式 */
+        .search-link {
+            background: none;
+            border: none;
+            color: #1a0dab;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            display: inline;
+        }
+        .search-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>点击下方链接，直接触发谷歌 AI 模式搜索</h2>
+    <p>
+        <form action="https://www.google.com/search" method="get" target="_blank" style="display:inline;">            
+            <!-- 1. 核心关键词 -->
+            <input type="hidden" name="q" value="PVE装机">            
+            <!-- 2. 核心：强制切换为 AI 模式 (AI Overview) -->
+            <input type="hidden" name="udm" value="50">            
+            <!-- 3. 模拟点击搜索按钮 -->
+            <input type="hidden" name="btnK" value="Google Search">            
+            <!-- 4. 强制中文界面 -->
+            <input type="hidden" name="hl" value="zh-CN">
+            <button type="submit" class="search-link">用 AI 模式搜索: “PVE装机”</button>
+        </form>
+    </p>
+    <p>
+        <form action="https://www.google.com/search" method="get" target="_blank" style="display:inline;">
+            <input type="hidden" name="q" value="为什么天空是蓝色的">
+            <!-- 同样加入 udm=50 触发 AI -->
+            <input type="hidden" name="udm" value="50">
+            <input type="hidden" name="btnK" value="Google Search">
+            <input type="hidden" name="hl" value="zh-CN">
+            <button type="submit" class="search-link">用 AI 模式搜索：“为什么天空是蓝色的”</button>
+        </form>
+    </p>
+</body>
+</html>
