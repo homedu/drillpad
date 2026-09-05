@@ -145,5 +145,3 @@ END {
     }
 
 }' $QUIZ_BANK | shuf > $QUIZ_OUT
-
-

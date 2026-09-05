@@ -38,8 +38,10 @@ export function useNatsFetch() {
         };
     }, []);
 
-    const fetch_quiz = useCallback(async (count, ids_inc, ids_exc) => {
+    const fetch_quiz = useCallback(async (user, quiz, count, ids_inc, ids_exc) => {
         const payload = {
+            user,
+            quiz,
             count,
             include: ids_inc,
             exclude: ids_exc,

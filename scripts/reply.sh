@@ -21,14 +21,15 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
-    INCLUDE=$(echo "$PARAM" | jq -r '.include | join(" ")')
-    EXCLUDE=$(echo "$PARAM" | jq -r '.exclude | join(" ")')
-    COUNT=$(echo "$PARAM" | jq -r '.count')
-    
-    # (qmiao) should be extract from msg or header
-    # (AZ-900.tsv) should be extract from msg
-    QUIZ_IN="./users/qmiao/quiz_bank/AZ-900.tsv"
-    QUIZ_OUT="/qmiao/quiz_gen/AZ-900.tsv"
+    # USER should be extract from msg or header
+    USER=$(jq -r '.user' <<< "$PARAM")
+    # QUIZ should be extract from msg
+    QUIZ=$(jq -r '.quiz' <<< "$PARAM")
+    INCLUDE=$(jq -r '.include | join(" ")' <<< "$PARAM")
+    EXCLUDE=$(jq -r '.exclude | join(" ")' <<< "$PARAM")
+    COUNT=$(jq -r '.count' <<< "$PARAM")
+    QUIZ_IN="./users/${USER}/quiz_bank/${QUIZ}.tsv"
+    QUIZ_OUT="/${USER}/quiz_gen/${QUIZ}.tsv"
     
     # /var/www/dp_users must exist AND be set in Caddyfile as "root * /var/www/dp_users"        
     IDS_INC="$INCLUDE" IDS_EXC="$EXCLUDE" ./QGen.sh "${QUIZ_IN}" "/var/www/dp_users${QUIZ_OUT}" "${COUNT}"
