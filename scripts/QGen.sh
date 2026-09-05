@@ -1,7 +1,7 @@
 #！/bin/bash
 
 if [[ "$#" -ne 3 ]]; then
-    echo "error： must give 3 argument！"
+    echo "error: must give 3 argument!"
     echo "usage: $0 <quiz-bank-tsv> <quiz-output> <suggested count>; And also ENV [IDS_INC] [IDS_EXC]"
     exit 1
 fi
