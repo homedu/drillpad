@@ -15,7 +15,8 @@ function App() {
         setLoading(true);
         setError("");
         try {
-            const response = await fetch(CADDY_URL);
+            const timestamp = Date.now();
+            const response = await fetch(CADDY_URL + `?v=${timestamp}`, { cache: 'no-store' });
             if (!response.ok) throw new Error(`HTTP 错误: ${response.status}`);
             const text = await response.text();
             setFileContent(text);
@@ -35,7 +36,7 @@ function App() {
     return (
         <div style={style_App}>
             <h2>🚀 QUIZ for today</h2>
-            <button onClick={fetchCaddyFile} disabled={loading} style={style_FetchBtn(loading)}            >
+            <button onClick={fetchCaddyFile} disabled={loading} style={style_FetchBtn(loading)}>
                 {loading ? "⏳ 读取中..." : "📁 获取文件"}
             </button>
             {error && <p style={style_ErrorBox}>❌ {error}</p>}
