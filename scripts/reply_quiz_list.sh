@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
 # if [[ "$#" -ne 1 ]]; then
-#     echo "error: must give 1 argument!"
-#     echo "usage: $0 <user>"
-#     exit 1
+# echo "error: must give 1 argument!"
+# echo "usage: $0 <user>"
+# exit 1
 # fi
 
-USER="$NATS_REQUEST_BODY"
+msg="$NATS_REQUEST_BODY"
+
+# 检查是否传入了参数
+if [[ -z "${msg}" ]]; then
+    echo "错误: 请提供一个参数"
+    exit 1
+fi
+
+USER="${msg}"
 
 # echo "user: $USER"
 

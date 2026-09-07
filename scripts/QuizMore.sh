@@ -1,8 +1,8 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 
 # 检查传入的参数个数是否为 2
 if [[ "$#" -ne 1 ]]; then
-    echo "error： must give 1 argument！"
+    echo "error: must give 1 argument!"
     echo "usage: $0 <quiz-output-tsv>"
     exit 1
 fi
