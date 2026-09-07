@@ -1,8 +1,8 @@
-#！/bin/bash
+#!/usr/bin/env bash
 
 if [[ "$#" -ne 3 ]]; then
-    echo "error: must give 3 argument!"
-    echo "usage: $0 <quiz-bank-tsv> <quiz-output> <suggested count>; And also ENV [IDS_INC] [IDS_EXC]"
+    echo "error：must give 3 arguments!"
+    echo "usage: $0 <quiz-bank-tsv> <quiz-output> <suggested count>; Also ENV [IDS_INC] [IDS_EXC]"
     exit 1
 fi
 
@@ -14,15 +14,15 @@ declare -a IDS_INC=($IDS_INC)
 declare -a IDS_EXC=($IDS_EXC)
 
 # 2. 验证并打印数组内容
-#echo "--- IDS_INC ---"
-#for item in "${IDS_INC[@]}"; do
-#    echo "Item: $item"
-#done
+# echo "--- IDS_INC ---"
+# for item in "${IDS_INC[@]}"; do
+#     echo "Item: $item"
+# done
 
-#echo "--- IDS_EXC ---"
-#for item in "${IDS_EXC[@]}"; do
-#    echo "Item: $item"
-#done
+# echo "--- IDS_EXC ---"
+# for item in "${IDS_EXC[@]}"; do
+#     echo "Item: $item"
+# done
 
 # 判断文件名是否包含扩展名（即最后一个斜杠后面是否有小数点）
 # ${QUIZ##*/} 获取不含路径的文件名
@@ -32,7 +32,7 @@ fi
 
 # 检查参数是否存在
 if [[ ! -f "$QUIZ_BANK" ]]; then
-    echo "error： input quiz file (${QUIZ_BANK}) is not found"
+    echo "error：bank quiz file (${QUIZ_BANK}) is not found"
     exit 1
 fi
 
@@ -42,15 +42,15 @@ if [[ "${QUIZ_OUT##*/}" != *.* ]]; then
     QUIZ_OUT="${QUIZ_OUT}.tsv"
 fi
 
-#if [[ "${#IDS_INC[@]}" -eq 0 ]]; then
-#    echo "error"
-#    exit 1
-#fi
+# if [[ "${#IDS_INC[@]}" -eq 0 ]]; then
+#     echo "error"
+#     exit 1
+# fi
 
-#if [[ "${#IDS_EXC[@]}" -eq 0 ]]; then
-#    echo "error"
-#    exit 1
-#fi
+# if [[ "${#IDS_EXC[@]}" -eq 0 ]]; then
+#     echo "error"
+#     exit 1
+# fi
 
 awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" -F '\t' '
 function shuffle(arr, n,    i, j, tmp) {
@@ -145,3 +145,5 @@ END {
     }
 
 }' $QUIZ_BANK | shuf > $QUIZ_OUT
+
+

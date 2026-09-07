@@ -5,15 +5,29 @@ export const style_App = {
     margin: "auto",
 }
 
+export const style_Input = {
+    boxSizing: "border-box",
+    height: "40px",
+    verticalAlign: "middle",
+    fontSize: "14px",
+    marginRight: '5px',
+    padding: '5px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 0,
+    paddingBottom: 0,
+    lineHeight: 'normal',
+}
+
 export const style_FetchBtn = (loading) => ({
-    padding: "12px 24px",
+    padding: "12px 12px",
     background: "#0070f3",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
     cursor: loading ? "not-allowed" : "pointer",
     opacity: loading ? 0.6 : 1,
-    fontSize: "16px",
 });
 
 export const style_ErrorBox = {
