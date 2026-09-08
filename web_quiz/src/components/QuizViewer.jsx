@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { style_Card, style_Option, style_OptionsContainer, style_Question, style_ResetBtn, style_SubmitBtn } from "./styles.js";
+import { useNatsFetch, AnswerRecordError } from "../hooks/useNatsFetch.js";
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ fileContent, onReset }) {
+export default function QuizViewer({ user, quiz, fileContent, onReset }) {
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
+    const { status, loading, connError, record_answer } = useNatsFetch();
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -55,14 +57,48 @@ export default function QuizViewer({ fileContent, onReset }) {
 
     if (!questions.length) {
         return (
-            <p style={{ color: "#666", marginTop: "20px" }}>
-                ⚠️ 未解析到有效题目内容，请检查文件格式。
-            </p>
+            <p style={{ color: "#666", marginTop: "20px" }}>⚠️ 未解析到有效题目内容，请检查文件格式。</p>
         );
     }
 
+    // 统计答案
+    const { ids_correct, ids_incorrect, ids_blank } = useMemo(() => {
+        const correct = [];
+        const incorrect = [];
+        const blank = [];
+        if (submitted) {
+            questions.forEach((q) => {
+                const userChoice = userAnswers[q.id];
+                if (!userChoice) {
+                    blank.push(q.id);
+                } else if (q.correctAnswerText && userChoice.text.trim() === q.correctAnswerText.trim()) {
+                    correct.push(q.id);
+                } else {
+                    incorrect.push(q.id);
+                }
+            });
+        }
+        return { ids_correct: correct, ids_incorrect: incorrect, ids_blank: blank };
+    }, [submitted, questions, userAnswers]);
+
+    useEffect(() => {
+        if (submitted) {
+            console.log("correct", ids_correct);
+            console.log("wrong", ids_incorrect);
+            console.log("blank", ids_blank);
+            console.log("user", user);
+            console.log("quiz", quiz);
+
+            // record_answer()
+            // 这里也是调用 record_answer 等副作用的正确位置
+        }
+    }, [submitted, ids_correct, ids_incorrect, ids_blank]);
+
+    const handleSubmit = useCallback(() => { setSubmitted(true) }, []);
+
     return (
         <div style={{ marginTop: "24px" }}>
+
             {questions.map((q, index) => {
                 const selected = userAnswers[q.id];
                 const isCorrect = submitted && selected && q.correctAnswerText && selected.text.trim() === q.correctAnswerText.trim();
@@ -70,9 +106,7 @@ export default function QuizViewer({ fileContent, onReset }) {
 
                 return (
                     <div key={q.id} style={style_Card}>
-                        <h3 style={style_Question}>
-                            {index + 1}. {q.question}
-                        </h3>
+                        <h3 style={style_Question}> {index + 1}. {q.question} </h3>
 
                         <div style={style_OptionsContainer}>
                             {q.options.map((opt) => {
@@ -99,21 +133,9 @@ export default function QuizViewer({ fileContent, onReset }) {
 
                         {submitted && q.correctAnswerText && (
                             <div style={{ marginTop: "12px", fontSize: "14px" }}>
-                                {isCorrect && (
-                                    <span style={{ color: "#28a745", fontWeight: "bold" }}>
-                                        ✓ 正确
-                                    </span>
-                                )}
-                                {isWrong && (
-                                    <span style={{ color: "#dc3545" }}>
-                                        ✕ 错误（正确答案：<strong> {q.correctAnswerText} </strong>）
-                                    </span>
-                                )}
-                                {!selected && (
-                                    <span style={{ color: "#6c757d" }}>
-                                        未作答（正确答案：<strong> {q.correctAnswerText} </strong>）
-                                    </span>
-                                )}
+                                {isCorrect && (<span style={{ color: "#28a745", fontWeight: "bold" }}> ✓ 正确 </span>)}
+                                {isWrong && (<span style={{ color: "#dc3545" }}> ✕ 错误 正确答案：<strong> {q.correctAnswerText} </strong> </span>)}
+                                {!selected && (<span style={{ color: "#6c757d" }}> 未作答 正确答案：<strong> {q.correctAnswerText} </strong> </span>)}
                             </div>
                         )}
                     </div>
@@ -122,16 +144,14 @@ export default function QuizViewer({ fileContent, onReset }) {
 
             <div style={{ marginTop: "20px", display: "flex", alignItems: "center", gap: "16px" }}>
                 {!submitted
-                    ? (<button onClick={() => setSubmitted(true)} style={style_SubmitBtn}> 提交答案 </button>)
-                    : (
-                        <>
-                            <button onClick={onReset} style={style_ResetBtn}> 重新作答 </button>
-                            <div style={{ fontSize: "18px", fontWeight: "bold", color: "#24292e" }}>
-                                最终得分：{score} / {questions.length}
-                            </div>
-                        </>
-                    )}
+                    ? (<button onClick={handleSubmit} style={style_SubmitBtn}> 提交答案 </button>)
+                    : (<>
+                        <button onClick={onReset} style={style_ResetBtn}> 重新作答 </button>
+                        <div style={{ fontSize: "18px", fontWeight: "bold", color: "#24292e" }}> 最终得分：{score} / {questions.length} </div>
+                    </>)
+                }
             </div>
+
         </div>
     );
 }

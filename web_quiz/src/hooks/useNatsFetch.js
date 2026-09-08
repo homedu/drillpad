@@ -34,6 +34,14 @@ export class QuizFetchError extends Error {
     }
 }
 
+export class AnswerRecordError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "AnswerRecordError";
+        this.stage = stage;
+    }
+}
+
 // 把两个 client 抛出的分类错误翻译成人可读的中文提示，用于 message / UI 展示
 function describeError(err) {
     if (err instanceof NatsConnectError) return "无法连接 NATS 服务器";
@@ -160,7 +168,37 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, fetch_quiz };
+    const record_answer = useCallback(async (user, quiz, ids_correct, ids_incorrect, ids_blank) => {
+        const payload = {
+            user,
+            quiz,
+            correct: ids_correct,
+            incorrect: ids_incorrect,
+            blank: ids_blank,
+        };
+
+        setLoading(true);
+        try {
+            const result = await reqJSON("record-answer", payload, { timeout: 10000 });
+            if (result === null || !result.status) {
+                // 请求成功但响应内容不符合预期，也算作一种"响应格式错误"
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 字段",
+                    JSON.stringify(result)
+                );
+            }
+        } catch (err) {
+            throw new AnswerRecordError(
+                `记录答题结果失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return { status, loading, connError, fetch_quiz, record_answer };
 }
 
 if (import.meta.hot) {

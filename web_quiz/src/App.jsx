@@ -63,11 +63,7 @@ function App() {
         <div style={style_App}>
             <h2>🚀 QUIZ for today</h2>
 
-            {connError && (
-                <p style={style_ErrorBox}>
-                    ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message}
-                </p>
-            )}
+            {connError && (<p style={style_ErrorBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
             <input
                 value={user}
@@ -105,6 +101,8 @@ function App() {
             {fileContent && (
                 <QuizViewer
                     key={quizKey}
+                    user={user}
+                    quiz={quiz}
                     fileContent={fileContent}
                     onReset={handleResetQuiz}
                 />
