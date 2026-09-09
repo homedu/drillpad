@@ -6,7 +6,7 @@ import { useNatsFetch, AnswerRecordError } from "../hooks/useNatsFetch.js";
 export default function QuizViewer({ user, quiz, fileContent, onReset }) {
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
-    const { status, loading, connError, record_answer } = useNatsFetch();
+    const { record_answer } = useNatsFetch();
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -83,14 +83,19 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
 
     useEffect(() => {
         if (submitted) {
-            console.log("correct", ids_correct);
-            console.log("wrong", ids_incorrect);
-            console.log("blank", ids_blank);
-            console.log("user", user);
-            console.log("quiz", quiz);
+            // console.log("correct", ids_correct);
+            // console.log("wrong", ids_incorrect);
+            // console.log("blank", ids_blank);
+            // console.log("user", user);
+            // console.log("quiz", quiz);
 
-            // record_answer()
-            // 这里也是调用 record_answer 等副作用的正确位置
+            try {
+                record_answer(user, quiz, ids_correct, ids_incorrect, ids_blank).then((result) => {
+                    console.log(JSON.stringify(result));
+                })
+            } catch (err) {
+                const message = err instanceof AnswerRecordError ? err.message : `未知错误: ${err?.message ?? err}`
+            }
         }
     }, [submitted, ids_correct, ids_incorrect, ids_blank]);
 

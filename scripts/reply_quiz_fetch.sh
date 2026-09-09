@@ -44,6 +44,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     IDS_INC=$(jq -r '.include | join(" ")' <<< "$PARAM")
     IDS_EXC=$(jq -r '.exclude | join(" ")' <<< "$PARAM")
 
+    export IDS_INC
+    export IDS_EXC
+
     # generate quiz here
     # /var/www/dp_users must exist AND be set in Caddyfile as "root * /var/www/dp_users"
     ./QuizGen.sh "$QUIZ_BANK" "/var/www/dp_users/$QUIZ_OUT" "$COUNT"

@@ -38,10 +38,18 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     REC_INCORRECT="./users/${USER}/answer_record/${QUIZ}-incorrect.txt"
     REC_BLANK="./users/${USER}/answer_record/${QUIZ}-blank.txt"
 
+    mkdir -p "$(dirname "$REC_CORRECT")"
+    mkdir -p "$(dirname "$REC_INCORRECT")"
+    mkdir -p "$(dirname "$REC_BLANK")"
+
     # env
     IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "$PARAM")
     IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "$PARAM")
     IDS_BLANK=$(jq -r '.blank | join(" ")' <<< "$PARAM")
+
+    export IDS_CORRECT
+    export IDS_INCORRECT
+    export IDS_BLANK
 
     ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK"
 
