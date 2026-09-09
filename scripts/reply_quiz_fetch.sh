@@ -35,7 +35,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         QUIZ_OUT="user_missing/quiz_gen/quiz_missing.tsv"
         QUIZ_OUT_ROOT="/var/www/dp_users/$QUIZ_OUT"
         mkdir -p "$(dirname "$QUIZ_OUT_ROOT")"
-        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\tAny Above" > "${QUIZ_OUT_ROOT}"
+        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\t\t\t\tAny Above\t\t\t\t\t\t\t\t\t\t$(uuidgen)" > "${QUIZ_OUT_ROOT}"
         jq -n --arg t "$CURRENT_TIME" --arg p "/$QUIZ_OUT" '{time: $t, path: $p}'
         exit 0
     fi
