@@ -1,54 +1,100 @@
-97f23828-8dcf-4359-ab2e-55d80af77159	You are using an Infrastructure as a Service (IaaS) offering from a cloud provider. Under the shared responsibility model, who is responsible for patching the "operating" system?	The cloud provider	The customer	Both the cloud provider and the customer equally	Neither party; the OS patches itself automatically				The customer
-5b49629a-6811-41e7-8795-e222df05ae8c	A company wants to keep sensitive financial data on infrastructure it fully controls, but also wants to use a public cloud provider's elastic compute resources during periods of unusually high demand. Which cloud deployment model best fits this requirement?	Public cloud	Private cloud	Hybrid cloud	Community cloud				Hybrid cloud
-98a35889-0006-4dcd-993a-19d9dbcac979	Which pricing model allows a customer to pay only for the compute resources they actually consume, with no upfront commitment or long-term contract?	Reserved Instances	Spot pricing	Pay-as-you-go	Capital expenditure (CapEx)				Pay-as-you-go
-c881a4eb-f1cd-4838-b025-1c662b329135	A development team wants to run short-lived, event-triggered code (e.g., resizing an image whenever it's uploaded) without provisioning or managing any servers, and only pay when the code actually runs. Which type of cloud computing model should they use?	Infrastructure as a Service (IaaS)	Platform as a Service (PaaS)	Serverless computing	Private cloud				Serverless computing
-8e18574a-b18b-4d02-8842-4dc75f8f2721	Which statement correctly describes the difference between capital expenditure (CapEx) and operational expenditure (OpEx)?	CapEx is a recurring, pay-as-you-go expense, while OpEx requires large upfront investment	CapEx requires upfront investment in physical infrastructure, while OpEx is an ongoing expense based on consumption	CapEx and OpEx are the same thing, just different accounting terms	Cloud computing always uses a CapEx model				CapEx requires upfront investment in physical infrastructure, while OpEx is an ongoing expense based on consumption
-cd6f3bfe-c67e-4544-8ad2-80d62ff4ce33	A company wants to increase the processing power of a single virtual machine by adding more CPU and memory to handle increased demand, without adding additional VMs. Which type of scaling does this describe?	Horizontal scaling (scale out)	Vertical scaling (scale up)	Auto-scaling	Load balancing				Vertical scaling (scale up)
-51131dff-75e2-47f6-826e-bb396442e348	Which Azure concept refers to a set of physically separate datacenters within a single region, each with independent power, cooling, and networking, used to protect applications from datacenter-level failures?	Region pairs	Resource groups	Availability zones	Management groups				Availability zones
-3846d45a-df1f-489c-914b-0f64e6d58973	A company needs to determine the maximum amount of data (measured in time) it can afford to lose in the event of a disaster. Which term describes this metric?	Recovery Time Objective (RTO)	Recovery Point Objective (RPO)	Service Level Agreement (SLA)	Mean Time to Recovery (MTTR)				Recovery Point Objective (RPO)
-3c8e0fb4-a515-4f29-99fb-d912e2c892c1	Which Azure tool would you use to enforce organization-wide rules, such as requiring all resources to be deployed only to specific regions or requiring cost-center tags on every resource?	Microsoft Defender for Cloud	Azure Monitor	Azure Policy	Azure Advisor				Azure Policy
-9b673d92-29a7-4dcf-b485-5da429adb5f0	Which of the following best describes "cost predictability" as a benefit of cloud computing?	The ability to guarantee that cloud costs will never increase	The ability to forecast and plan for expected cloud spending using tools like pricing calculators and budgets	The ability to eliminate all operational expenses	The ability to automatically reduce the price of reserved instances over time				The ability to forecast and plan for expected cloud spending using tools like pricing calculators and budgets
-a9cf168d-fdaf-4a62-acca-f5788b5bddd2	Which of the following is an example of managing Azure resources "through the cloud" rather than "of the cloud"?	Auto-scaling a virtual machine scale set based on CPU usage	Using the Azure Portal to create and configure a new storage account	Automatically restarting a failed VM instance	Load balancing traffic across multiple VM instances				Using the Azure Portal to create and configure a new storage account
-e23a57ab-7c8e-4ebf-89a9-a21c826ab878	A company is migrating an on-premises application to Azure. The company wants to retain full control over the operating system, including the ability to install custom software and apply specific OS-level configurations. Which cloud service type should they choose?	Software as a Service (SaaS)	Platform as a Service (PaaS)	Infrastructure as a Service (IaaS)	Function as a Service (FaaS)				Infrastructure as a Service (IaaS)
-2c73872e-e46f-4e6b-b293-d0e76a597b1d									
-7c679e44-2758-49ed-80ec-37bd4488c92b									
-51341ac5-4af3-4c8e-8a4e-13ae72eaf864									
-019e5188-bb0e-49af-ab5a-2e2c6287b146									
-99a5268d-6809-4f23-b89b-b939eddbdcca									
-6d0acf33-e556-4d53-9c3b-9197a9e60116									
-74df9874-415c-4a2f-9084-6f7b9f39efc6									
-eb451b91-251b-42a8-a70d-2fc215c8736e									
-f3f348cb-9374-40ac-a1f9-2ef8d51bb02f									
-35001fef-2d66-4969-8b47-adcb9d7f62bf									
-db307e49-2ead-4de5-bec0-b6a64306c52f									
-36708f41-1a33-4a7e-91ec-686d600b6963									
-b66ce822-80bf-4c6e-8b04-7987aedc4966									
-b78b95f3-03f4-46e3-a4ce-6dcff77b1b0c									
-0941762f-a209-4145-bbce-203fc8d32d9d									
-ffe9b799-7f3d-4374-9c21-3128ab3e983d									
-67196d59-225d-4ae4-ac91-81836163adcd									
-76b2d161-c0db-40a9-9675-a9f0401aac7d									
-fb8b6dde-ad66-4941-a330-7b3e2be036d4									
-4d2a25c7-161c-440d-80a3-a4f85345625a									
-20e9b5dc-8485-42e2-b7eb-4ef18fc79cac									
-f5718a0a-3d03-4080-92ba-6e11ec17c74c									
-1535c6eb-7ce4-4c63-918a-4aea7156a05c									
-81635d6c-005d-4c19-9bf1-459e86e03ddf									
-09153f45-cce2-4a47-b82a-2b154187e33c									
-89289bda-e6e1-4d83-b9d8-1d69ad60e2dd									
-93ba3ba4-599a-4c7b-a3e6-23be866d40f5									
-efd0e017-b3b3-48a5-9637-1b20de83a0c8									
-5ba358b2-bbb3-4dae-88c5-a3b0f07159ef									
-a9fc4661-3304-4cb7-a244-3004c15f58a5									
-75819e53-d266-48fb-8ed1-89caeac363db									
-7f1b4c85-9b73-4461-975e-2c0640fa9e26									
-b46802c2-ee66-45ef-9d3f-8b0f3952d05f									
-10648e4d-9286-4b94-b5ba-eb57be658082									
-e5e1340d-0b07-4bab-824c-b2ff5727ff9c									
-184e603d-e69c-4824-803a-44e02879aabf									
-42c69b77-ac85-418d-9615-e57abb21766d									
-8c9df955-fc7d-4242-8198-49ca603ee7eb									
-7d37b6b7-4679-4da5-9b2f-468fa1623ec2									
-362aaee5-00ae-4872-a143-84c603f672b9									
-f7d69e71-14f6-4839-afc7-8dfff3ead4ad	Which statement about Availability Zones is correct?	Availability zones protect against failures across an entire geography	Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking	Every Azure region has availability zones	Availability zones replace the need for region pairs				Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking
-349d5db3-6b0e-4dbf-9209-34233842e5b0	What happens to the resources contained within a resource group if that resource group is deleted?	The resources are moved to the default resource group automatically	The resources are deleted along with the resource group	The resources remain but become inaccessible	Azure prevents the resource group from being deleted if it contains resources				The resources are deleted along with the resource group
+05fbaf5d-950c-4d87-9ccc-5969166fa807	You are using an Infrastructure as a Service (IaaS) offering from a cloud provider. Under the shared responsibility model, who is responsible for patching the "operating" system?	The cloud provider	The customer	Both the cloud provider and the customer equally	Neither party; the OS patches itself automatically					The customer										ref-id
+45af4ac4-aedc-4dc8-b2a9-d2a02f25c3dc	A company wants to keep sensitive financial data on infrastructure it fully controls, but also wants to use a public cloud provider's elastic compute resources during periods of unusually high demand. Which cloud deployment model best fits this requirement?	Public cloud	Private cloud	Hybrid cloud	Community cloud					Hybrid cloud										ref-id
+b4c2aace-5c9d-490b-bcbb-8b55433ec33c	Which pricing model allows a customer to pay only for the compute resources they actually consume, with no upfront commitment or long-term contract?	Reserved Instances	Spot pricing	Pay-as-you-go	Capital expenditure (CapEx)					Pay-as-you-go										ref-id
+81494d4f-fb59-4307-a740-262b9f3b1cf8	A development team wants to run short-lived, event-triggered code (e.g., resizing an image whenever it's uploaded) without provisioning or managing any servers, and only pay when the code actually runs. Which type of cloud computing model should they use?	Infrastructure as a Service (IaaS)	Platform as a Service (PaaS)	Serverless computing	Private cloud					Serverless computing										ref-id
+fdb2c1dc-63c8-401a-879f-df7c322111e8	Which statement correctly describes the difference between capital expenditure (CapEx) and operational expenditure (OpEx)?	CapEx is a recurring, pay-as-you-go expense, while OpEx requires large upfront investment	CapEx requires upfront investment in physical infrastructure, while OpEx is an ongoing expense based on consumption	CapEx and OpEx are the same thing, just different accounting terms	Cloud computing always uses a CapEx model					CapEx requires upfront investment in physical infrastructure, while OpEx is an ongoing expense based on consumption										ref-id
+6756f648-dc0f-4e5b-8f9d-6af5e536eff3	A company wants to increase the processing power of a single virtual machine by adding more CPU and memory to handle increased demand, without adding additional VMs. Which type of scaling does this describe?	Horizontal scaling (scale out)	Vertical scaling (scale up)	Auto-scaling	Load balancing					Vertical scaling (scale up)										ref-id
+1a18b17e-45c1-437c-bba2-250c2f0a17a1	Which Azure concept refers to a set of physically separate datacenters within a single region, each with independent power, cooling, and networking, used to protect applications from datacenter-level failures?	Region pairs	Resource groups	Availability zones	Management groups					Availability zones										ref-id
+ed5991a7-917f-4168-b868-151dc729ab3c	A company needs to determine the maximum amount of data (measured in time) it can afford to lose in the event of a disaster. Which term describes this metric?	Recovery Time Objective (RTO)	Recovery Point Objective (RPO)	Service Level Agreement (SLA)	Mean Time to Recovery (MTTR)					Recovery Point Objective (RPO)										ref-id
+396dcd07-2812-4e01-98b8-c07abbed4280	Which Azure tool would you use to enforce organization-wide rules, such as requiring all resources to be deployed only to specific regions or requiring cost-center tags on every resource?	Microsoft Defender for Cloud	Azure Monitor	Azure Policy	Azure Advisor					Azure Policy										ref-id
+74c6251b-310d-4327-9abd-1e20403c4b0a	Which of the following best describes "cost predictability" as a benefit of cloud computing?	The ability to guarantee that cloud costs will never increase	The ability to forecast and plan for expected cloud spending using tools like pricing calculators and budgets	The ability to eliminate all operational expenses	The ability to automatically reduce the price of reserved instances over time					The ability to forecast and plan for expected cloud spending using tools like pricing calculators and budgets										ref-id
+3d920dd1-2ca3-42eb-8650-ab1c81e953b0	Which of the following is an example of managing Azure resources "through the cloud" rather than "of the cloud"?	Auto-scaling a virtual machine scale set based on CPU usage	Using the Azure Portal to create and configure a new storage account	Automatically restarting a failed VM instance	Load balancing traffic across multiple VM instances					Using the Azure Portal to create and configure a new storage account										ref-id
+af0fa95e-f5f0-425c-98f7-a659eb0256a9	A company is migrating an on-premises application to Azure. The company wants to retain full control over the operating system, including the ability to install custom software and apply specific OS-level configurations. Which cloud service type should they choose?	Software as a Service (SaaS)	Platform as a Service (PaaS)	Infrastructure as a Service (IaaS)	Function as a Service (FaaS)					Infrastructure as a Service (IaaS)										ref-id
+0208d327-7e96-42c0-9720-eb54397cfc72	Which statement about Availability Zones is correct?	Availability zones protect against failures across an entire geography	Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking	Every Azure region has availability zones	Availability zones replace the need for region pairs					Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking										ref-id
+e50bb5ea-23a0-4e47-9d82-7f3866b470b3	What happens to the resources contained within a resource group if that resource group is deleted?	The resources are moved to the default resource group automatically	The resources are deleted along with the resource group	The resources remain but become inaccessible	Azure prevents the resource group from being deleted if it contains resources					The resources are deleted along with the resource group										ref-id
+9695242f-6ac3-432b-9b3b-b9167bea2c8f	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+6959ebb1-b168-4fcc-8c93-9a898029e657	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+1d5d7605-4e90-4706-a4ee-86ecb25c3cca	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+b15ca539-af90-4e44-8ace-6afb6703ea92	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+6cd69765-849f-4052-b6af-cf201b2bcf51	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+bf41b4c4-7f85-483a-ba21-e83f57c481ae	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+1a9e74ce-2a04-4bb0-8a95-4d1bf512abbe	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+13786de3-f435-4117-8855-0882e35dcf13	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+e85f5179-4197-484d-a05c-09ff35f8af57	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+b0da6bdd-e898-4e9f-9425-08a0f0cebafe	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+324bc2f4-1877-43c2-ac25-db76a253ae43	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+c4bf2e70-8e06-43ca-8bc1-7d74657bf10f	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+53df41e2-6b42-4efd-9ec5-bc57bd19c5ff	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+131617ce-698d-4fca-91e5-e90046a95495	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+74858419-ac83-4d71-83a7-9598d76b3360	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+051466b7-355b-4f85-a5d3-f6679ee1a33d	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+f9661af4-0d58-4dc3-93ea-ffc495d36aa3	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+99dd28c1-c235-4564-b821-477508a414e8	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+a0f7e288-355f-41a6-91c2-05e8cfcf47ef	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+aca577dd-b609-400c-816a-c3476d2b1c2f	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+0810d03c-dba6-4277-b019-ffe0b42d6190	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+aecb0adf-1daa-4cac-b5cb-d19988c14c96	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+2aad4339-aaaf-405d-9cfe-b9a7b7fb28e7	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+bb0dd051-1b96-4328-8f21-afbee6916ce3	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+470ee362-d30f-415c-9588-6b0c39d5e1a9	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+3030145f-d74d-482f-8ac5-3db8aa851e09	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+34de8fc2-7be3-4771-b72a-9d6c921c9a21	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+3189a4a3-dba9-4db0-a8f8-e7f84e1cb788	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+8c273f69-c3fd-4b99-9e34-7b01af8a777e	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+5f997179-bff0-4737-98fe-b880047ddb5d	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+e1c07074-b9d4-46bf-9227-6b98a31668c4	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+d85dbd8f-6fd7-4c9f-9651-6500984527fc	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+18dad7a9-a6e3-4a79-9375-199509b7648b	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+91789ede-9335-4ec5-bdae-ffae99b9dccc	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+1e657b02-4ddc-4cd5-b7ab-5fbbcfe916ed	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+bd664062-804b-40cd-ba0e-39e6af048614	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+76008444-4be5-4321-99a2-7ee389ce2af8	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+30139069-b069-4d94-8ae2-ba3dad52efb2	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+62bc8ad4-4517-4fac-a51b-9c645be42c3c	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+69db8c54-6778-42bf-a8b5-e6707e3fb3c4	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+d86cf62c-092d-4b3a-bcc3-02eab36a2446	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+8aa0ec33-8b14-423d-868c-b1310354a06e	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+0aec50be-9590-4890-8ca5-84917cce6c6d	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+7e686103-72fb-4c74-bc71-7de6546a0051	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+3acb638b-b479-4b88-aa36-6d7b0d933b6c	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+da44e899-4d06-47d5-bbe8-4521ead3672c	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+a90eff36-b2a0-445c-a6de-fbcb05ff3611	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+df9eea1f-e931-4c1e-9e6c-d393b7af90ce	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+8f996b63-d7cf-49c7-8716-32b25fc103f6	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+a459f9e6-1c33-492c-a4af-dfd91f783d6b	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+5271607b-e8fb-4113-9369-917672e22e60	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+6f5360f9-2050-4fb2-90b5-8094d6cf8ffa	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+43f840c1-a9e7-48ae-a547-d1deb41f3f54	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+c4525586-0d37-4878-89ca-1e2672a342fd	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+5fd5335f-0751-4251-83c9-0f7913a2593d	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+34c26252-1ee3-4807-87b8-6d96f6554a40	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+b59eeb10-9989-4dfc-8bfb-07be5bd0eda8	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+dded089a-1fd9-43a0-88b6-ccaae628e457	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+4138500b-89ef-479d-b7c0-1c8ecc41a510	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+93d37e2c-1316-462c-90b4-43f2d82496f5	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+ac030efa-2be9-4d99-954e-40a462d01456	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+ce21bf45-1a79-414f-b997-7a0a9df052a4	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+3e06a5e6-a22e-4031-a452-db1eda908988	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+96ca05c2-2ef2-47f8-a657-3e91b3f02cce	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+5e732b5e-a0df-440a-85a9-2ba668fe5a42	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+ef89a6fa-d80f-442d-8215-78b0d83ccf16	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+abde52ae-4cf5-4143-bc53-ff4bc073c391	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+2d155c77-706a-41d9-a2e8-9117b296adfc	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+ba5477ec-0e0f-4529-9acf-79cfbbe555ef	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+874dacbc-0ea3-48ac-9589-e4662c3c8d71	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+fbd5fa8c-6197-4379-8c07-17e4267db36e	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+a5b3a9e2-8bee-4f77-8e51-4cd7ad9d44f1	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+9693175e-4c04-432e-a874-e7f3561696d9	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+7e7d1cc5-045f-4d65-879f-a9bb3bd5dc5a	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+c330f426-b840-46ca-a00f-2492aff77ece	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+ed840ba1-c8c5-4ff9-9f2a-52e9750b888b	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+29af0c58-3325-40c6-b8a4-be206534e890	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+7c946e5b-f0f0-4a7a-9992-45464305d4e9	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+f0ba04ec-4f86-4f88-a3b2-f777f8511980	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+1b871ec8-55c7-4811-a2b6-4b4aca892630	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+a027c807-9e09-4f6d-8cda-b601678decec	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+da7ad5da-f476-4e0d-a4fd-122ea0115ca5	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+fa395bc5-e023-47fd-8fd9-df4919873995	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+c0aabb90-7f88-42a2-92a7-24fb2d6a20d2	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+cde82814-b80d-4472-a059-aab001f14b46	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
+582f3a9c-63e9-4c12-a323-2e12f7561ef9	quiz	opt1	opt2	opt3	opt4					ans1										ref-id
