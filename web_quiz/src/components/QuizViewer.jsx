@@ -18,8 +18,8 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                // 索引含义：0: GUID, 1: 题干, 2-5: A-D选项内容, 6: 答案文本内容
-                const [id, question, optA, optB, optC, optD, _, answer] = fields;
+                // 索引含义：0: GUID; 1: 题干; 2-9: A-H 选项内容, 10-17: 答案内容; 20: REF ID
+                const [id, question, optA, optB, optC, optD, optE, optF, optG, optH, ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8, _1, _2, ref_id] = fields;
                 return {
                     id,
                     question,
@@ -29,7 +29,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
                         { label: "C", text: optC },
                         { label: "D", text: optD },
                     ].filter((opt) => opt.text),
-                    correctAnswerText: answer || undefined,
+                    correctAnswer: ans1 || undefined,
                 };
             });
     }, [fileContent]);
@@ -48,7 +48,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
         if (!submitted) return 0;
         return questions.reduce((acc, q) => {
             const userChoice = userAnswers[q.id];
-            if (q.correctAnswerText && userChoice && userChoice.text.trim() === q.correctAnswerText.trim()) {
+            if (q.correctAnswer && userChoice && userChoice.text.trim() === q.correctAnswer.trim()) {
                 return acc + 1;
             }
             return acc;
@@ -71,7 +71,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
                 const userChoice = userAnswers[q.id];
                 if (!userChoice) {
                     blank.push(q.id);
-                } else if (q.correctAnswerText && userChoice.text.trim() === q.correctAnswerText.trim()) {
+                } else if (q.correctAnswer && userChoice.text.trim() === q.correctAnswer.trim()) {
                     correct.push(q.id);
                 } else {
                     incorrect.push(q.id);
@@ -101,8 +101,8 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
 
             {questions.map((q, index) => {
                 const selected = userAnswers[q.id];
-                const isCorrect = submitted && selected && q.correctAnswerText && selected.text.trim() === q.correctAnswerText.trim();
-                const isWrong = submitted && selected && q.correctAnswerText && selected.text.trim() !== q.correctAnswerText.trim();
+                const isCorrect = submitted && selected && q.correctAnswer && selected.text.trim() === q.correctAnswer.trim();
+                const isWrong = submitted && selected && q.correctAnswer && selected.text.trim() !== q.correctAnswer.trim();
 
                 return (
                     <div key={q.id} style={style_Card}>
@@ -111,7 +111,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
                         <div style={style_OptionsContainer}>
                             {q.options.map((opt) => {
                                 const isOptionSelected = selected?.label === opt.label;
-                                const isThisOptionCorrect = q.correctAnswerText && opt.text.trim() === q.correctAnswerText.trim();
+                                const isThisOptionCorrect = q.correctAnswer && opt.text.trim() === q.correctAnswer.trim();
                                 const optionStyle = style_Option({ submitted, isOptionSelected, isThisOptionCorrect, });
                                 return (
                                     <label key={opt.label} style={optionStyle}>
@@ -131,11 +131,11 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
                             })}
                         </div>
 
-                        {submitted && q.correctAnswerText && (
+                        {submitted && q.correctAnswer && (
                             <div style={{ marginTop: "12px", fontSize: "14px" }}>
                                 {isCorrect && (<span style={{ color: "#28a745", fontWeight: "bold" }}> ✓ 正确 </span>)}
-                                {isWrong && (<span style={{ color: "#dc3545" }}> ✕ 错误 正确答案：<strong> {q.correctAnswerText} </strong> </span>)}
-                                {!selected && (<span style={{ color: "#6c757d" }}> 未作答 正确答案：<strong> {q.correctAnswerText} </strong> </span>)}
+                                {isWrong && (<span style={{ color: "#dc3545" }}> ✕ 错误 正确答案：<strong> {q.correctAnswer} </strong> </span>)}
+                                {!selected && (<span style={{ color: "#6c757d" }}> 未作答 正确答案：<strong> {q.correctAnswer} </strong> </span>)}
                             </div>
                         )}
                     </div>

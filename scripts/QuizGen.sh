@@ -53,7 +53,7 @@ fi
 # fi
 
 awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" -F '\t' '
-function shuffle(arr, n,    i, j, tmp) {
+function shuffle(arr, n, i, j, tmp) {
     # Fisher-Yates 洗牌算法
     for (i = n; i > 1; i--) {
         j = int(rand() * i) + 1
@@ -74,11 +74,12 @@ BEGIN {
     cand_count = 0
 }
 
-NF >= 10 && $3 != "" {
+NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
 
     if ($1 in map_exc) next
 
     if ($1 in map_inc) {
+
         inc_count++
         inc_pool[inc_count] = $0
         inc_pool_f1[inc_count] = $1
@@ -91,8 +92,20 @@ NF >= 10 && $3 != "" {
         inc_pool_f8[inc_count] = $8
         inc_pool_f9[inc_count] = $9
         inc_pool_f10[inc_count] = $10
+        inc_pool_f11[inc_count] = $11
+        inc_pool_f12[inc_count] = $12
+        inc_pool_f13[inc_count] = $13
+        inc_pool_f14[inc_count] = $14
+        inc_pool_f15[inc_count] = $15
+        inc_pool_f16[inc_count] = $16
+        inc_pool_f17[inc_count] = $17
+        inc_pool_f18[inc_count] = $18
+        inc_pool_f19[inc_count] = $19
+        inc_pool_f20[inc_count] = $20
+        inc_pool_f21[inc_count] = $21
 
     } else {
+
         cand_count++
         cand_pool[cand_count] = $0
         cand_pool_f1[cand_count] = $1
@@ -105,6 +118,17 @@ NF >= 10 && $3 != "" {
         cand_pool_f8[cand_count] = $8
         cand_pool_f9[cand_count] = $9
         cand_pool_f10[cand_count] = $10
+        cand_pool_f11[cand_count] = $11
+        cand_pool_f12[cand_count] = $12
+        cand_pool_f13[cand_count] = $13
+        cand_pool_f14[cand_count] = $14
+        cand_pool_f15[cand_count] = $15
+        cand_pool_f16[cand_count] = $16
+        cand_pool_f17[cand_count] = $17
+        cand_pool_f18[cand_count] = $18
+        cand_pool_f19[cand_count] = $19
+        cand_pool_f20[cand_count] = $20
+        cand_pool_f21[cand_count] = $21
     }
 }
 
@@ -118,10 +142,24 @@ END {
         opt[2] = inc_pool_f4[i]
         opt[3] = inc_pool_f5[i]
         opt[4] = inc_pool_f6[i]
-        ans = inc_pool_f10[i]
+        opt[5] = inc_pool_f7[i]
+        opt[6] = inc_pool_f8[i]
+        opt[7] = inc_pool_f9[i]
+        opt[8] = inc_pool_f10[i]
+        ans[1] = inc_pool_f11[i]
+        ans[2] = inc_pool_f12[i]
+        ans[3] = inc_pool_f13[i]
+        ans[4] = inc_pool_f14[i]
+        ans[5] = inc_pool_f15[i]
+        ans[6] = inc_pool_f16[i]
+        ans[7] = inc_pool_f17[i]
+        ans[8] = inc_pool_f18[i]
+        rid = inc_pool_f21[i]
 
         shuffle(opt, 4)
-        printf "%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", id, quiz, opt[1], opt[2], opt[3], opt[4], ans
+
+        #       id	qz	o1	o2	o3	o4	o5	o6	o7	o8	a1	a2	a3	a4	a5	a6	a7	a8	rid
+        printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
 
         printed++
     }
@@ -137,10 +175,24 @@ END {
             opt[2] = cand_pool_f4[j]
             opt[3] = cand_pool_f5[j]
             opt[4] = cand_pool_f6[j]
-            ans = cand_pool_f10[j]
+            opt[5] = cand_pool_f7[j]
+            opt[6] = cand_pool_f8[j]
+            opt[7] = cand_pool_f9[j]
+            opt[8] = cand_pool_f10[j]
+			ans[1] = cand_pool_f11[j]
+			ans[2] = cand_pool_f12[j]
+			ans[3] = cand_pool_f13[j]
+			ans[4] = cand_pool_f14[j]
+			ans[5] = cand_pool_f15[j]
+			ans[6] = cand_pool_f16[j]
+			ans[7] = cand_pool_f17[j]
+			ans[8] = cand_pool_f18[j]
+			rid = cand_pool_f21[j]
 
             shuffle(opt, 4)
-            printf "%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", id, quiz, opt[1], opt[2], opt[3], opt[4], ans
+
+            #       id	qz	o1	o2	o3	o4	o5	o6	o7	o8	a1	a2	a3	a4	a5	a6	a7	a8	rid
+            printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
         }
     }
 
