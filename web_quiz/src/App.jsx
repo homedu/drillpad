@@ -2,20 +2,21 @@ import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { style_App, style_ErrorBox, style_FetchBtn, style_Input } from "./styles.js";
-import { useNatsFetch, QuizFetchError } from "./hooks/useNatsFetch.js";
+import { useNatsFetch, QuizFetchError, QuizListError } from "./hooks/useNatsFetch.js";
 import "./utils/str.js";
 
 function App() {
     const [fileContent, setFileContent] = useState("");
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
-    const { status, loading, connError, fetch_quiz } = useNatsFetch();
+    const { status, loading, connError, fetch_quiz, list_quiz } = useNatsFetch();
     const [user, setUser] = useState("");
-    const [quiz, setQuiz] = useState("");
+    const [selectedQuiz, setSelectedQuiz] = useState('');
+    const [quizList, setQuizList] = useState([]);
     const [count, setCount] = useState(5);
 
     const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
-    const canFetch = !loading && user.trim() !== "" && quiz.trim() !== "" && isCountValid;
+    const canFetch = !loading && user.trim() !== "" && selectedQuiz.trim() !== "" && isCountValid;
 
     const handleCountChange = (e) => {
         const value = e.target.value;
@@ -39,7 +40,7 @@ function App() {
             // 会变成未处理的 Promise rejection，用户完全看不到任何错误提示
             const text = await fetch_quiz(
                 user,
-                quiz,
+                selectedQuiz,
                 count,
                 ["5b49629a-6811-41e7-8795-e222df05ae8c", "98a35889-0006-4dcd-993a-19d9dbcac979"],
                 ["c881a4eb-f1cd-4838-b025-1c662b329135"]
@@ -67,18 +68,23 @@ function App() {
 
             <input
                 value={user}
-                onChange={(e) => setUser(e.target.value)}
+                onChange={(e) => { setUser(e.target.value) }}
+                onKeyDown={async (e) => { if (e.key === 'Enter') { setQuizList(await list_quiz(e.target.value)); e.target.blur(); } }}
                 placeholder="用户名"
                 style={{ ...style_Input, width: '150px' }}
                 disabled={loading}
             />
-            <input
-                value={quiz}
-                onChange={(e) => setQuiz(e.target.value)}
-                placeholder="题库"
-                style={{ ...style_Input, width: '150px' }}
-                disabled={loading}
-            />
+
+            <select
+                value={selectedQuiz}
+                onChange={(e) => setSelectedQuiz(e.target.value)}
+                disabled={loading || quizList.length === 0}
+                style={{ ...style_Input, width: '150px', borderRadius: '4px' }}
+            >
+                <option value="" disabled hidden>请选择选项</option>
+                {(quizList != undefined && quizList != null) && quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+            </select>
+
             <input
                 type="number"
                 min="1"
@@ -87,6 +93,7 @@ function App() {
                 style={{ ...style_Input, width: '50px' }}
                 disabled={loading}
             />
+
             <button
                 onClick={fetchQuiz}
                 disabled={loading || !canFetch}
@@ -102,7 +109,7 @@ function App() {
                 <QuizViewer
                     key={quizKey}
                     user={user}
-                    quiz={quiz}
+                    quiz={selectedQuiz}
                     fileContent={fileContent}
                     onReset={handleResetQuiz}
                 />

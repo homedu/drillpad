@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import { T_QUIZ_LIST, T_QUIZ_FETCH, T_ANS_REC } from "./topic";
 import {
     getNatsConnection,
-    reqJSON,
+    reqNATS,
     closeNats,
     NatsConnectError,
     NatsNotConnectedError,
@@ -30,6 +31,14 @@ export class QuizFetchError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "QuizFetchError";
+        this.stage = stage;
+    }
+}
+
+export class QuizListError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuizListError";
         this.stage = stage;
     }
 }
@@ -134,7 +143,7 @@ export function useNatsFetch() {
         // 1) 通过 NATS 请求获取文件路径
         setLoading(true);
         try {
-            const result = await reqJSON("fetch-quiz", payload, { timeout: 10000 }); // 按需修改 topic
+            const result = await reqNATS(T_QUIZ_FETCH, payload, { timeout: 10000 });
             if (result === null || !result.path) {
                 // 请求成功但响应内容不符合预期，也算作一种"响应格式错误"
                 throw new NatsResponseParseError(
@@ -179,7 +188,7 @@ export function useNatsFetch() {
 
         setLoading(true);
         try {
-            const result = await reqJSON("record-answer", payload, { timeout: 10000 });
+            const result = await reqNATS(T_ANS_REC, payload, { timeout: 10000 });
             if (result === null || !result.status) {
                 // 请求成功但响应内容不符合预期，也算作一种"响应格式错误"
                 throw new NatsResponseParseError(
@@ -198,7 +207,30 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, fetch_quiz, record_answer };
+    const list_quiz = useCallback(async (user) => {
+        const payload = user;
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QUIZ_LIST, payload, { timeout: 10000 });
+            if (!Array.isArray(result)) {
+                throw new NatsResponseParseError(
+                    "返回非数组,格式错误",
+                    JSON.stringify(result)
+                );
+            };
+            return result
+        } catch (err) {
+            throw new QuizListError(
+                `获取题目列表失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    return { status, loading, connError, fetch_quiz, record_answer, list_quiz };
 }
 
 if (import.meta.hot) {

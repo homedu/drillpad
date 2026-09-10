@@ -24,7 +24,7 @@ ts=$(date '+%Y-%m-%d %H:%M:%S')
 
 # # echo "--- IDS_CORRECT ---"
 # for item in "${IDS_CORRECT[@]}"; do
-# # [quiz id] (if same id, ignore recording)
+# # [quiz id] [last timestamp] (if same id, ignore recording)
 # echo "$item" >> $REC_CORRECT
 # done
 
@@ -47,7 +47,7 @@ ts=$(date '+%Y-%m-%d %H:%M:%S')
 # 把待处理数组转成多行文本，交给 awk 一次性处理
 ids_str=$(printf '%s\n' "${IDS_CORRECT[@]}")
 
-awk -v ids_str="$ids_str" '
+awk -v ts="$ts" -v ids_str="$ids_str" '
     BEGIN {
         FS = OFS = "\t"
         n = split(ids_str, arr, "\n")
@@ -63,7 +63,7 @@ awk -v ids_str="$ids_str" '
     }
     END {
         # 剩下 want 里还留着的，就是原文件里没有的，需要追加
-        for (uuid in want) print uuid
+        for (uuid in want) print uuid, ts
     }
 ' "$REC_CORRECT" > "${REC_CORRECT}.tmp" && mv "${REC_CORRECT}.tmp" "$REC_CORRECT"
 
@@ -95,8 +95,8 @@ awk -v ts="$ts" -v incr_str="$incr_list" '
     }
     {
         if ($1 in add) {
-            $2 = $2 + add[$1]
-            $3 = ts
+            $2 = ts
+            $3 = $3 + add[$1]
             seen[$1] = 1
         }
         print
@@ -104,7 +104,7 @@ awk -v ts="$ts" -v incr_str="$incr_list" '
     END {
         for (uuid in add) {
             if (!(uuid in seen)) {
-                print uuid, add[uuid], ts
+                print uuid, ts, add[uuid]
             }
         }
     }

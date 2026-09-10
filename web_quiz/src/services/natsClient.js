@@ -128,7 +128,7 @@ function isConnected() {
  * 出现异常时，会按类型 throw 对应的 Nats*Error 子类，调用方可以精确捕获：
  *
  *   try {
- *     const data = await reqJSON("foo.bar", { a: 1 });
+ *     const data = await reqNATS("foo.bar", { a: 1 });
  *   } catch (err) {
  *     if (err instanceof NatsRequestTimeoutError) { ... 超时重试 ... }
  *     else if (err instanceof NatsNoRespondersError) { ... 服务未启动提示 ... }
@@ -137,7 +137,7 @@ function isConnected() {
  *     else { ... 兜底 ... }
  *   }
  */
-export async function reqJSON(subject, payload, opts = { timeout: 10000 }) {
+export async function reqNATS(subject, payload, opts = { timeout: 10000 }) {
     if (!subject || typeof subject !== "string") {
         throw new NatsRequestFailedError(`非法的 subject: ${String(subject)}`);
     }
@@ -153,7 +153,7 @@ export async function reqJSON(subject, payload, opts = { timeout: 10000 }) {
 
     let body;
     try {
-        body = JSON.stringify(payload);
+        body = typeof payload === 'string' ? payload : JSON.stringify(payload);
     } catch (err) {
         throw new NatsRequestFailedError(
             `请求 payload 序列化失败: ${err.message}`,
@@ -210,7 +210,7 @@ export async function reqJSON(subject, payload, opts = { timeout: 10000 }) {
         }
     }
 
-    console.log(rawMsg);
+    console.log("NATS RawMsg:", rawMsg);
 
     if (rawMsg === undefined || rawMsg === null || rawMsg === "") {
         return null;
