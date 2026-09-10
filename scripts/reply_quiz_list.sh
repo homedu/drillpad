@@ -23,7 +23,7 @@ QUIZ_LIST=$(find "./users/$USER/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n
 if [[ -z "$QUIZ_LIST" ]]; then
     echo "[]"
 else
-    awk -F. '{printf"%s\n", $1}' <<< "$QUIZ_LIST" | jq -R -s 'split("\n") | map(select(length>0))'
+    awk -F. '{print $1}' <<< "$QUIZ_LIST" | jq -R -s 'split("\n") | map(select(length>0))'
 fi
 
 # topic: quiz-list

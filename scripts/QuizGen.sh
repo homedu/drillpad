@@ -52,7 +52,7 @@ fi
 # exit 1
 # fi
 
-awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" -F '\t' '
+awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" '
 function shuffle(arr, n, i, j, tmp) {
     # Fisher-Yates 洗牌算法
     for (i = n; i > 1; i--) {
@@ -64,6 +64,9 @@ function shuffle(arr, n, i, j, tmp) {
 }
 
 BEGIN {
+
+    FS = OFS = "\t"
+
     split(ids_inc, arr_inc, " ")
     for (i in arr_inc) { map_inc[arr_inc[i]] = 1 }
 
@@ -158,8 +161,7 @@ END {
 
         shuffle(opt, 4)
 
-        #       id	qz	o1	o2	o3	o4	o5	o6	o7	o8	a1	a2	a3	a4	a5	a6	a7	a8	rid
-        printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
+        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
 
         printed++
     }
@@ -191,8 +193,7 @@ END {
 
             shuffle(opt, 4)
 
-            #       id	qz	o1	o2	o3	o4	o5	o6	o7	o8	a1	a2	a3	a4	a5	a6	a7	a8	rid
-            printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
+            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
         }
     }
 
