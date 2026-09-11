@@ -20,14 +20,14 @@ export const style_Input = {
     lineHeight: 'normal',
 }
 
-export const style_FetchBtn = (loading) => ({
+export const style_FetchBtn = (canFetch) => ({
     padding: "12px 12px",
     background: "#0070f3",
     color: "#fff",
     border: "none",
     borderRadius: "6px",
-    cursor: loading ? "not-allowed" : "pointer",
-    opacity: loading ? 0.6 : 1,
+    cursor: canFetch ? "pointer" : "not-allowed",
+    opacity: canFetch ? 1 : 0.6,
 });
 
 export const style_ErrorBox = {

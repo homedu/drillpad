@@ -26,9 +26,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     fi
 
     # arg
-    REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}-correct.tsv"
-    REC_INCORRECT="${DIR_USER}/answer_record/${QUIZ}-incorrect.tsv"
-    REC_BLANK="${DIR_USER}/answer_record/${QUIZ}-blank.tsv"
+    REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}/correct.tsv"
+    REC_INCORRECT="${DIR_USER}/answer_record/${QUIZ}/incorrect.tsv"
+    REC_BLANK="${DIR_USER}/answer_record/${QUIZ}/blank.tsv"
 
     mkdir -p "$(dirname "$REC_CORRECT")"
     mkdir -p "$(dirname "$REC_INCORRECT")"

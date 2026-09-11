@@ -13,7 +13,7 @@ function App() {
     const [user, setUser] = useState("");
     const [selectedQuiz, setSelectedQuiz] = useState('');
     const [quizList, setQuizList] = useState([]);
-    const [count, setCount] = useState(5);
+    const [count, setCount] = useState(10);
 
     const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
     const canFetch = !loading && user.trim() !== "" && selectedQuiz.trim() !== "" && isCountValid;
@@ -42,8 +42,6 @@ function App() {
                 user,
                 selectedQuiz,
                 count,
-                ["5b49629a-6811-41e7-8795-e222df05ae8c", "98a35889-0006-4dcd-993a-19d9dbcac979"],
-                ["c881a4eb-f1cd-4838-b025-1c662b329135"]
             );
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
@@ -91,13 +89,13 @@ function App() {
                 value={count}
                 onChange={handleCountChange}
                 style={{ ...style_Input, width: '50px' }}
-                disabled={loading}
+                disabled={loading || !selectedQuiz}
             />
 
             <button
                 onClick={fetchQuiz}
-                disabled={loading || !canFetch}
-                style={{ ...style_Input, ...style_FetchBtn(loading), width: '120px' }}
+                disabled={!canFetch}
+                style={{ ...style_Input, ...style_FetchBtn(canFetch), width: '120px' }}
             >
                 {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
             </button>

@@ -136,3 +136,9 @@ awk -v ids_str="$ids_str" '
         for (uuid in want) print uuid
     }
 ' "$REC_BLANK" > "${REC_BLANK}.tmp" && mv "${REC_BLANK}.tmp" "$REC_BLANK"
+
+# update REC_CORRECT, REC_INCORRECT, REC_BLANK files #
+# ####################################################
+# if correct id exists, and same id exists in blank file, remove it from blank file
+# if correct id exists, and same id exists in incorrect file and its count is greater than 1, then decrement its count by 1, and remove it from correct file
+# if correct id exists, and same id exists in incorrect file and its count is 1, then remove it from incorrect file, and keep it in correct file

@@ -35,14 +35,20 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         QUIZ_OUT="user_missing/quiz_gen/quiz_missing.tsv"
         QUIZ_OUT_ROOT="/var/www/dp_users/$QUIZ_OUT"
         mkdir -p "$(dirname "$QUIZ_OUT_ROOT")"
-        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\t\t\t\tAny Above\t\t\t\t\t\t\t\t\t\t$(uuidgen)" > "${QUIZ_OUT_ROOT}"
+        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\t\t\t\tAny Above\t\t\t\t\t\t\t\t$(uuidgen)" > "${QUIZ_OUT_ROOT}"
         jq -n --arg t "$CURRENT_TIME" --arg p "/$QUIZ_OUT" '{time: $t, path: $p}'
         exit 0
     fi
 
-    # env
-    IDS_INC=$(jq -r '.include | join(" ")' <<< "$PARAM")
-    IDS_EXC=$(jq -r '.exclude | join(" ")' <<< "$PARAM")
+    # env (get those from /answer_record/, rather than from the request)
+    REC_CORRECT="./users/${USER}/answer_record/${QUIZ}/correct.tsv"
+    REC_INCORRECT="./users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
+    REC_BLANK="./users/${USER}/answer_record/${QUIZ}/blank.tsv"
+
+    IDS_INC_1=$(cat "$REC_INCORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+    IDS_INC_2=$(cat "$REC_BLANK" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+    IDS_INC="${IDS_INC_1} ${IDS_INC_2}"
+    IDS_EXC=$(cat "$REC_CORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
 
     export IDS_INC
     export IDS_EXC
