@@ -10,13 +10,22 @@ function App() {
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
     const { status, loading, connError, fetch_quiz, list_quiz } = useNatsFetch();
+
     const [user, setUser] = useState("");
-    const [selectedQuiz, setSelectedQuiz] = useState('');
     const [quizList, setQuizList] = useState([]);
+    const [selectedQuiz, setSelectedQuiz] = useState('');
     const [count, setCount] = useState(10);
 
+    const [disabledMap, setDisabledMap] = useState({
+        usernameInput: false,  // 用户名输入框
+        quizSelect: false,     // 题目下拉框
+        countInput: false,     // 题目数量输入框
+        submitBtn: false       // 提交按钮
+    });
+
     const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
-    const canFetch = !loading && user.trim() !== "" && selectedQuiz.trim() !== "" && isCountValid;
+    const hasQuizList = quizList?.length > 0;
+    const canFetch = !loading && user.trim() !== "" && hasQuizList && selectedQuiz.trim() !== "" && isCountValid;
 
     const handleCountChange = (e) => {
         const value = e.target.value;
@@ -45,6 +54,16 @@ function App() {
             );
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
+
+            // 开始作答，不可再更改用户输入
+            setDisabledMap(prev => ({
+                ...prev,
+                usernameInput: true,
+                quizSelect: true,
+                countInput: true,
+                submitBtn: true,
+            }))
+
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
             // 翻译成了可读的中文提示（并区分了 stage: request / fetch），直接展示即可
@@ -57,6 +76,16 @@ function App() {
 
     // 彻底清空并重新初始化作答
     const handleResetQuiz = () => { setQuizKey((prev) => prev + 1); };
+    const handleOnSubmit = () => {
+        // 开始作答，不可再更改用户输入
+        setDisabledMap(prev => ({
+            ...prev,
+            // usernameInput: false,
+            quizSelect: false,
+            countInput: false,
+            submitBtn: false,
+        }))
+    };
 
     return (
         <div style={style_App}>
@@ -67,20 +96,36 @@ function App() {
             <input
                 value={user}
                 onChange={(e) => { setUser(e.target.value) }}
-                onKeyDown={async (e) => { if (e.key === 'Enter') { setQuizList(await list_quiz(e.target.value)); e.target.blur(); } }}
-                placeholder="用户名"
-                style={{ ...style_Input, width: '150px' }}
-                disabled={loading}
+                // onBlur={async (e) => { setQuizList(await list_quiz(e.target.value)); }}
+
+                onKeyDown={async (e) => {
+                    if (e.key === 'Enter') {
+                        setQuizList(await list_quiz(e.target.value));
+                        if (!hasQuizList) {
+                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
+                            setFileContent(""); // 如果没有题库，清空上一次的作答内容
+                        }
+                        e.target.blur();
+                    }
+                }}
+                placeholder="输入用户名选择题目"
+                style={{ ...style_Input, width: '180px' }}
+                disabled={loading || disabledMap.usernameInput}
             />
 
             <select
+                key={user}
                 value={selectedQuiz}
                 onChange={(e) => setSelectedQuiz(e.target.value)}
-                disabled={loading || quizList.length === 0}
-                style={{ ...style_Input, width: '150px', borderRadius: '4px' }}
+                disabled={loading || !hasQuizList || disabledMap.quizSelect}
+                style={{ ...style_Input, width: '200px', borderRadius: '4px' }}
             >
-                <option value="" disabled hidden>请选择选项</option>
-                {(quizList != undefined && quizList != null) && quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+                {hasQuizList && (
+                    <>
+                        <option value="" disabled hidden>选择题目</option>
+                        {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+                    </>
+                )}
             </select>
 
             <input
@@ -88,28 +133,29 @@ function App() {
                 min="1"
                 value={count}
                 onChange={handleCountChange}
-                style={{ ...style_Input, width: '50px' }}
-                disabled={loading || !selectedQuiz}
+                style={{ ...style_Input, width: '60px' }}
+                disabled={loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
             />
 
             <button
                 onClick={fetchQuiz}
-                disabled={!canFetch}
-                style={{ ...style_Input, ...style_FetchBtn(canFetch), width: '120px' }}
+                disabled={!canFetch || disabledMap.submitBtn}
+                style={{ ...style_Input, ...style_FetchBtn(canFetch && !disabledMap.submitBtn), width: '120px' }}
             >
                 {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
             </button>
 
-            {error && <p style={style_ErrorBox}>❌ {error}</p>}
+            {error && <p style={style_ErrorBox}> ❌ {error}</p>}
 
             {/* 通过递增 key 彻底重置 DOM 和 State */}
-            {fileContent && (
+            {hasQuizList && selectedQuiz && fileContent && (
                 <QuizViewer
                     key={quizKey}
                     user={user}
                     quiz={selectedQuiz}
                     fileContent={fileContent}
                     onReset={handleResetQuiz}
+                    onSubmit={handleOnSubmit}
                 />
             )}
         </div>

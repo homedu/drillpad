@@ -3,7 +3,7 @@ import { style_Card, style_Option, style_OptionsContainer, style_Question, style
 import { useNatsFetch, AnswerRecordError } from "../hooks/useNatsFetch.js";
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ user, quiz, fileContent, onReset }) {
+export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit }) {
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const { record_answer } = useNatsFetch();
@@ -99,7 +99,10 @@ export default function QuizViewer({ user, quiz, fileContent, onReset }) {
         }
     }, [submitted, ids_correct, ids_incorrect, ids_blank]);
 
-    const handleSubmit = useCallback(() => { setSubmitted(true) }, []);
+    const handleSubmit = useCallback(() => {
+        setSubmitted(true);
+        onSubmit();
+    }, []);
 
     return (
         <div style={{ marginTop: "24px" }}>
