@@ -53,7 +53,7 @@ fi
 # fi
 
 awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" '
-function shuffle(arr, n, i, j, tmp) {
+function shuffle(arr, n,      i, j, tmp) {
     # Fisher-Yates 洗牌算法
     for (i = n; i > 1; i--) {
         j = int(rand() * i) + 1
@@ -63,9 +63,20 @@ function shuffle(arr, n, i, j, tmp) {
     }
 }
 
+function count_non_empty(arr, size,      i, count) {
+    count = 0
+    for (i = 1; i <= size; i++) {
+        if (arr[i] != "") {
+            count++
+        }
+    }
+    return count
+}
+
 BEGIN {
 
     FS = OFS = "\t"
+	RS = "\r?\n"
 
     split(ids_inc, arr_inc, " ")
     for (i in arr_inc) { map_inc[arr_inc[i]] = 1 }
@@ -104,6 +115,7 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         inc_pool_f19[inc_count] = $19
         inc_pool_f20[inc_count] = $20
         inc_pool_f21[inc_count] = $21
+        inc_pool_f22[inc_count] = $22
 
     } else if ($1 in map_exc) {
 
@@ -134,6 +146,7 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         cand_pool_f19[cand_count] = $19
         cand_pool_f20[cand_count] = $20
         cand_pool_f21[cand_count] = $21
+        cand_pool_f22[cand_count] = $22
     }
 }
 
@@ -159,11 +172,13 @@ END {
         ans[6] = inc_pool_f16[i]
         ans[7] = inc_pool_f17[i]
         ans[8] = inc_pool_f18[i]
-        rid = inc_pool_f21[i]
+        rid    = inc_pool_f21[i]
+        type   = inc_pool_f22[i]
 
-        shuffle(opt, 4) # 4: adjust by not empty opt count
+		n = count_non_empty(opt, 8)
+        shuffle(opt, n)
 
-        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
+        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid, type
 
         printed++
     }
@@ -191,11 +206,13 @@ END {
 			ans[6] = cand_pool_f16[j]
 			ans[7] = cand_pool_f17[j]
 			ans[8] = cand_pool_f18[j]
-			rid = cand_pool_f21[j]
+			rid    = cand_pool_f21[j]
+            type   = cand_pool_f22[j]
 
-            shuffle(opt, 4) # 4: adjust by not empty opt count
+			n = count_non_empty(opt, 8)
+            shuffle(opt, n)
 
-            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
+            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid, type
         }
     }
 

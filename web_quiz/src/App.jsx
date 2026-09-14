@@ -54,6 +54,9 @@ function App() {
                 count,
             );
 
+            setFileContent(text);
+            setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
+
             // 开始作答，不可再更改用户输入
             setDisabledMap(prev => ({
                 ...prev,
@@ -63,13 +66,7 @@ function App() {
                 submitBtn: !!text,
             }))
 
-            if (!text) {
-                setInfo(` No quiz items for <${selectedQuiz}> need to do now`)
-                return
-            }
-
-            setFileContent(text);
-            setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
+            setInfo(!text ? ` No quiz items for <${selectedQuiz}> need to do now` : "")
 
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常

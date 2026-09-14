@@ -18,23 +18,25 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                // 索引含义：0: GUID; 1: 题干; 2-9: A-H 选项内容, 10-17: 答案内容; 20: REF ID
-                const [id, question, optA, optB, optC, optD, optE, optF, optG, optH, ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8, _1, _2, ref_id] = fields;
-                return {
-                    id,
-                    question,
-                    options: [
-                        { label: "A", text: optA },
-                        { label: "B", text: optB },
-                        { label: "C", text: optC },
-                        { label: "D", text: optD },
-                        { label: "E", text: optE },
-                        { label: "F", text: optF },
-                        { label: "G", text: optG },
-                        { label: "H", text: optH },
-                    ].filter((opt) => opt.text),
-                    correctAnswer: ans1 || undefined,
-                };
+                // 索引含义：0: GUID; 1: 题干; 2-9: A-H选项内容; 10-17: 答案内容; 18: ref_id; 19: quiz_type
+                const [id, question, optA, optB, optC, optD, optE, optF, optG, optH, ans1, _ans2, _ans3, _ans4, _ans5, _ans6, _ans7, _ans8, ref_id, quiz_type] = fields;
+                if (quiz_type === "MCSA" && ans1) {
+                    return {
+                        id,
+                        question,
+                        options: [
+                            { label: "A", text: optA },
+                            { label: "B", text: optB },
+                            { label: "C", text: optC },
+                            { label: "D", text: optD },
+                            { label: "E", text: optE },
+                            { label: "F", text: optF },
+                            { label: "G", text: optG },
+                            { label: "H", text: optH },
+                        ].filter((opt) => opt.text),
+                        correctAnswer: ans1
+                    };
+                }
             });
     }, [fileContent]);
 
@@ -150,9 +152,9 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
 
                         {submitted && q.correctAnswer && (
                             <div style={{ marginTop: "12px", fontSize: "14px" }}>
-                                {isCorrect && (<span style={{ color: "#28a745", fontWeight: "bold" }}> ✓ 正确 </span>)}
-                                {isWrong && (<span style={{ color: "#dc3545" }}> ✕ 错误 正确答案：<strong> {q.correctAnswer} </strong> </span>)}
-                                {!selected && (<span style={{ color: "#6c757d" }}> 未作答 正确答案：<strong> {q.correctAnswer} </strong> </span>)}
+                                {isCorrect && (<span style={{ color: "#28a745", fontWeight: "bold" }}> ✅ 正确 </span>)}
+                                {isWrong && (<span style={{ color: "#dc3545" }}> ❌ 错误 (正确答案：{q.correctAnswer})  </span>)}
+                                {!selected && (<span style={{ color: "#6c757d" }}> ⚠️ 未作答 (正确答案：{q.correctAnswer})  </span>)}
                             </div>
                         )}
                     </div>
