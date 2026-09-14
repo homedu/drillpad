@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { style_App, style_ErrorBox, style_InfoBox, style_FetchBtn, style_Input } from "./styles.js";
@@ -54,6 +54,15 @@ function App() {
                 count,
             );
 
+            // 开始作答，不可再更改用户输入
+            setDisabledMap(prev => ({
+                ...prev,
+                usernameInput: true,
+                quizSelect: !!text,
+                countInput: !!text,
+                submitBtn: !!text,
+            }))
+
             if (!text) {
                 setInfo(` No quiz items for <${selectedQuiz}> need to do now`)
                 return
@@ -61,15 +70,6 @@ function App() {
 
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
-
-            // 开始作答，不可再更改用户输入
-            setDisabledMap(prev => ({
-                ...prev,
-                usernameInput: true,
-                quizSelect: true,
-                countInput: true,
-                submitBtn: true,
-            }))
 
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
@@ -94,6 +94,9 @@ function App() {
         }))
     };
 
+    const refInputUser = useRef(null);
+    const refSelectQuiz = useRef(null);
+
     return (
         <div style={style_App}>
             <h2>🚀 QUIZ for today</h2>
@@ -101,18 +104,21 @@ function App() {
             {connError && (<p style={style_ErrorBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
             <input
+                ref={refInputUser}
                 value={user}
                 onChange={(e) => { setUser(e.target.value) }}
-                // onBlur={async (e) => { setQuizList(await list_quiz(e.target.value)); }}
-
                 onKeyDown={async (e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' || e.key === 'Tab') {
                         setQuizList(await list_quiz(e.target.value));
                         if (!hasQuizList) {
                             setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
                             setFileContent(""); // 如果没有题库，清空上一次的作答内容
+                            setInfo("");
                         }
                         e.target.blur();
+                        if (refSelectQuiz.current) {
+                            refSelectQuiz.current.focus();
+                        }
                     }
                 }}
                 placeholder="输入用户名选择题目"
@@ -122,9 +128,18 @@ function App() {
 
             <select
                 key={user}
+                ref={refSelectQuiz}
                 value={selectedQuiz}
                 onChange={(e) => setSelectedQuiz(e.target.value)}
-                disabled={loading || !hasQuizList || disabledMap.quizSelect}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (typeof e.currentTarget.showPicker === 'function') {
+                            e.currentTarget.showPicker();
+                        }
+                    }
+                }}
+                disabled={loading || disabledMap.quizSelect}
                 style={{ ...style_Input, width: '200px', borderRadius: '4px' }}
             >
                 {hasQuizList && (
