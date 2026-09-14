@@ -10,8 +10,8 @@ set -euo pipefail
 
 # 用 mktemp 在目标文件所在目录下生成唯一临时文件名。
 # 原脚本用固定名字 blank.tsv.tmp / correct.tsv.tmp / incorrect.tsv.tmp：
-#   - 如果这个脚本被并发调用（比如两个任务同时跑），会互相覆盖临时文件，产生竞态条件；
-#   - 如果当前工作目录不是文件所在目录，mv 可能失败或者跨文件系统导致非原子操作。
+# - 如果这个脚本被并发调用（比如两个任务同时跑），会互相覆盖临时文件，产生竞态条件；
+# - 如果当前工作目录不是文件所在目录，mv 可能失败或者跨文件系统导致非原子操作。
 # mktemp 保证文件名唯一，且放在同目录下保证 mv 是原子操作（同文件系统内 rename）。
 TMP_BLANK=$(mktemp "$(dirname "$REC_BLANK")/blank.XXXXXX")
 TMP_CORRECT=$(mktemp "$(dirname "$REC_CORRECT")/correct.XXXXXX")
@@ -58,8 +58,8 @@ awk -F'\t' 'NR==FNR{ids[$1]=1; next} !($1 in ids)' "$REC_INCORRECT" "$REC_BLANK"
 
 ###########################################################################################
 
-# if correct id exists, and same id exists in incorrect file; IF incorrect id's timestamp is newer than or equal to correct id; 
-# 1) increment incorrect count by 1, 
+# if correct id exists, and same id exists in incorrect file; IF incorrect id's timestamp is newer than or equal to correct id;
+# 1) increment incorrect count by 1,
 # 2) remove it from correct file.
 #
 # 时间戳比较改为 >=（原来是 >）。
@@ -72,7 +72,7 @@ awk -F'\t' 'NR==FNR{ids[$1]=1; next} !($1 in ids)' "$REC_INCORRECT" "$REC_BLANK"
 
 awk -F'\t' -v OFS='\t' '
 FNR==NR {
-    # 处理 correct.tsv (第一个文件)    
+    # 处理 correct.tsv (第一个文件)
     corr_line[$1]   = $0  # 记录该行原始内容(留着最后输出用)
     corr_order[++n] = $1  # 记录出现顺序,方便最后按原顺序输出
     corr_ts[$1]     = $2  # 记录该 ID 的时间戳
@@ -108,9 +108,9 @@ mv "$TMP_INCORRECT" "$REC_INCORRECT"
 
 ###########################################################################################
 
-# if correct id exists, and same id exists in incorrect file; IF correct id's timestamp is strictly newer than incorrect id; 
-# 1) decrement incorrect count by 1, 
-# 2) remove it from correct file if incorrect number > 0. 
+# if correct id exists, and same id exists in incorrect file; IF correct id's timestamp is strictly newer than incorrect id;
+# 1) decrement incorrect count by 1,
+# 2) remove it from correct file if incorrect number > 0.
 # 3) keep it in correct file if incorrect number == 0, then remove the id from incorrect file.
 #
 # 【说明】这一步保持严格 >（不改成 >=），因为上一步已经把"相等"的情况处理掉了
@@ -126,7 +126,7 @@ TMP_INCORRECT=$(mktemp "$(dirname "$REC_INCORRECT")/incorrect.XXXXXX")
 
 awk -F'\t' -v OFS='\t' '
 FNR==NR {
-    # 处理 correct.tsv(第一个文件)    
+    # 处理 correct.tsv(第一个文件)
     corr_line[$1]   = $0
     corr_order[++n] = $1
     corr_ts[$1]     = $2

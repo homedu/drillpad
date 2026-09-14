@@ -104,6 +104,11 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
         onSubmit();
     }, []);
 
+    // 1. 定义双击触发的处理函数
+    const handleDoubleClick = (key, event) => {
+        console.log('quiz id:', key);
+    };
+
     return (
         <div style={{ marginTop: "24px" }}>
 
@@ -113,7 +118,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                 const isWrong = submitted && selected && q.correctAnswer && selected.text.trim() !== q.correctAnswer.trim();
 
                 return (
-                    <div key={q.id} style={style_Card}>
+                    <div key={q.id} style={style_Card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
                         <h3 style={style_Question}> {index + 1}. {q.question} </h3>
 
                         <div style={style_OptionsContainer}>

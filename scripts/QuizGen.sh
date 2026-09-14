@@ -79,8 +79,6 @@ BEGIN {
 
 NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
 
-    if ($1 in map_exc) next
-
     if ($1 in map_inc) {
 
         inc_count++
@@ -106,6 +104,10 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         inc_pool_f19[inc_count] = $19
         inc_pool_f20[inc_count] = $20
         inc_pool_f21[inc_count] = $21
+
+    } else if ($1 in map_exc) {
+
+        next
 
     } else {
 
@@ -159,7 +161,7 @@ END {
         ans[8] = inc_pool_f18[i]
         rid = inc_pool_f21[i]
 
-        shuffle(opt, 4)
+        shuffle(opt, 4) # 4: adjust by not empty opt count
 
         print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
 
@@ -191,7 +193,7 @@ END {
 			ans[8] = cand_pool_f18[j]
 			rid = cand_pool_f21[j]
 
-            shuffle(opt, 4)
+            shuffle(opt, 4) # 4: adjust by not empty opt count
 
             print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid
         }
