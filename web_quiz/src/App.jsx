@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
-import { style_App, style_ErrorBox, style_FetchBtn, style_Input } from "./styles.js";
+import { style_App, style_ErrorBox, style_InfoBox, style_FetchBtn, style_Input } from "./styles.js";
 import { useNatsFetch, QuizFetchError, QuizListError } from "./hooks/useNatsFetch.js";
 import "./utils/str.js";
 
 function App() {
     const [fileContent, setFileContent] = useState("");
+    const [info, setInfo] = useState("");
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
     const { status, loading, connError, fetch_quiz, list_quiz } = useNatsFetch();
@@ -52,6 +53,12 @@ function App() {
                 selectedQuiz,
                 count,
             );
+
+            if (!text) {
+                setInfo(` No quiz items for <${selectedQuiz}> need to do now`)
+                return
+            }
+
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
 
@@ -145,7 +152,8 @@ function App() {
                 {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
             </button>
 
-            {error && <p style={style_ErrorBox}> ❌ {error}</p>}
+            {info && !error && <p style={style_InfoBox}> 💬 {info}</p>}
+            {error && !info && <p style={style_ErrorBox}> ❌ {error}</p>}
 
             {/* 通过递增 key 彻底重置 DOM 和 State */}
             {hasQuizList && selectedQuiz && fileContent && (

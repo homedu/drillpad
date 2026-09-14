@@ -37,3 +37,11 @@ export const style_ErrorBox = {
     borderRadius: "6px",
     marginTop: "15px",
 };
+
+export const style_InfoBox = {
+    color: "#222222",
+    background: "#d3fcda",
+    padding: "12px",
+    borderRadius: "6px",
+    marginTop: "15px",
+};
