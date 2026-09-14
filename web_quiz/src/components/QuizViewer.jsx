@@ -28,6 +28,10 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                         { label: "B", text: optB },
                         { label: "C", text: optC },
                         { label: "D", text: optD },
+                        { label: "E", text: optE },
+                        { label: "F", text: optF },
+                        { label: "G", text: optG },
+                        { label: "H", text: optH },
                     ].filter((opt) => opt.text),
                     correctAnswer: ans1 || undefined,
                 };
