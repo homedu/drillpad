@@ -120,7 +120,7 @@ function App() {
                 }}
                 placeholder="输入用户名选择题目"
                 style={{ ...style_Input, width: '180px' }}
-                disabled={loading || disabledMap.usernameInput}
+                disabled={connError || loading || disabledMap.usernameInput}
             />
 
             <select
@@ -136,7 +136,7 @@ function App() {
                         }
                     }
                 }}
-                disabled={loading || disabledMap.quizSelect}
+                disabled={connError || loading || disabledMap.quizSelect}
                 style={{ ...style_Input, width: '200px', borderRadius: '4px' }}
             >
                 {hasQuizList && (
@@ -153,12 +153,12 @@ function App() {
                 value={count}
                 onChange={handleCountChange}
                 style={{ ...style_Input, width: '60px' }}
-                disabled={loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
+                disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
             />
 
             <button
                 onClick={fetchQuiz}
-                disabled={!canFetch || disabledMap.submitBtn}
+                disabled={connError || !canFetch || disabledMap.submitBtn}
                 style={{ ...style_Input, ...style_FetchBtn(canFetch && !disabledMap.submitBtn), width: '120px' }}
             >
                 {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}

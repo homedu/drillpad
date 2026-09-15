@@ -19,6 +19,9 @@ PARAM="${msg}"
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 
+# /var/www/dp_users must exist AND be set in Caddyfile as "root * /var/www/dp_users"
+FETCH_ROOT="/var/www/dp_users"
+
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
@@ -27,23 +30,26 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
     # arg
-    QUIZ_BANK="./users/${USER}/quiz_bank/${QUIZ}.tsv"
+    QUIZ_BANK="../users/${USER}/quiz_bank/${QUIZ}.tsv"
     QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"
     COUNT=$(jq -r '.count' <<< "$PARAM")
 
+    QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
+    mkdir -p "$(dirname "$QUIZ_OUT_ABS")"
+
     if [[ ! -f "$QUIZ_BANK" ]]; then
         QUIZ_OUT="user_missing/quiz_gen/quiz_missing.tsv"
-        QUIZ_OUT_ROOT="/var/www/dp_users/$QUIZ_OUT"
-        mkdir -p "$(dirname "$QUIZ_OUT_ROOT")"
-        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\t\t\t\tAny Above\t\t\t\t\t\t\t\t$(uuidgen)" > "${QUIZ_OUT_ROOT}"
+        QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
+        mkdir -p "$(dirname "$QUIZ_OUT_ABS")"
+        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\t\t\t\tAny Above\t\t\t\t\t\t\t\t$(uuidgen)\tMCSA" > "${QUIZ_OUT_ABS}"
         jq -n --arg t "$CURRENT_TIME" --arg p "/$QUIZ_OUT" '{time: $t, path: $p}'
         exit 0
     fi
 
     # env (get those from /answer_record/, rather than from the request)
-    REC_CORRECT="./users/${USER}/answer_record/${QUIZ}/correct.tsv"
-    REC_INCORRECT="./users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
-    REC_BLANK="./users/${USER}/answer_record/${QUIZ}/blank.tsv"
+    REC_CORRECT="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
+    REC_INCORRECT="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
+    REC_BLANK="../users/${USER}/answer_record/${QUIZ}/blank.tsv"
 
     IDS_INC_1=$(cat "$REC_INCORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
     IDS_INC_2=$(cat "$REC_BLANK" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
@@ -54,8 +60,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     export IDS_EXC
 
     # generate quiz here
-    # /var/www/dp_users must exist AND be set in Caddyfile as "root * /var/www/dp_users"
-    ./QuizGen.sh "$QUIZ_BANK" "/var/www/dp_users/$QUIZ_OUT" "$COUNT"
+    ./QuizGen.sh "$QUIZ_BANK" "$QUIZ_OUT_ABS" "$COUNT"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题

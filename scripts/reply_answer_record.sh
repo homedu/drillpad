@@ -19,7 +19,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
-    DIR_USER="./users/${USER}"
+    DIR_USER="../users/${USER}"
     if [[ ! -d "${DIR_USER}/quiz_bank" ]]; then
         jq -n --arg t "$CURRENT_TIME" --arg s "test for missing user or quiz" '{time: $t, status: $s}'
         exit 0

@@ -18,12 +18,12 @@ USER="${msg}"
 
 # echo "user: $USER"
 
-if [[ ! -d "./users/$USER" ]]; then
+if [[ ! -d "../users/$USER" ]]; then
     echo "[]"
     exit 0
 fi
 
-QUIZ_LIST=$(find "./users/$USER/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
+QUIZ_LIST=$(find "../users/$USER/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 
 if [[ -z "$QUIZ_LIST" ]]; then
     echo "[]"
