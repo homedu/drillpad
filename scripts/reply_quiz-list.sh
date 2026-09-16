@@ -32,5 +32,5 @@ else
 fi
 
 # topic: quiz-list
-# nats reply "quiz-list" --command="./reply_quiz_list.sh" 2>/dev/null
+# nats reply "quiz-list" --command="./reply_quiz-list.sh" 2>/dev/null
 # nats req "quiz-list" test --raw

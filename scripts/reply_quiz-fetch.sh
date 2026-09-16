@@ -73,6 +73,6 @@ else
 
 fi
 
-# topic: fetch-quiz
-# nats reply "fetch-quiz" --command="./reply_quiz_fetch.sh" 2>/dev/null
-# nats req "fetch-quiz" test --raw
+# topic: quiz-fetch
+# nats reply "quiz-fetch" --command="./reply_quiz-fetch.sh" 2>/dev/null
+# nats req "quiz-fetch" test --raw

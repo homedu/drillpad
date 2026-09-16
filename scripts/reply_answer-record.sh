@@ -54,6 +54,6 @@ else
 
 fi
 
-# topic: record-answer
-# nats reply "record-answer" --command="./reply_answer_record.sh" 2>/dev/null
-# nats req "record-answer" test --raw
+# topic: answer-record
+# nats reply "answer-record" --command="./reply_answer-record.sh" 2>/dev/null
+# nats req "answer-record" test --raw
