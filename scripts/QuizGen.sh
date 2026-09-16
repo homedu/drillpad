@@ -116,6 +116,8 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         inc_pool_f20[inc_count] = $20
         inc_pool_f21[inc_count] = $21
         inc_pool_f22[inc_count] = $22
+        inc_pool_f23[inc_count] = $23
+        inc_pool_f24[inc_count] = $24
 
     } else if ($1 in map_exc) {
 
@@ -147,6 +149,8 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         cand_pool_f20[cand_count] = $20
         cand_pool_f21[cand_count] = $21
         cand_pool_f22[cand_count] = $22
+        cand_pool_f23[cand_count] = $23
+        cand_pool_f24[cand_count] = $24
     }
 }
 
@@ -154,8 +158,8 @@ END {
     printed = 0
 
     for (i = 1; i <= inc_count; i++) {
-        id = inc_pool_f1[i]
-        quiz = inc_pool_f2[i]
+        id     = inc_pool_f1[i]
+        quiz   = inc_pool_f2[i]
         opt[1] = inc_pool_f3[i]
         opt[2] = inc_pool_f4[i]
         opt[3] = inc_pool_f5[i]
@@ -172,13 +176,15 @@ END {
         ans[6] = inc_pool_f16[i]
         ans[7] = inc_pool_f17[i]
         ans[8] = inc_pool_f18[i]
-        rid    = inc_pool_f21[i]
-        type   = inc_pool_f22[i]
+        ref_id = inc_pool_f21[i]
+        prompt_id = inc_pool_f22[i]
+        note_id   = inc_pool_f23[i]
+        type      = inc_pool_f24[i]
 
 		n = count_non_empty(opt, 8)
         shuffle(opt, n)
 
-        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid, type
+        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], ref_id, prompt_id, note_id, type
 
         printed++
     }
@@ -188,8 +194,8 @@ END {
         limit = ( cand_count < needed ) ? cand_count : needed
 
         for (j = 1; j <= limit; j++) {
-            id = cand_pool_f1[j]
-            quiz = cand_pool_f2[j]
+            id     = cand_pool_f1[j]
+            quiz   = cand_pool_f2[j]
             opt[1] = cand_pool_f3[j]
             opt[2] = cand_pool_f4[j]
             opt[3] = cand_pool_f5[j]
@@ -206,13 +212,15 @@ END {
 			ans[6] = cand_pool_f16[j]
 			ans[7] = cand_pool_f17[j]
 			ans[8] = cand_pool_f18[j]
-			rid    = cand_pool_f21[j]
-            type   = cand_pool_f22[j]
+			ref_id = cand_pool_f21[j]
+            prompt_id = cand_pool_f22[i]
+            note_id   = cand_pool_f23[i]
+            type      = cand_pool_f24[j]
 
 			n = count_non_empty(opt, 8)
             shuffle(opt, n)
 
-            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], rid, type
+            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], ref_id, prompt_id, note_id, type
         }
     }
 
