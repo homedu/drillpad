@@ -2,16 +2,16 @@
 
 set -euo pipefail
 
-if [[ "$#" -ne 3 ]]; then
-    echo "error: must give 3 arguments!"
-    echo "usage: $0 <record-correct> <record-incorrect> <record-blank>; Also ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]"
-    exit 1
-fi
+# if [[ "$#" -ne 3 ]]; then
+#     echo "error: must give 3 arguments!"
+#     echo "usage: $0 <record-correct> <record-incorrect> <record-blank>; Also ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]"
+#     exit 1
+# fi
 
 # arg
-REC_CORRECT=$1
-REC_INCORRECT=$2
-REC_BLANK=$3
+REC_CORRECT="${1:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; export ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
+REC_INCORRECT="${2:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; export ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
+REC_BLANK="${3:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; export ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
 
 [ -f "$REC_CORRECT" ] || touch "$REC_CORRECT"
 [ -f "$REC_INCORRECT" ] || touch "$REC_INCORRECT"

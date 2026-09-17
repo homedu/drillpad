@@ -2,15 +2,15 @@
 
 set -euo pipefail
 
-if [[ "$#" -ne 3 ]]; then
-    echo "error: must give 3 arguments!"
-    echo "usage: $0 <quiz-bank-tsv> <quiz-output> <suggested count>; Also ENV [IDS_INC] [IDS_EXC]"
-    exit 1
-fi
+# if [[ "$#" -ne 3 ]]; then
+#     echo "error: must give 3 arguments!"
+#     echo "usage: $0 <quiz-bank-tsv> <quiz-output> <suggested count>; Also ENV [IDS_INC] [IDS_EXC]"
+#     exit 1
+# fi
 
-QUIZ_BANK=$1
-QUIZ_OUT=$2
-COUNT=$3
+QUIZ_BANK="${1:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> <suggested count>; export ENV [IDS_INC] [IDS_EXC]}"
+QUIZ_OUT="${2:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> <suggested count>; export ENV [IDS_INC] [IDS_EXC]}"
+COUNT="${3:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> <suggested count>; export ENV [IDS_INC] [IDS_EXC]}"
 
 declare -a IDS_INC=($IDS_INC)
 declare -a IDS_EXC=($IDS_EXC)

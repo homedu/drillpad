@@ -3,16 +3,16 @@
 set -euo pipefail
 
 # 检查传入的参数个数是否为 2
-if [[ "$#" -ne 3 ]]; then
-    echo "error: must give 3 argument!"
-    echo "usage: $0 <quiz-output-tsv> <quiz count> <quiz type (MCSA/MS/...)>"
-    exit 1
-fi
+# if [[ "$#" -ne 3 ]]; then
+#     echo "error: must give 3 argument!"
+#     echo "usage: $0 <quiz-output-tsv> <quiz count> <quiz type (MCSA/MS/...)>"
+#     exit 1
+# fi
 
 # 获取参数
-OUTPUT_QUIZ=$1
-QUIZ_COUNT=$2
-QUIZ_TYPE=$3
+OUTPUT_QUIZ="${1:?usage: $0 <quiz-output.tsv> <quiz count> <quiz type (MCSA/MS/...)>}"
+QUIZ_COUNT="${2:?usage: $0 <quiz-output.tsv> <quiz count> <quiz type (MCSA/MS/...)>}"
+QUIZ_TYPE="${3:?usage: $0 <quiz-output.tsv> <quiz count> <quiz type (MCSA/MS/...)>}"
 
 # 判断文件名是否包含扩展名（即最后一个斜杠后面是否有小数点）
 # ${OUTPUT_QUIZ##*/} 获取不含路径的文件名
