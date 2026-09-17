@@ -73,3 +73,11 @@ export const style_ResetBtn = {
     fontWeight: "bold",
     cursor: "pointer",
 };
+
+export const style_ErrorBox = {
+    color: "#dc3545",
+    background: "#f8d7da",
+    padding: "12px",
+    borderRadius: "6px",
+    marginTop: "15px",
+};
