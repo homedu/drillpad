@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 if [[ "$#" -ne 3 ]]; then
     echo "error: must give 3 arguments!"
     echo "usage: $0 <record-correct> <record-incorrect> <record-blank>; Also ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]"
@@ -63,7 +65,7 @@ awk -v ts="$ts" -v ids_str="$ids_str" '
     }
     END {
         # 剩下 want 里还留着的，就是原文件里没有的，需要追加
-        for (uuid in want) print uuid, ts
+        for (uuid in want) print uuid, ts, "1 day"       # 1, 2, 4, 7, 15, 30;  艾宾浩斯遗忘曲线经典的黄金复习时间间隔
     }
 ' "$REC_CORRECT" > "${REC_CORRECT}.tmp" && mv "${REC_CORRECT}.tmp" "$REC_CORRECT"
 

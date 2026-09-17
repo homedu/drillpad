@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # ============================================================================
 # 停止脚本：显式 kill 掉各个 nats 相关进程（不能只依赖 tmux kill-server / kill-session，
 # 因为 nats-server 把 SIGHUP 当作"重载配置"信号处理，收到 tmux 关闭 pty 时发出的

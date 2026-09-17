@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # 请求内容在 stdin 中也可以通过环境变量拿到
 msg="$NATS_REQUEST_BODY"
 

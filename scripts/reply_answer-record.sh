@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 msg="$NATS_REQUEST_BODY"
 
 # 检查是否传入了参数

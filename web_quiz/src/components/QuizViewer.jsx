@@ -167,7 +167,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                 {!submitted
                     ? (<button onClick={handleSubmit} style={style_SubmitBtn}> 提交答案 </button>)
                     : (<>
-                        <button onClick={onReset} style={style_ResetBtn}> 重新作答 </button>
+                        {/* <button onClick={onReset} style={style_ResetBtn}> 重新作答 </button> */}
                         <div style={{ fontSize: "18px", fontWeight: "bold", color: "#24292e" }}> 最终得分：{score} / {questions.length} </div>
                     </>)
                 }

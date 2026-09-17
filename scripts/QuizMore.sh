@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # 检查传入的参数个数是否为 2
 if [[ "$#" -ne 3 ]]; then
     echo "error: must give 3 argument!"

@@ -80,8 +80,9 @@ function App() {
 
     // 彻底清空并重新初始化作答
     const handleResetQuiz = () => { setQuizKey((prev) => prev + 1); };
+
     const handleOnSubmit = () => {
-        // 开始作答，不可再更改用户输入
+        // 开始作答后，不可再更改用户输入
         setDisabledMap(prev => ({
             ...prev,
             // usernameInput: false,

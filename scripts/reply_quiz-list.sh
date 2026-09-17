@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # if [[ "$#" -ne 1 ]]; then
 # echo "error: must give 1 argument!"
 # echo "usage: $0 <user>"

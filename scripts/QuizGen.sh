@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 if [[ "$#" -ne 3 ]]; then
     echo "error: must give 3 arguments!"
     echo "usage: $0 <quiz-bank-tsv> <quiz-output> <suggested count>; Also ENV [IDS_INC] [IDS_EXC]"

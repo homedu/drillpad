@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # 定义会话名称和配置文件路径
 SESSION_NAME="nats-server"
 CONFIG_PATH="../config/nats-server.conf"
