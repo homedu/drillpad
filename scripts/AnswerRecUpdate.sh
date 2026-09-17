@@ -86,8 +86,8 @@ FNR==NR {
 
     if (id in corr_ts && ts >= corr_ts[id]) {
         # 改为 >=，处理时间戳相等的边界情况
-        remove[id] = 1        # 标记:这个 ID 要从 correct.tsv 中删除
-        cnt = cnt + 1         # count 加 1
+        remove[id] = 1   # 标记:这个 ID 要从 correct.tsv 中删除
+        cnt += 3         # count 加 3 以便多次重复出现错题
     }
 
     print id, ts, cnt >> "'"$TMP_INCORRECT"'"

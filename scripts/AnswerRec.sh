@@ -90,7 +90,7 @@ awk -v ts="$ts" -v incr_str="$incr_list" '
         for (i = 1; i <= n; i++) {
             if (lines[i] == "") continue
             split(lines[i], f, "\t")
-            add[f[1]] = f[2]      # 记录每个 uuid 本次要增加的次数
+            add[f[1]] = f[2] + 2      # 记录每个 uuid 本次要增加的次数,  +2 is for more future appearing !!!
         }
     }
     {
