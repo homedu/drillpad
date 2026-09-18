@@ -9,9 +9,9 @@ set -euo pipefail
 # fi
 
 # arg
-REC_CORRECT="${1:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; export ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
-REC_INCORRECT="${2:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; export ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
-REC_BLANK="${3:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; export ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
+REC_CORRECT="${1:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
+REC_INCORRECT="${2:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
+REC_BLANK="${3:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
 
 [ -f "$REC_CORRECT" ] || touch "$REC_CORRECT"
 [ -f "$REC_INCORRECT" ] || touch "$REC_INCORRECT"

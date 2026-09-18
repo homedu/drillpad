@@ -4,9 +4,10 @@
 # 原脚本没有这个，如果某一步 awk 出错，后面的 mv 依然会执行，可能用一个空/半截文件覆盖掉原始数据。
 set -euo pipefail
 
-# echo "$REC_CORRECT"
-# echo "$REC_INCORRECT"
-# echo "$REC_BLANK"
+# ENV: REC_CORRECT, REC_INCORRECT, REC_BLANK
+: ${REC_CORRECT:?must be set in ENV}
+: ${REC_INCORRECT:?must be set in ENV}
+: ${REC_BLANK:?must be set in ENV}
 
 # 用 mktemp 在目标文件所在目录下生成唯一临时文件名。
 # 原脚本用固定名字 blank.tsv.tmp / correct.tsv.tmp / incorrect.tsv.tmp：

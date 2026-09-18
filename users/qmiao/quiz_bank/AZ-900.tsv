@@ -13,3 +13,23 @@ af0fa95e-f5f0-425c-98f7-a659eb0256a9	A company is migrating an on-premises appli
 0208d327-7e96-42c0-9720-eb54397cfc72	Which statement about Availability Zones is correct?	Availability zones protect against failures across an entire geography	Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking	Every Azure region has availability zones	Availability zones replace the need for region pairs					Availability zones are physically separate datacenters within a single region, each with independent power, cooling, and networking										ref_id	prompt_id	note_id	MCSA
 e50bb5ea-23a0-4e47-9d82-7f3866b470b3	What happens to the resources contained within a resource group if that resource group is deleted?	The resources are moved to the default resource group automatically	The resources are deleted along with the resource group	The resources remain but become inaccessible	Azure prevents the resource group from being deleted if it contains resources					The resources are deleted along with the resource group										ref_id	prompt_id	note_id	MCSA
 8d62cd37-5d4a-4c03-b7ac-32bf79f0ba50	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+79b5a4fb-0100-4ab1-b08d-6a4f555428bb	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+ff537bea-50e0-49e8-9216-f135e69bdbf1	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+f0b8806e-b457-4b2b-9d59-13ee3bf07c94	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+1b4ed170-027b-4a8f-8db7-e0aa255cd9f4	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+f811ded3-a20d-4029-a7ea-da17f5b0a7ef	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+7dd8ac37-775d-48d4-9696-23d5f3ed5c7a	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+c7c562dc-b9f8-4d80-9e8d-b595c309eced	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+35ad3ad7-bcfd-4ba4-995d-f2ee28ef908a	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+67283d9d-c66a-4990-bc6d-be9ca30f949c	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+37b6f29d-a6fa-4179-9bec-8c187ca41299	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+80206ce8-89a5-4bd0-be82-b8698871d86e	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+039d536b-b6bd-40ed-ae18-9f587b83b49e	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+e3f4d9c9-501a-4651-994b-696154178a67	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+fc07fb60-c8d1-43dc-afab-fdf6073a4c61	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+08b25047-9ad3-4353-afae-5732f564fcc9	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+ede90e6c-2be4-4db7-add4-5b307e54397f	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+0a6e87fd-0745-46d2-b0ee-e482c6fe6035	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+3dfbeb9a-611f-480d-a062-00ce64e81345	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+1a3e6879-8c5a-4ccb-8643-afae46783e99	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA
+e081d54a-2c6e-4f7d-9844-76982683952f	quiz	opt1	opt2	opt3	opt4					ans1										ref_id	prompt_id	note_id	MCSA

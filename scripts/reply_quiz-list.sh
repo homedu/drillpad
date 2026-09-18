@@ -8,22 +8,8 @@ set -euo pipefail
 # exit 1
 # fi
 
-msg="$NATS_REQUEST_BODY"
-
-# 检查是否传入了参数
-if [[ -z "${msg}" ]]; then
-    echo "[]"
-    exit 0
-fi
-
-USER="${msg}"
-
-# echo "user: $USER"
-
-if [[ ! -d "../users/$USER" ]]; then
-    echo "[]"
-    exit 0
-fi
+USER="${NATS_REQUEST_BODY:-${1:-}}"
+[[ -z "$USER" || ! -d "../users/$USER" ]] && { echo "[]"; exit 0; }
 
 QUIZ_LIST=$(find "../users/$USER/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 
