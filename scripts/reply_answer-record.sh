@@ -37,6 +37,15 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     mkdir -p "$(dirname "$REC_INCORRECT")"
     mkdir -p "$(dirname "$REC_BLANK")"
 
+    # file lock for correct.tsv
+    LOCK_REC_CORRECT="${REC_CORRECT}.lock"
+    exec 9>"$LOCK_REC_CORRECT"
+    flock -w 5 9 || {
+        echo "error: ${REC_CORRECT} cannot be locked"
+        exec 9>&-
+        exit 1
+    }
+
     # env
     IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "$PARAM")
     IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "$PARAM")
@@ -46,8 +55,15 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     export IDS_INCORRECT
     export IDS_BLANK
 
+    # record answer here
     ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK"
 
+    # file unlock for correct.tsv
+    flock -u 9
+    exec 9>&-
+
+    # 如果是合法的 JSON，添加最外层字段 "time" 并输出
+    # --arg 会安全地将时间变量嵌入，防止注入或转义问题
     jq -n --arg t "$CURRENT_TIME" --arg s "success" '{time: $t, status: $s}'
 
 else

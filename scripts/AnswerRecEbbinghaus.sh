@@ -139,10 +139,8 @@ scan() {
     # 原子替换原文件
     mv -f "$TMP_FILE" "$TSV_FILE"
 
-    if command -v flock >/dev/null 2>&1; then
-        flock -u 9
-        exec 9>&-
-    fi
+    flock -u 9
+    exec 9>&-
 
     return 0
 }

@@ -67,6 +67,19 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     REC_INCORRECT="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
     REC_BLANK="../users/${USER}/answer_record/${QUIZ}/blank.tsv"
 
+    mkdir -p "$(dirname "$REC_CORRECT")"
+    mkdir -p "$(dirname "$REC_INCORRECT")"
+    mkdir -p "$(dirname "$REC_BLANK")"
+
+    # file lock for correct.tsv
+    LOCK_REC_CORRECT="${REC_CORRECT}.lock"
+    exec 9>"$LOCK_REC_CORRECT"
+    flock -w 5 9 || {
+        echo "error: ${REC_CORRECT} cannot be locked"
+        exec 9>&-
+        exit 1
+    }
+
     IDS_INC_1=$(cat "$REC_INCORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
     IDS_INC_2=$(cat "$REC_BLANK" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
     IDS_INC="${IDS_INC_1} ${IDS_INC_2}"
@@ -77,6 +90,10 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # generate quiz here
     ./QuizGen.sh "$QUIZ_BANK" "$QUIZ_OUT_ABS" "$COUNT"
+
+    # file unlock for correct.tsv
+    flock -u 9
+    exec 9>&-
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题
