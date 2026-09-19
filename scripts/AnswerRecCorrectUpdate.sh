@@ -2,10 +2,10 @@
 
 # 开启严格模式：任何命令出错立即退出、未定义变量报错、管道中任意环节出错都算失败。
 # 原脚本没有这个，如果某一步 awk 出错，后面的 mv 依然会执行，可能用一个空/半截文件覆盖掉原始数据。
-set -euo pipefail
+set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder code
 
 #
-# 用途：
+# 用途：AnswerRecEbbinghaus.sh
 #   在一个 tmux 窗口/pane 中长期驻留运行，每隔一段时间用 awk 遍历一个 TSV 文件，
 #   TSV 每行格式为：
 #       <id>\t<记录时间, 如 "2026-09-17 23:03:32">\t<有效期, 如 "2 day" / "1 day" / "3 hour">
@@ -28,10 +28,10 @@ set -euo pipefail
 # ------------------------------------------------------------------
 # 参数解析
 # ------------------------------------------------------------------
-TSV_FILE="${1:?用法: $0 <TSV文件> <已删除行文件> [间隔秒数]}"
-DELETED_FILE="${2:?用法: $0 <TSV文件> <已删除行文件> [间隔秒数]}"
-INTERVAL="${3:-60}"          # 默认每 60 秒扫描一次
+TSV_FILE="${1:?用法: $0 <correct.tsv> [间隔秒数]}"
+INTERVAL="${2:-60}"  # 默认每 60 秒扫描一次
 
+EBHS_FILE="$(dirname "$TSV_FILE")/ebhs.tsv"
 LOCK_FILE="${TSV_FILE}.lock"
 TMP_FILE="${TSV_FILE}.tmp.$$"
 
@@ -63,25 +63,35 @@ on_term() {
 trap on_term SIGINT SIGTERM
 
 # ------------------------------------------------------------------
+# check flock
+# ------------------------------------------------------------------
+
+command -v flock >/dev/null 2>&1 || {
+    echo "错误: 系统未安装 flock"
+    exit 1
+}
+
+# ------------------------------------------------------------------
 # 单次扫描：用 awk 遍历每一行，判断是否过期
 # ------------------------------------------------------------------
-scan_once() {
-    [[ -f "$TSV_FILE" ]] || { log "文件不存在，跳过本次扫描: $TSV_FILE"; return 0; }
+scan() {
+    [[ -f "$TSV_FILE" ]] || {
+        log "文件不存在，跳过本次扫描: $TSV_FILE"
+        return 0
+    }
 
     # 用 flock 加锁，避免和其它写入该文件的进程冲突（若系统无 flock 命令则跳过锁）
-    if command -v flock >/dev/null 2>&1; then
-        exec 9>"$LOCK_FILE"
-        if ! flock -w 5 9; then
-            log "获取文件锁超时，跳过本次扫描"
-            exec 9>&-
-            return 1
-        fi
-    fi
+    exec 9>"$LOCK_FILE"
+    flock -w 5 9 || {
+        log "获取文件锁超时，跳过本次扫描"
+        exec 9>&-
+        return 1
+    }
 
     local now_epoch
     now_epoch=$(date +%s)
 
-    awk -F'\t' -v now="$now_epoch" -v deleted_file="$DELETED_FILE" '
+    awk -F'\t' -v now="$now_epoch" -v ebhs_file="$EBHS_FILE" '
         # 把 "day/hour/min/sec/week" 这类单位换算成秒
         function unit_to_sec(u) {
             u = tolower(u)
@@ -118,7 +128,7 @@ scan_once() {
 
             if (ts_epoch != "" && ttl_sec > 0 && (now - ts_epoch) > ttl_sec) {
                 # 过期：写入已删除文件，不写回原文件
-                print $0 >> deleted_file
+                print $0 >> ebhs_file
             } else {
                 # 未过期或解析失败：保留在原文件
                 print $0
@@ -133,22 +143,24 @@ scan_once() {
         flock -u 9
         exec 9>&-
     fi
+
+    return 0
 }
 
 # ------------------------------------------------------------------
 # 主循环
 # ------------------------------------------------------------------
 log "开始监控: $TSV_FILE"
-log "过期行写入: $DELETED_FILE"
+log "过期行写入: $EBHS_FILE"
 log "扫描间隔: ${INTERVAL}s, 等待 tmux 关闭通知 (SIGHUP) 以退出"
 
 while (( _running )); do
-    scan_once
+    scan
 
-    # 把长 sleep 拆成多个 1 秒的短 sleep，
+    # 把长 sleep 拆成多个 5 秒的短 sleep，
     # 这样收到信号后能及时响应退出，而不用死等一整个 INTERVAL
     for ((i = 0; i < INTERVAL && _running; i++)); do
-        sleep 1
+        sleep 5
     done
 done
 

@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-# if [[ "$#" -ne 3 ]]; then
+# [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 arguments!"
 #     echo "usage: $0 <quiz-bank-tsv> <quiz-output> [count]; Also ENV [IDS_INC] [IDS_EXC]"
 #     exit 1
-# fi
+# }
 
 QUIZ_BANK="${1:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
 QUIZ_OUT="${2:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
@@ -28,31 +28,26 @@ declare -a IDS_EXC=($IDS_EXC)
 
 # 判断文件名是否包含扩展名（即最后一个斜杠后面是否有小数点）
 # ${QUIZ##*/} 获取不含路径的文件名
-if [[ "${QUIZ_BANK##*/}" != *.* ]]; then
-    QUIZ_BANK="${QUIZ_BANK}.tsv"
-fi
+[[ "${QUIZ_BANK##*/}" == *.* ]] || QUIZ_BANK="${QUIZ_BANK}.tsv"
 
 # 检查参数是否存在
-if [[ ! -f "$QUIZ_BANK" ]]; then
-    echo "error: bank quiz file (${QUIZ_BANK}) is not found"
+[[ -f "$QUIZ_BANK" ]] || {
+    echo "error: quiz-bank file (${QUIZ_BANK}) is not found"
     exit 1
-fi
+}
 
 mkdir -p "$(dirname "$QUIZ_OUT")"
 
-if [[ "${QUIZ_OUT##*/}" != *.* ]]; then
-    QUIZ_OUT="${QUIZ_OUT}.tsv"
-fi
+[[ "${QUIZ_OUT##*/}" == *.* ]] || QUIZ_OUT="${QUIZ_OUT}.tsv"
 
-# if [[ "${#IDS_INC[@]}" -eq 0 ]]; then
-# echo "error"
-# exit 1
-# fi
-
-# if [[ "${#IDS_EXC[@]}" -eq 0 ]]; then
-# echo "error"
-# exit 1
-# fi
+# [[ "${#IDS_INC[@]}" -ne 0 ]] || {
+#     echo "error: empty IDS_INC"
+#     exit 1
+# }
+# [[ "${#IDS_EXC[@]}" -ne 0 ]] || {
+#     echo "error: empty IDS_EXC"
+#     exit 1
+# }
 
 awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" '
 function shuffle(arr, n,      i, j, tmp) {

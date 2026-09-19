@@ -2,12 +2,12 @@
 
 set -euo pipefail
 
-# 检查传入的参数个数是否为 2
-# if [[ "$#" -ne 3 ]]; then
+# 检查传入的参数个数是否为 3
+# [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 argument!"
 #     echo "usage: $0 <quiz-output-tsv> <count> <type (MCSA/MS/...)>"
 #     exit 1
-# fi
+# }
 
 # 获取参数
 OUTPUT_QUIZ="${1:?usage: $0 <quiz-output.tsv> [count] [type (MCSA/MS/...)]}"
@@ -16,9 +16,7 @@ QUIZ_TYPE="${3:-MCSA}"  # 默认 quiz type 为 MCSA
 
 # 判断文件名是否包含扩展名（即最后一个斜杠后面是否有小数点）
 # ${OUTPUT_QUIZ##*/} 获取不含路径的文件名
-if [[ "${OUTPUT_QUIZ##*/}" != *.* ]]; then
-    OUTPUT_QUIZ="${OUTPUT_QUIZ}.tsv"
-fi
+[[ "${OUTPUT_QUIZ##*/}" == *.* ]] || OUTPUT_QUIZ="${OUTPUT_QUIZ}.tsv"
 
 for ((i=1; i<=QUIZ_COUNT; i++)); do
     awk -v OFS='\t' -v qt="$QUIZ_TYPE" '{print $0, "quiz", "opt1", "opt2", "opt3", "opt4", "", "", "", "", "ans1", "", "", "", "", "", "", "", "", "", "ref_id", "prompt_id", "note_id", qt}' <<<$(uuidgen)

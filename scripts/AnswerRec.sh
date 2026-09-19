@@ -2,11 +2,11 @@
 
 set -euo pipefail
 
-# if [[ "$#" -ne 3 ]]; then
+# [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 arguments!"
 #     echo "usage: $0 <record-correct> <record-incorrect> <record-blank>; Also ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]"
 #     exit 1
-# fi
+# }
 
 # arg
 REC_CORRECT="${1:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"

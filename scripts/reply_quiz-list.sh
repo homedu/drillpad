@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-# if [[ "$#" -ne 1 ]]; then
-# echo "error: must give 1 argument!"
-# echo "usage: $0 <user>"
-# exit 1
-# fi
+# [[ "$#" -eq 1 ]] || {
+#     echo "error: must give 1 argument!"
+#     echo "usage: $0 <user>"
+#     exit 1
+# }
 
 USER="${NATS_REQUEST_BODY:-${1:-}}"
-[[ -z "$USER" || ! -d "../users/$USER" ]] && { echo "[]"; exit 0; }
+[[ -n "$USER" && -d "../users/$USER" ]] || { echo "[]"; exit 0; }
 
 QUIZ_LIST=$(find "../users/$USER/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 

@@ -34,10 +34,11 @@ check_duplicates() {
     local name="$2"
     local dups
     dups=$(cut -f1 "$file" | sort | uniq -d)
-    if [[ -n "$dups" ]]; then
+    [[ -z "$dups" ]] || {
         echo "WARNING: 发现 $name 中存在重复 ID:" >&2
         echo "$dups" >&2
-    fi
+    }
+    return 0;
 }
 check_duplicates "$REC_CORRECT" "REC_CORRECT"
 check_duplicates "$REC_INCORRECT" "REC_INCORRECT"

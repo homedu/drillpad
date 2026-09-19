@@ -5,10 +5,10 @@ set -euo pipefail
 msg="$NATS_REQUEST_BODY"
 
 # 检查是否传入了参数
-if [[ -z "${msg}" ]]; then
+[[ -n "${msg}" ]] || {
     echo "错误: 请提供一个参数"
     exit 1
-fi
+}
 
 PARAM="${msg}"
 
@@ -22,10 +22,11 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
     DIR_USER="../users/${USER}"
-    if [[ ! -d "${DIR_USER}/quiz_bank" ]]; then
+
+    [[ -d "${DIR_USER}/quiz_bank" ]] || {
         jq -n --arg t "$CURRENT_TIME" --arg s "test for missing user or quiz" '{time: $t, status: $s}'
         exit 0
-    fi
+    }
 
     # arg
     REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}/correct.tsv"

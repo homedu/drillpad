@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # 请求内容在 stdin 中也可以通过环境变量拿到
-msg="$NATS_REQUEST_BODY"
+msg="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
 
 # sleep 1
 
@@ -11,10 +11,10 @@ msg="$NATS_REQUEST_BODY"
 # echo "${msg} - $(date)"
 
 # 检查是否传入了参数
-if [[ -z "${msg}" ]]; then
+[[ -n "${msg}" ]] || {
     echo "错误: 请提供一个参数"
     exit 1
-fi
+}
 
 PARAM="${msg}"
 
@@ -39,14 +39,28 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
     mkdir -p "$(dirname "$QUIZ_OUT_ABS")"
 
-    if [[ ! -f "$QUIZ_BANK" ]]; then
+    [[ -f "$QUIZ_BANK" ]] || {
         QUIZ_OUT="user_missing/quiz_gen/quiz_missing.tsv"
         QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
         mkdir -p "$(dirname "$QUIZ_OUT_ABS")"
-        echo -e "$(uuidgen)\tExample Quiz - Why does this quiz appear?\tInvalid User\tMissing Quiz Bank\tStorage Path Issue\tAny Above\t\t\t\t\tAny Above\t\t\t\t\t\t\t\t$(uuidgen)\tMCSA" > "${QUIZ_OUT_ABS}"
+
+        _id=$(uuidgen)
+        _quiz="Example Quiz - Why does this quiz appear?"
+        _opt1="Invalid User"
+        _opt2="Missing Quiz Bank"
+        _opt3="Storage Path Issue"
+        _opt4="Any Above"
+        _ans1="Any Above"
+        _rid=""
+        _pid=""
+        _nid=""
+        _type="MCSA"
+
+        echo -e "$_id\t$_quiz\t$_opt1\t$_opt2\t$_opt3\t$_opt4\t\t\t\t\t$_ans1\t\t\t\t\t\t\t\t$_rid\t$_pid\t$_nid\t$_type" > "${QUIZ_OUT_ABS}"
+
         jq -n --arg t "$CURRENT_TIME" --arg p "/$QUIZ_OUT" '{time: $t, path: $p}'
         exit 0
-    fi
+    }
 
     # env (get those from /answer_record/, rather than from the request)
     REC_CORRECT="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
