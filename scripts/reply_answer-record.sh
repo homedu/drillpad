@@ -38,29 +38,25 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # file lock
     LOCK_FILE="$PATH_REC/rec.lock"
+    {
+        flock -w 5 9 || {
+            echo "error: ${REC_CORRECT} cannot be locked"
+            exit 1
+        }
 
-    exec 9>"$LOCK_FILE"
-    flock -w 5 9 || {
-        echo "error: ${REC_CORRECT} cannot be locked"
-        exec 9>&-
-        exit 1
-    }
+        # ENV
+        IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "$PARAM")
+        IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "$PARAM")
+        IDS_BLANK=$(jq -r '.blank | join(" ")' <<< "$PARAM")
 
-    # ENV
-    IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "$PARAM")
-    IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "$PARAM")
-    IDS_BLANK=$(jq -r '.blank | join(" ")' <<< "$PARAM")
+        export IDS_CORRECT
+        export IDS_INCORRECT
+        export IDS_BLANK
 
-    export IDS_CORRECT
-    export IDS_INCORRECT
-    export IDS_BLANK
+        # record answer here
+        ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK"
 
-    # record answer here
-    ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK"
-
-    # file unlock for correct.tsv
-    flock -u 9
-    exec 9>&-
+    } 9>"$LOCK_FILE"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题

@@ -74,28 +74,24 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # file lock
     LOCK_FILE="$PATH_REC/rec.lock"
+    {
+        flock -w 5 9 || {
+            echo "error: ${REC_CORRECT} cannot be locked"
+            exit 1
+        }
 
-    exec 9>"$LOCK_FILE"
-    flock -w 5 9 || {
-        echo "error: ${REC_CORRECT} cannot be locked"
-        exec 9>&-
-        exit 1
-    }
+        IDS_INC_1=$(cat "$REC_INCORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+        IDS_INC_2=$(cat "$REC_BLANK" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+        IDS_INC="${IDS_INC_1} ${IDS_INC_2}"
+        IDS_EXC=$(cat "$REC_CORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
 
-    IDS_INC_1=$(cat "$REC_INCORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
-    IDS_INC_2=$(cat "$REC_BLANK" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
-    IDS_INC="${IDS_INC_1} ${IDS_INC_2}"
-    IDS_EXC=$(cat "$REC_CORRECT" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+        export IDS_INC
+        export IDS_EXC
 
-    export IDS_INC
-    export IDS_EXC
+        # generate quiz here
+        ./QuizGen.sh "$QUIZ_BANK" "$QUIZ_OUT_ABS" "$COUNT"
 
-    # generate quiz here
-    ./QuizGen.sh "$QUIZ_BANK" "$QUIZ_OUT_ABS" "$COUNT"
-
-    # file unlock for correct.tsv
-    flock -u 9
-    exec 9>&-
+    } 9>"$LOCK_FILE"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题

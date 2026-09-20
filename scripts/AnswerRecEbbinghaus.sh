@@ -11,13 +11,11 @@ set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder c
 #       <id>\t<记录时间, 如 "2026-09-17 23:03:32">\t<有效期, 如 "2 day" / "1 day" / "3 hour">
 #   若 (当前系统时间 - 记录时间) > 有效期，则认为该行"过期"：
 #       - 从原文件中删除该行
-#       - 把该行追加写入另一个"已删除"文件
+#       - 把该行追加写入另一个"Ebbinghaus"文件
 #
 #   该脚本只在收到 tmux 关闭窗口/pane 时发出的 SIGHUP 信号时才退出主循环，
 #   其余信号（Ctrl+C 等）不算作"关闭通知"，只是常规兜底处理。
 #
-# 用法：
-#   ./tmux_ttl_watcher.sh <TSV文件路径> <已删除行存放文件路径> [扫描间隔秒数，默认60]
 #
 # 建议运行方式（在 tmux 里）：
 #   tmux new-window -n ttl-watcher './tmux_ttl_watcher.sh data.tsv deleted.tsv 60'
@@ -27,6 +25,9 @@ set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder c
 
 # 主循环控制标志，收到 SIGHUP 后置 0 退出
 _running=1
+
+# 记录本次运行中用过的锁文件，退出时统一清理
+declare -A _LOCKS=()
 
 log() {
     printf '%s %s\n' "$(date '+%F %T')" "$*" >&2
@@ -63,106 +64,143 @@ command -v flock >/dev/null 2>&1 || {
 # ------------------------------------------------------------------
 # 参数解析
 # ------------------------------------------------------------------
-REC_CORRECT="${1:?用法: $0 <correct.tsv> [间隔秒数]}"
+ROOT_DIR="${1:?用法: $0 <目录> [间隔秒数]}"
 INTERVAL="${2:-60}"  # 默认每 60 秒扫描一次
+TARGET_NAME="correct.tsv"
 
-EBHS_FILE="$(dirname "$REC_CORRECT")/ebhs.tsv"
-TMP_FILE="${REC_CORRECT}.tmp.$$"
-
-# file lock
-LOCK_FILE="$(dirname "$REC_CORRECT")/rec.lock"
+[[ -d "$ROOT_DIR" ]] || {
+    echo "错误: 不是有效目录: $ROOT_DIR" >&2
+    exit 1
+}
 
 # ------------------------------------------------------------------
-# 单次扫描：用 awk 遍历每一行，判断是否过期
+# 单个文件的处理：用 awk 遍历每一行，判断是否过期
+# （逻辑与原脚本一致；ebhs.tsv / rec.lock 放在该 correct.tsv 所在目录）
 # ------------------------------------------------------------------
-scan() {
-    [[ -f "$REC_CORRECT" ]] || {
-        log "文件不存在，跳过本次扫描: $REC_CORRECT"
+scan_file() {
+    local rec_file="$1"
+    local dir ebhs_file lock_file tmp_file now_epoch rc
+
+    dir="$(dirname "$rec_file")"
+    ebhs_file="$dir/ebhs.tsv"
+    tmp_file="${rec_file}.tmp.$$"
+    lock_file="$dir/rec.lock"
+    _LOCKS["$lock_file"]=1
+
+    [[ -f "$rec_file" ]] || {
+        log "文件不存在，跳过本次扫描: $rec_file"
         return 0
     }
 
-    # 用 flock 加锁，避免和其它写入该文件的进程冲突（若系统无 flock 命令则跳过锁）
-    exec 9>"$LOCK_FILE"
-    flock -w 5 9 || {
-        log "获取文件锁超时，跳过本次扫描"
-        exec 9>&-
-        return 1
-    }
-
-    local now_epoch
     now_epoch=$(date +%s)
 
-    awk -F'\t' -v now="$now_epoch" -v ebhs_file="$EBHS_FILE" '
-        # 把 "day/hour/min/sec/week" 这类单位换算成秒
-        function unit_to_sec(u) {
-            u = tolower(u)
-            if (u ~ /^s/)              return 1        # sec / second(s)
-            if (u ~ /^min|^m$/)        return 60        # min / minute(s)
-            if (u ~ /^h/)              return 3600      # hour(s)
-            if (u ~ /^w/)              return 604800    # week(s)
-            if (u ~ /^d/)              return 86400     # day(s)
-            return 86400                                # 未知单位，默认按天算
+    # 用 { ...; } 9>lockfile 的形式持锁：块结束时 fd 9 自动关闭，
+    # 且打开锁文件失败（如无权限）时只会让本文件失败，不会让整个脚本退出
+    {
+        flock -w 5 9 || {
+            log "获取文件锁超时，跳过: $rec_file"
+            return 1
         }
 
-        # 用 date -d 把字符串时间转成 epoch 秒数
-        function to_epoch(datestr,   cmd, epoch) {
-            epoch = ""
-            cmd = "date -d \"" datestr "\" +%s 2>/dev/null"
-            cmd | getline epoch
-            close(cmd)
-            return epoch
-        }
-
-        {
-            if (NF < 3) {
-                # 行格式不完整，原样保留，不做判断
-                print $0
-                next
+        awk -F'\t' -v now="$now_epoch" -v ebhs_file="$ebhs_file" '
+            # 把 "day/hour/min/sec/week" 这类单位换算成秒
+            function unit_to_sec(u) {
+                u = tolower(u)
+                if (u ~ /^s/)              return 1         # sec / second(s)
+                if (u ~ /^min|^m$/)        return 60        # min / minute(s)
+                if (u ~ /^h/)              return 3600      # hour(s)
+                if (u ~ /^w/)              return 604800    # week(s)
+                if (u ~ /^d/)              return 86400     # day(s)
+                return 86400                                # 未知单位，默认按天算
             }
 
-            ts_epoch = to_epoch($2)
-
-            n = split($3, parts, " ")
-            num = parts[1] + 0
-            unit_sec = unit_to_sec(parts[2])
-            ttl_sec = num * unit_sec
-
-            if (ts_epoch != "" && ttl_sec > 0 && (now - ts_epoch) > ttl_sec) {
-                # 过期：写入已删除文件，不写回原文件
-                print $0 >> ebhs_file
-            } else {
-                # 未过期或解析失败：保留在原文件
-                print $0
+            # 用 date -d 把字符串时间转成 epoch 秒数
+            function to_epoch(datestr,   cmd, epoch) {
+                epoch = ""
+                cmd = "date -d \"" datestr "\" +%s 2>/dev/null"
+                cmd | getline epoch
+                close(cmd)
+                return epoch
             }
-        }
-    ' "$REC_CORRECT" > "$TMP_FILE"
 
-    # 原子替换原文件
-    mv -f "$TMP_FILE" "$REC_CORRECT"
+            {
+                if (NF < 3) {
+                    # 行格式不完整，原样保留，不做判断
+                    print $0
+                    next
+                }
 
-    flock -u 9
-    exec 9>&-
+                ts_epoch = to_epoch($2)
 
-    return 0
+                n = split($3, parts, " ")
+                num = parts[1] + 0
+                unit_sec = unit_to_sec(parts[2])
+                ttl_sec = num * unit_sec
+
+                if (ts_epoch != "" && ttl_sec > 0 && (now - ts_epoch) > ttl_sec) {
+                    # 过期: 写入已Ebbinghaus文件, 不写回原文件
+                    print $0 >> ebhs_file
+                } else {
+                    # 未过期或解析失败：保留在原文件
+                    print $0
+                }
+            }
+        ' "$rec_file" > "$tmp_file"
+
+        rc=$?
+        if (( rc == 0 )); then
+            # 保持原文件权限，然后原子替换
+            chmod --reference="$rec_file" "$tmp_file" 2>/dev/null
+            mv -f "$tmp_file" "$rec_file"
+        else
+            log "awk 处理失败(rc=$rc)，保留原文件不变: $rec_file"
+            rm -f "$tmp_file"
+            return 1
+        fi
+
+    } 9>"$lock_file"
+}
+
+# ------------------------------------------------------------------
+# 单轮扫描：深度遍历目录，找出所有 correct.tsv 并逐个处理
+# 每一轮都重新 find，因此运行期间新出现的文件也会被纳入
+# ------------------------------------------------------------------
+scan_all() {
+    local f count=0
+
+    while IFS= read -r -d '' f; do
+        (( _running )) || break
+        scan_file "$f"
+        (( count++ ))
+    done < <(find "$ROOT_DIR" -type f -name "$TARGET_NAME" -print0 2>/dev/null)
+
+    log "本轮扫描完成，共处理 $count 个 $TARGET_NAME"
+}
+
+cleanup() {
+    local l
+    for l in "${!_LOCKS[@]}"; do
+        rm -f "$l"
+    done
 }
 
 # ------------------------------------------------------------------
 # 主循环
 # ------------------------------------------------------------------
-log "开始监控: $REC_CORRECT"
-log "过期行写入: $EBHS_FILE"
+log "开始监控目录: $ROOT_DIR (递归查找 $TARGET_NAME)"
+log "过期行写入: 各 $TARGET_NAME 同目录下的 ebhs.tsv"
 log "扫描间隔: ${INTERVAL}s, 等待 tmux 关闭通知 (SIGHUP) 以退出"
 
 while (( _running )); do
-    scan
+    scan_all
 
-    # 把长 sleep 拆成多个 5 秒的短 sleep，
+    # 把长 sleep 拆成多个 1 秒的短 sleep，
     # 这样收到信号后能及时响应退出，而不用死等一整个 INTERVAL
     for ((i = 0; i < INTERVAL && _running; i++)); do
-        sleep 5
+        sleep 1
     done
 done
 
 log "主循环已退出，清理并结束脚本"
-rm -f "$LOCK_FILE"
+cleanup
 exit 0
