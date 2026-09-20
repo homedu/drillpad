@@ -28,25 +28,25 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         exit 0
     }
 
+    PATH_REC="${DIR_USER}/answer_record/${QUIZ}"
+    mkdir -p "$PATH_REC"
+
     # arg
-    REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}/correct.tsv"
-    REC_INCORRECT="${DIR_USER}/answer_record/${QUIZ}/incorrect.tsv"
-    REC_BLANK="${DIR_USER}/answer_record/${QUIZ}/blank.tsv"
+    REC_CORRECT="$PATH_REC/correct.tsv"
+    REC_INCORRECT="$PATH_REC/incorrect.tsv"
+    REC_BLANK="$PATH_REC/blank.tsv"
 
-    mkdir -p "$(dirname "$REC_CORRECT")"
-    mkdir -p "$(dirname "$REC_INCORRECT")"
-    mkdir -p "$(dirname "$REC_BLANK")"
+    # file lock
+    LOCK_FILE="$PATH_REC/rec.lock"
 
-    # file lock for correct.tsv
-    LOCK_REC_CORRECT="${REC_CORRECT}.lock"
-    exec 9>"$LOCK_REC_CORRECT"
+    exec 9>"$LOCK_FILE"
     flock -w 5 9 || {
         echo "error: ${REC_CORRECT} cannot be locked"
         exec 9>&-
         exit 1
     }
 
-    # env
+    # ENV
     IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "$PARAM")
     IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "$PARAM")
     IDS_BLANK=$(jq -r '.blank | join(" ")' <<< "$PARAM")

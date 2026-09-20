@@ -25,16 +25,6 @@ set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder c
 #   ./tmux_ttl_watcher.sh data.tsv deleted.tsv 60
 #
 
-# ------------------------------------------------------------------
-# 参数解析
-# ------------------------------------------------------------------
-TSV_FILE="${1:?用法: $0 <correct.tsv> [间隔秒数]}"
-INTERVAL="${2:-60}"  # 默认每 60 秒扫描一次
-
-EBHS_FILE="$(dirname "$TSV_FILE")/ebhs.tsv"
-LOCK_FILE="${TSV_FILE}.lock"
-TMP_FILE="${TSV_FILE}.tmp.$$"
-
 # 主循环控制标志，收到 SIGHUP 后置 0 退出
 _running=1
 
@@ -65,18 +55,29 @@ trap on_term SIGINT SIGTERM
 # ------------------------------------------------------------------
 # check flock
 # ------------------------------------------------------------------
-
 command -v flock >/dev/null 2>&1 || {
     echo "错误: 系统未安装 flock"
     exit 1
 }
 
 # ------------------------------------------------------------------
+# 参数解析
+# ------------------------------------------------------------------
+REC_CORRECT="${1:?用法: $0 <correct.tsv> [间隔秒数]}"
+INTERVAL="${2:-60}"  # 默认每 60 秒扫描一次
+
+EBHS_FILE="$(dirname "$REC_CORRECT")/ebhs.tsv"
+TMP_FILE="${REC_CORRECT}.tmp.$$"
+
+# file lock
+LOCK_FILE="$(dirname "$REC_CORRECT")/rec.lock"
+
+# ------------------------------------------------------------------
 # 单次扫描：用 awk 遍历每一行，判断是否过期
 # ------------------------------------------------------------------
 scan() {
-    [[ -f "$TSV_FILE" ]] || {
-        log "文件不存在，跳过本次扫描: $TSV_FILE"
+    [[ -f "$REC_CORRECT" ]] || {
+        log "文件不存在，跳过本次扫描: $REC_CORRECT"
         return 0
     }
 
@@ -134,10 +135,10 @@ scan() {
                 print $0
             }
         }
-    ' "$TSV_FILE" > "$TMP_FILE"
+    ' "$REC_CORRECT" > "$TMP_FILE"
 
     # 原子替换原文件
-    mv -f "$TMP_FILE" "$TSV_FILE"
+    mv -f "$TMP_FILE" "$REC_CORRECT"
 
     flock -u 9
     exec 9>&-
@@ -148,7 +149,7 @@ scan() {
 # ------------------------------------------------------------------
 # 主循环
 # ------------------------------------------------------------------
-log "开始监控: $TSV_FILE"
+log "开始监控: $REC_CORRECT"
 log "过期行写入: $EBHS_FILE"
 log "扫描间隔: ${INTERVAL}s, 等待 tmux 关闭通知 (SIGHUP) 以退出"
 

@@ -31,9 +31,11 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
+    DIR_USER="../users/${USER}"
+
     # arg
-    QUIZ_BANK="../users/${USER}/quiz_bank/${QUIZ}.tsv"
-    QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"
+    QUIZ_BANK="$DIR_USER/quiz_bank/${QUIZ}.tsv"
+    QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"  # will be appended to /var/www/dp_users/
     COUNT=$(jq -r '.count' <<< "$PARAM")
 
     QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
@@ -62,18 +64,18 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         exit 0
     }
 
-    # env (get those from /answer_record/, rather than from the request)
-    REC_CORRECT="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
-    REC_INCORRECT="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
-    REC_BLANK="../users/${USER}/answer_record/${QUIZ}/blank.tsv"
+    PATH_REC="$DIR_USER/answer_record/${QUIZ}"
+    mkdir -p "$PATH_REC"
 
-    mkdir -p "$(dirname "$REC_CORRECT")"
-    mkdir -p "$(dirname "$REC_INCORRECT")"
-    mkdir -p "$(dirname "$REC_BLANK")"
+    # make ENV (get those from /answer_record/, rather than from the request)
+    REC_CORRECT="$PATH_REC/correct.tsv"
+    REC_INCORRECT="$PATH_REC/incorrect.tsv"
+    REC_BLANK="$PATH_REC/blank.tsv"
 
-    # file lock for correct.tsv
-    LOCK_REC_CORRECT="${REC_CORRECT}.lock"
-    exec 9>"$LOCK_REC_CORRECT"
+    # file lock
+    LOCK_FILE="$PATH_REC/rec.lock"
+
+    exec 9>"$LOCK_FILE"
     flock -w 5 9 || {
         echo "error: ${REC_CORRECT} cannot be locked"
         exec 9>&-
