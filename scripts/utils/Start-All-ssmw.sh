@@ -2,22 +2,34 @@
 
 set -uo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 # ============================================================================
 # 单一 tmux session，内部使用多个 window 分别运行各个服务
 # ============================================================================
 
 SESSION_NAME="qdp-services"
-CONFIG_PATH="../config/nats-server.conf"
+CONFIG_PATH="../../config/nats-server.conf"
 NATS_PORT=4222 # NATS 默认客户端端口，可根据你的 conf 文件修改
 
 # 窗口名 -> 启动命令 (使用普通数组，保证顺序，兼容性更好)
 WINDOW_NAMES=("nats-server" "quiz-list" "quiz-fetch" "answer-record", "ebbinghaus")
 WINDOW_CMDS=(
 "nats-server -c $CONFIG_PATH"
-"nats reply \"quiz-list\" --command=\"./reply_quiz-list.sh\" 2>/dev/null"
-"nats reply \"quiz-fetch\" --command=\"./reply_quiz-fetch.sh\" 2>/dev/null"
-"nats reply \"answer-record\" --command=\"./reply_answer-record.sh\" 2>/dev/null"
-"./AnswerRecEbbinghaus.sh ../users/"
+"nats reply \"quiz-list\" --command=\"../reply_quiz-list.sh\" 2>/dev/null"
+"nats reply \"quiz-fetch\" --command=\"../reply_quiz-fetch.sh\" 2>/dev/null"
+"nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
+# running *.sh with PWD step into its file directory, args should be relative to *.sh
+"../EbbinghausRec.sh ../users/"
 )
 
 echo "正在检查 tmux 会话..."
@@ -37,7 +49,7 @@ echo "正在创建 tmux 会话 '$SESSION_NAME' 并依次创建各个 window..."
 tmux new-session -d -s "$SESSION_NAME" -n "${WINDOW_NAMES[0]}" "${WINDOW_CMDS[0]}"
 
 # 3. 给 nats-server 一点启动初始化的时间，再启动依赖它的 reply 服务
-sleep 1.5
+sleep 2
 
 # 4. 依次创建剩余的 window
 for i in "${!WINDOW_NAMES[@]}"; do
@@ -48,7 +60,7 @@ for i in "${!WINDOW_NAMES[@]}"; do
 done
 
 # 给各个 nats reply 客户端一点连接和启动的时间
-sleep 1.5
+sleep 2
 
 echo "--------------------------------------------------"
 echo "已创建所有 window, 正在逐一检查各服务启动状态..."
@@ -58,6 +70,7 @@ echo "--------------------------------------------------"
 # 检查 nats-server
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "nats-server -c $CONFIG_PATH")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
 
 if [[ -n "$PID" ]]; then
     echo "✅ [nats-server] 进程检查: nats-server 正在运行! (PID: $PID)"
@@ -82,6 +95,7 @@ fi
 # 检查 reply quiz-list
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "nats reply.*quiz-list.*reply_quiz-list.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
 
 if [[ -n "$PID" ]]; then
     echo "✅ [quiz-list] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
@@ -94,6 +108,7 @@ fi
 # 检查 reply quiz-fetch
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "nats reply.*quiz-fetch.*reply_quiz-fetch.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
 
 if [[ -n "$PID" ]]; then
     echo "✅ [quiz-fetch] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
@@ -106,6 +121,7 @@ fi
 # 检查 reply answer-record
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "nats reply.*answer-record.*reply_answer-record.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
 
 if [[ -n "$PID" ]]; then
     echo "✅ [answer-record] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
@@ -115,15 +131,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 检查 AnswerRecEbbinghaus
+# 检查 EbbinghausRec
 # ---------------------------------------------------------------------------
-PID=$(pgrep -f "AnswerRecEbbinghaus")
+PID=$(pgrep -f "EbbinghausRec")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
 
 if [[ -n "$PID" ]]; then
-    echo "✅ [AnswerRecEbbinghaus] 进程检查: AnswerRecEbbinghaus.sh 响应服务已成功启动并正在运行! (PID: $PID)"
+    echo "✅ [EbbinghausRec] 进程检查: EbbinghausRec.sh 响应服务已成功启动并正在运行! (PID: $PID)"
 else
-    echo "❌ [AnswerRecEbbinghaus] 错误: 未找到 AnswerRecEbbinghaus 进程，启动可能失败了。"
-    echo "   原因分析: 可能是 './AnswerRecEbbinghaus.sh' 找不到/没有执行权限。"
+    echo "❌ [EbbinghausRec] 错误: 未找到 EbbinghausRec 进程，启动可能失败了。"
+    echo "   原因分析: 可能是 './EbbinghausRec.sh' 找不到/没有执行权限。"
 fi
 
 echo "--------------------------------------------------"

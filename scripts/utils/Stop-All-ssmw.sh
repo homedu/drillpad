@@ -2,6 +2,17 @@
 
 set -uo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 # ============================================================================
 # 停止脚本：显式 kill 掉各个 qdp 相关进程（不能只依赖 tmux kill-server / kill-session，
 # 因为 qdp-server 把 SIGHUP 当作"重载配置"信号处理，收到 tmux 关闭 pty 时发出的
@@ -9,7 +20,7 @@ set -uo pipefail
 # ============================================================================
 
 SESSION_NAME="qdp-services"
-CONFIG_PATH="../config/nats-server.conf"
+CONFIG_PATH="../../config/nats-server.conf"
 
 # 需要精确匹配的进程特征（和启动脚本里 pgrep -f 用的一致）
 PATTERNS=(
@@ -17,7 +28,7 @@ PATTERNS=(
 "nats reply.*quiz-list.*reply_quiz-list.sh"
 "nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
 "nats reply.*answer-record.*reply_answer-record.sh"
-"AnswerRecEbbinghaus"
+"EbbinghausRec"
 )
 
 echo "--------------------------------------------------"
@@ -27,7 +38,7 @@ tmux kill-server 2>/dev/null
 echo "--------------------------------------------------"
 
 # 给进程一点优雅退出的时间
-sleep 5
+sleep 2
 
 echo "正在停止 qdp 相关进程..."
 
@@ -56,4 +67,4 @@ for pattern in "${PATTERNS[@]}"; do
 done
 
 echo "完成。当前残留检查:"
-ps -A | grep -E "nats-server|nats reply|AnswerRecEbbinghaus" | grep -v grep || echo "  (无残留进程，清理干净)"
+ps -A | grep -E "nats-server|nats reply|EbbinghausRec" | grep -v grep || echo "  (无残留进程，清理干净)"

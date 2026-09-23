@@ -2,6 +2,17 @@
 
 set -euo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 msg="$NATS_REQUEST_BODY"
 
 # 检查是否传入了参数
@@ -14,6 +25,9 @@ PARAM="${msg}"
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+
+# 记录本次运行中用过的锁文件，退出时统一清理
+declare -A _LOCKS=()
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
@@ -38,6 +52,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # file lock
     LOCK_FILE="$PATH_REC/rec.lock"
+    _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {
             echo "error: ${REC_CORRECT} cannot be locked"
@@ -68,6 +83,13 @@ else
     echo "${PARAM} ${CURRENT_TIME} - DO NOTHING, Accept JSON message with 'correct', 'incorrect', 'blank' fields"
 
 fi
+
+cleanup() {
+    local l
+    for l in "${!_LOCKS[@]}"; do
+        rm -f "$l"
+    done
+}
 
 # topic: answer-record
 # nats reply "answer-record" --command="./reply_answer-record.sh" 2>/dev/null

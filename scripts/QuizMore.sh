@@ -2,6 +2,17 @@
 
 set -euo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 # 检查传入的参数个数是否为 3
 # [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 argument!"

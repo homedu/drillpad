@@ -2,16 +2,32 @@
 
 set -euo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 # [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 arguments!"
 #     echo "usage: $0 <record-correct> <record-incorrect> <record-blank>; Also ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]"
 #     exit 1
 # }
 
+usage() {
+    echo "usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV: [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]" >&2
+    exit 1
+}
+
 # arg
-REC_CORRECT="${1:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
-REC_INCORRECT="${2:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
-REC_BLANK="${3:?usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]}"
+REC_CORRECT="${1:?$(usage)}"
+REC_INCORRECT="${2:?$(usage)}"
+REC_BLANK="${3:?$(usage)}"
 
 [ -f "$REC_CORRECT" ] || touch "$REC_CORRECT"
 [ -f "$REC_INCORRECT" ] || touch "$REC_INCORRECT"

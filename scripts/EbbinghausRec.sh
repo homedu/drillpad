@@ -4,24 +4,17 @@
 # 原脚本没有这个，如果某一步 awk 出错，后面的 mv 依然会执行，可能用一个空/半截文件覆盖掉原始数据。
 set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder code
 
-#
-# 用途：AnswerRecEbbinghaus.sh
-#   在一个 tmux 窗口/pane 中长期驻留运行，每隔一段时间用 awk 遍历一个 TSV 文件，
-#   TSV 每行格式为：
-#       <id>\t<记录时间, 如 "2026-09-17 23:03:32">\t<有效期, 如 "2 day" / "1 day" / "3 hour">
-#   若 (当前系统时间 - 记录时间) > 有效期，则认为该行"过期"：
-#       - 从原文件中删除该行
-#       - 把该行追加写入另一个"Ebbinghaus"文件
-#
-#   该脚本只在收到 tmux 关闭窗口/pane 时发出的 SIGHUP 信号时才退出主循环，
-#   其余信号（Ctrl+C 等）不算作"关闭通知"，只是常规兜底处理。
-#
-#
-# 建议运行方式（在 tmux 里）：
-#   tmux new-window -n ttl-watcher './tmux_ttl_watcher.sh data.tsv deleted.tsv 60'
-#   或者直接在某个 tmux pane 里前台运行：
-#   ./tmux_ttl_watcher.sh data.tsv deleted.tsv 60
-#
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    cleanup
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
 
 # 主循环控制标志，收到 SIGHUP 后置 0 退出
 _running=1
@@ -79,29 +72,26 @@ TARGET_NAME="correct.tsv"
 # ------------------------------------------------------------------
 scan_file() {
     local rec_file="$1"
-    local dir ebhs_file lock_file tmp_file now_epoch rc
-
-    dir="$(dirname "$rec_file")"
-    ebhs_file="$dir/ebhs.tsv"
-    tmp_file="${rec_file}.tmp.$$"
-    lock_file="$dir/rec.lock"
-    _LOCKS["$lock_file"]=1
+    local d; d="$(dirname "$rec_file")"
 
     [[ -f "$rec_file" ]] || {
         log "文件不存在，跳过本次扫描: $rec_file"
         return 0
     }
 
-    now_epoch=$(date +%s)
-
     # 用 { ...; } 9>lockfile 的形式持锁：块结束时 fd 9 自动关闭，
     # 且打开锁文件失败（如无权限）时只会让本文件失败，不会让整个脚本退出
+    local LOCK_FILE="$d/rec.lock"
+    _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {
             log "获取文件锁超时，跳过: $rec_file"
             return 1
         }
 
+        local now_epoch; now_epoch=$(date +%s)
+        local ebhs_file="$d/ebhs.tsv"
+        local tmp_file="${rec_file}.tmp.$$"
         awk -F'\t' -v now="$now_epoch" -v ebhs_file="$ebhs_file" '
             # 把 "day/hour/min/sec/week" 这类单位换算成秒
             function unit_to_sec(u) {
@@ -147,7 +137,7 @@ scan_file() {
             }
         ' "$rec_file" > "$tmp_file"
 
-        rc=$?
+        local rc=$?
         if (( rc == 0 )); then
             # 保持原文件权限，然后原子替换
             chmod --reference="$rec_file" "$tmp_file" 2>/dev/null
@@ -158,7 +148,7 @@ scan_file() {
             return 1
         fi
 
-    } 9>"$lock_file"
+    } 9>"$LOCK_FILE"
 }
 
 # ------------------------------------------------------------------
@@ -180,6 +170,7 @@ scan_all() {
 cleanup() {
     local l
     for l in "${!_LOCKS[@]}"; do
+        echo "$l" >> debug.txt
         rm -f "$l"
     done
 }
@@ -192,7 +183,11 @@ log "过期行写入: 各 $TARGET_NAME 同目录下的 ebhs.tsv"
 log "扫描间隔: ${INTERVAL}s, 等待 tmux 关闭通知 (SIGHUP) 以退出"
 
 while (( _running )); do
+
     scan_all
+
+    # running *.sh with PWD step into its file directory, args should be relative to *.sh
+    ./CleanBlankLines.sh ../users/ || exit 1
 
     # 把长 sleep 拆成多个 1 秒的短 sleep，
     # 这样收到信号后能及时响应退出，而不用死等一整个 INTERVAL
@@ -202,5 +197,4 @@ while (( _running )); do
 done
 
 log "主循环已退出，清理并结束脚本"
-cleanup
 exit 0

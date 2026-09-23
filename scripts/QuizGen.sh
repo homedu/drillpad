@@ -2,6 +2,17 @@
 
 set -euo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 # [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 arguments!"
 #     echo "usage: $0 <quiz-bank-tsv> <quiz-output> [count]; Also ENV [IDS_INC] [IDS_EXC]"

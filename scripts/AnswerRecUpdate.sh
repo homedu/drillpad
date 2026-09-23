@@ -1,39 +1,52 @@
 #!/usr/bin/env bash
 
-# 开启严格模式：任何命令出错立即退出、未定义变量报错、管道中任意环节出错都算失败。
-# 原脚本没有这个，如果某一步 awk 出错，后面的 mv 依然会执行，可能用一个空/半截文件覆盖掉原始数据。
 set -euo pipefail
 
-# ENV: REC_CORRECT, REC_INCORRECT, REC_BLANK
-: ${REC_CORRECT:?must be set in ENV}
-: ${REC_INCORRECT:?must be set in ENV}
-: ${REC_BLANK:?must be set in ENV}
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
+usage() {
+    echo "[REC_CORRECT], [REC_INCORRECT], [REC_BLANK], [REC_EBHS] all are needed from ENV" >&2
+    exit 1
+}
+
+# ENV: REC_CORRECT, REC_INCORRECT, REC_BLANK, REC_EBHS
+: ${REC_CORRECT:?$(usage)}
+: ${REC_INCORRECT:?$(usage)}
+: ${REC_BLANK:?$(usage)}
+: ${REC_EBHS:?$(usage)}
 
 # 用 mktemp 在目标文件所在目录下生成唯一临时文件名。
-# 原脚本用固定名字 blank.tsv.tmp / correct.tsv.tmp / incorrect.tsv.tmp：
+# 原脚本用固定名字 blank.tsv.tmp / correct.tsv.tmp / incorrect.tsv.tmp / ebhs.tsv.tmp：
 # - 如果这个脚本被并发调用（比如两个任务同时跑），会互相覆盖临时文件，产生竞态条件；
 # - 如果当前工作目录不是文件所在目录，mv 可能失败或者跨文件系统导致非原子操作。
 # mktemp 保证文件名唯一，且放在同目录下保证 mv 是原子操作（同文件系统内 rename）。
 TMP_BLANK=$(mktemp "$(dirname "$REC_BLANK")/blank.XXXXXX")
 TMP_CORRECT=$(mktemp "$(dirname "$REC_CORRECT")/correct.XXXXXX")
 TMP_INCORRECT=$(mktemp "$(dirname "$REC_INCORRECT")/incorrect.XXXXXX")
+TMP_EBHS=$(mktemp "$(dirname "$REC_EBHS")/ebhs.XXXXXX")
 
 # 注册退出清理：无论脚本正常结束还是中途因 set -e 报错退出，
 # 都尝试删除还残留的临时文件，避免磁盘上堆积垃圾文件。
 # （正常流程里临时文件会被 mv 掉，届时 rm -f 找不到文件也不会报错。）
 cleanup() {
-    rm -f "$TMP_BLANK" "$TMP_CORRECT" "$TMP_INCORRECT"
+    rm -f "$TMP_BLANK" "$TMP_CORRECT" "$TMP_INCORRECT" "$TMP_EBHS"
 }
-trap cleanup EXIT
 
 # 前置校验：检查 correct.tsv / incorrect.tsv 内部是否有重复 ID。
 # 之前讨论过，如果同一个 ID 在同一个文件里出现多次，awk 关联数组会静默用后面的行覆盖前面的，
-# 不会报错，但结果可能不是你预期的。这里只做告警，不阻断流程，方便你事后核查。
+# 不会报错，但结果可能不是你预期的。这里只做告警，不阻断流程，方便事后核查。
 check_duplicates() {
-    local file="$1"
-    local name="$2"
-    local dups
-    dups=$(cut -f1 "$file" | sort | uniq -d)
+    local file="$1" name="$2"
+    local dups; dups=$(cut -f1 "$file" | sort | uniq -d)
     [[ -z "$dups" ]] || {
         echo "WARNING: 发现 $name 中存在重复 ID:" >&2
         echo "$dups" >&2
@@ -49,51 +62,53 @@ check_duplicates "$REC_INCORRECT" "REC_INCORRECT"
 # if correct id exists, and same id exists in blank file, remove it from blank file
 awk -F'\t' 'NR==FNR{ids[$1]=1; next} !($1 in ids)' "$REC_CORRECT" "$REC_BLANK" > "$TMP_BLANK" && mv "$TMP_BLANK" "$REC_BLANK"
 
-# 第二次运行前重新生成一个新的临时文件名。
-# 原脚本复用了同一个 blank.tsv.tmp 文件名，虽然因为是顺序执行、每次都被 mv 清空，
-# 单次运行下不会出错，但为了和上面的 mktemp 方式保持一致（且避免万一并发执行时的隐患），
-# 这里重新申请一个临时文件。
-TMP_BLANK=$(mktemp "$(dirname "$REC_BLANK")/blank.XXXXXX")
-
 # if incorrect id exists, and same id exists in blank file, remove it from blank file
+: > "$TMP_BLANK"
 awk -F'\t' 'NR==FNR{ids[$1]=1; next} !($1 in ids)' "$REC_INCORRECT" "$REC_BLANK" > "$TMP_BLANK" && mv "$TMP_BLANK" "$REC_BLANK"
 
 ###########################################################################################
 
+# if ❌
 # if correct id exists, and same id exists in incorrect file; IF incorrect id's timestamp is newer than or equal to correct id;
-# 1) increment incorrect count by 1,
+# 1) increment incorrect count by 1/2/3...,
 # 2) remove it from correct file.
-#
-# 时间戳比较改为 >=（原来是 >）。
-# 原因：如果 correct 和 incorrect 的时间戳完全相等，用严格 > 的话，本条规则和下面"correct 更新"
-# 的规则都不会触发，导致该 ID 同时残留在 correct.tsv 和 incorrect.tsv 里，破坏互斥性。
-# 约定：时间戳相等时，判定为"incorrect 更新"胜出（业务规则，需要和需求方确认）。
+# 3) remove it from ebhs file.
 
 : > "$TMP_CORRECT"
 : > "$TMP_INCORRECT"
+: > "$TMP_EBHS"
 
 awk -F'\t' -v OFS='\t' '
-FNR==NR {
-    # 处理 correct.tsv (第一个文件)
+
+# 处理 correct.tsv (第一个文件)
+FILENAME == "'"$REC_CORRECT"'" {
     corr_line[$1]   = $0  # 记录该行原始内容(留着最后输出用)
     corr_order[++n] = $1  # 记录出现顺序,方便最后按原顺序输出
     corr_ts[$1]     = $2  # 记录该 ID 的时间戳
     next
 }
-{
-    # 处理 incorrect.tsv (第二个文件)
+
+# 处理 ebhs.tsv (第二个文件)
+FILENAME == "'"$REC_EBHS"'" {
+	ebhs_line[$1]   = $0  # 记录该行原始内容(留着最后输出用)
+    ebhs_order[++m] = $1  # 记录出现顺序,方便最后按原顺序输出
+    ebhs_ts[$1]     = $2  # 记录该 ID 的时间戳
+	next
+}
+
+# 处理 incorrect.tsv (第三个文件)
+FILENAME == "'"$REC_INCORRECT"'" {
     id  = $1
     ts  = $2
     cnt = $3
-
     if (id in corr_ts && ts >= corr_ts[id]) {
-        # 改为 >=，处理时间戳相等的边界情况
-        remove[id] = 1   # 标记:这个 ID 要从 correct.tsv 中删除
+        remove[id] = 1   # 标记:这个 ID 要从 correct.tsv/ebhs.tsv 中删除
         cnt += 3         # count 加 3 以便多次重复出现错题
     }
-
     print id, ts, cnt >> "'"$TMP_INCORRECT"'"
+	next
 }
+
 END {
     # 按原始顺序输出 correct.tsv,跳过被标记删除的 ID
     for (i = 1; i <= n; i++) {
@@ -102,23 +117,29 @@ END {
             print corr_line[id] >> "'"$TMP_CORRECT"'"
         }
     }
+    # 按原始顺序输出 ebhs.tsv,跳过被标记删除的 ID
+    for (i = 1; i <= m; i++) {
+        id = ebhs_order[i]
+        if (!(id in remove)) {
+            print ebhs_line[id] >> "'"$TMP_EBHS"'"
+        }
+    }
 }
-' "$REC_CORRECT" "$REC_INCORRECT"
+' "$REC_CORRECT" "$REC_EBHS" "$REC_INCORRECT"
 
 mv "$TMP_CORRECT" "$REC_CORRECT"
 mv "$TMP_INCORRECT" "$REC_INCORRECT"
+mv "$TMP_EBHS" "$REC_EBHS"
 
 ###########################################################################################
 
+# if ✅
 # if correct id exists, and same id exists in incorrect file; IF correct id's timestamp is strictly newer than incorrect id;
 # 1) decrement incorrect count by 1,
-# 2) remove it from correct file if incorrect number > 0.
+# 2) remove it (do not keep) from correct file IF incorrect number still > 0.
 # 3) keep it in correct file if incorrect number == 0, then remove the id from incorrect file.
 #
-# 【说明】这一步保持严格 >（不改成 >=），因为上一步已经把"相等"的情况处理掉了
-# （相等 → incorrect 赢）。这里如果也用 >=，会导致相等的 ID 被同时处理两次，
-# 但由于上一步已经把该 ID 从 correct.tsv 中删除，这一步 `id in corr_ts` 会天然为 false，
-# 实际不会出问题；但为了逻辑清晰、避免歧义，明确保留严格 >。
+# 由于上一步已经把该 ID 从 correct.tsv 中删除，这一步 `id in corr_ts` 会天然为 false，
 
 TMP_CORRECT=$(mktemp "$(dirname "$REC_CORRECT")/correct.XXXXXX")
 TMP_INCORRECT=$(mktemp "$(dirname "$REC_INCORRECT")/incorrect.XXXXXX")
@@ -180,5 +201,3 @@ END {
 
 mv "$TMP_CORRECT" "$REC_CORRECT"
 mv "$TMP_INCORRECT" "$REC_INCORRECT"
-
-###########################################################################################

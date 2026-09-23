@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 #
 users/*/answer_record
 scripts/useless
+*.lock

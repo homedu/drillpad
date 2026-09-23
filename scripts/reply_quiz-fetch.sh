@@ -2,6 +2,17 @@
 
 set -euo pipefail
 
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pushd $SCRIPT_DIR > /dev/null
+on_exit() {
+    popd > /dev/null
+}
+trap on_exit EXIT
+
+##########################################################
+
 # 请求内容在 stdin 中也可以通过环境变量拿到
 msg="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
 
@@ -20,6 +31,9 @@ PARAM="${msg}"
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+
+# 记录本次运行中用过的锁文件，退出时统一清理
+declare -A _LOCKS=()
 
 # /var/www/dp_users must exist AND be set in Caddyfile as "root * /var/www/dp_users"
 FETCH_ROOT="/var/www/dp_users"
@@ -74,6 +88,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # file lock
     LOCK_FILE="$PATH_REC/rec.lock"
+    _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {
             echo "error: ${REC_CORRECT} cannot be locked"
@@ -103,6 +118,13 @@ else
     echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON message with 'count', 'include', 'exclude' fields"
 
 fi
+
+cleanup() {
+    local l
+    for l in "${!_LOCKS[@]}"; do
+        rm -f "$l"
+    done
+}
 
 # topic: quiz-fetch
 # nats reply "quiz-fetch" --command="./reply_quiz-fetch.sh" 2>/dev/null
