@@ -87,7 +87,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     REC_BLANK="$PATH_REC/blank.tsv"
 
     # file lock
-    LOCK_FILE="$PATH_REC/rec.lock"
+    LOCK_FILE="$PATH_REC/rec.lock"; echo "${LOCK_FILE} --- reply_quiz-fetch" >> debug.txt
     _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {

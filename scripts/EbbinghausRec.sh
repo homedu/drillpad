@@ -81,7 +81,7 @@ scan_file() {
 
     # 用 { ...; } 9>lockfile 的形式持锁：块结束时 fd 9 自动关闭，
     # 且打开锁文件失败（如无权限）时只会让本文件失败，不会让整个脚本退出
-    local LOCK_FILE="$d/rec.lock"
+    local LOCK_FILE="$d/rec.lock"; echo "${LOCK_FILE} --- Ebbinghaus" >> debug.txt
     _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {
@@ -186,8 +186,9 @@ while (( _running )); do
 
     scan_all
 
-    # running *.sh with PWD step into its file directory, args should be relative to *.sh
-    ./CleanBlankLines.sh ../users/ || exit 1
+    # running *.sh with CWD as its file directory, args should be relative to *.sh
+    ./Dedup.sh ../users/ -r --inplace || exit 1
+    ./Deblank.sh ../users/ || exit 1
 
     # 把长 sleep 拆成多个 1 秒的短 sleep，
     # 这样收到信号后能及时响应退出，而不用死等一整个 INTERVAL
