@@ -106,7 +106,7 @@ while IFS= read -r -d '' file; do
     echo "处理: $file"
     d=$(dirname "$file")
 
-    LOCK_FILE="$d/rec.lock"; echo "${LOCK_FILE} --- Dedup" >> debug.txt
+    LOCK_FILE="$d/rec.lock"; # echo "${LOCK_FILE} --- Dedup" >> debug.txt
     _LOCKS["$LOCK_FILE"]=1
     {
         tmpfile="$(mktemp "${file}.XXXXXX.tmp")"

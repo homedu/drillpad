@@ -29,7 +29,7 @@ WINDOW_CMDS=(
 "nats reply \"quiz-fetch\" --command=\"../reply_quiz-fetch.sh\" 2>/dev/null"
 "nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
 # running *.sh with PWD step into its file directory, args should be relative to *.sh
-"../EbbinghausRec.sh ../users/ 3600"
+"../EbbinghausRec.sh ../users/ 30"
 )
 
 echo "正在检查 tmux 会话..."

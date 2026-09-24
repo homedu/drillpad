@@ -139,7 +139,7 @@ process_file() {
     local f="$1" d
     d=$(dirname "$f")
 
-    local LOCK_FILE="$d/rec.lock"; echo "${LOCK_FILE} --- Deblank" >> debug.txt
+    local LOCK_FILE="$d/rec.lock"; # echo "${LOCK_FILE} --- Deblank" >> debug.txt
     _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# 开启严格模式：任何命令出错立即退出、未定义变量报错、管道中任意环节出错都算失败。
-# 原脚本没有这个，如果某一步 awk 出错，后面的 mv 依然会执行，可能用一个空/半截文件覆盖掉原始数据。
+# remove from correct.tsv (whitelist) if it has been expired,
+# and append to ebhs.tsv for future comparison
+
 set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder code
 
 ##########################################################
@@ -81,7 +82,7 @@ scan_file() {
 
     # 用 { ...; } 9>lockfile 的形式持锁：块结束时 fd 9 自动关闭，
     # 且打开锁文件失败（如无权限）时只会让本文件失败，不会让整个脚本退出
-    local LOCK_FILE="$d/rec.lock"; echo "${LOCK_FILE} --- Ebbinghaus" >> debug.txt
+    local LOCK_FILE="$d/rec.lock"; # echo "${LOCK_FILE} --- Ebbinghaus" >> debug.txt
     _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {
@@ -92,7 +93,8 @@ scan_file() {
         local now_epoch; now_epoch=$(date +%s)
         local ebhs_file="$d/ebhs.tsv"
         local tmp_file="${rec_file}.tmp.$$"
-        awk -F'\t' -v now="$now_epoch" -v ebhs_file="$ebhs_file" '
+
+        awk -F'\t' -v OFS='\t' -v now="$now_epoch" -v ebhs_file="$ebhs_file" '
             # 把 "day/hour/min/sec/week" 这类单位换算成秒
             function unit_to_sec(u) {
                 u = tolower(u)
@@ -113,6 +115,15 @@ scan_file() {
                 return epoch
             }
 
+            BEGIN {
+                map["1 day"]="2 day"
+                map["2 day"]="4 day"
+                map["4 day"]="7 day"
+                map["7 day"]="15 day"
+                map["15 day"]="30 day"
+                map["30 day"]="60 day"
+            }
+
             {
                 if (NF < 3) {
                     # 行格式不完整，原样保留，不做判断
@@ -129,7 +140,14 @@ scan_file() {
 
                 if (ts_epoch != "" && ttl_sec > 0 && (now - ts_epoch) > ttl_sec) {
                     # 过期: 写入已Ebbinghaus文件, 不写回原文件
-                    print $0 >> ebhs_file
+                    if ($3 in map) {
+                        # 满足艾宾浩斯曲线的映射关系, 延长时间间隔
+                        $3 = map[$3]
+                    } else {
+                        # 如果没有映射关系, 默认延长1天
+                        $3 = (num + 1) " " parts[2]
+                    }
+                    print $1, $2, $3 >> ebhs_file
                 } else {
                     # 未过期或解析失败：保留在原文件
                     print $0
