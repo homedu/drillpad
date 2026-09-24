@@ -20,18 +20,20 @@ trap on_exit EXIT
 # }
 
 usage() {
-    echo "usage: $0 <correct.tsv> <incorrect.tsv> <blank.tsv>; ENV: [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]" >&2
+    echo "usage: $0 <correct.tsv> [incorrect.tsv] [blank.tsv] [ebhs.tsv]; ENV: [IDS_CORRECT] [IDS_INCORRECT] [IDS_BLANK]" >&2
     exit 1
 }
 
 # arg
 REC_CORRECT="${1:?$(usage)}"
-REC_INCORRECT="${2:?$(usage)}"
-REC_BLANK="${3:?$(usage)}"
+REC_INCORRECT="${2:-${REC_CORRECT%/*}/incorrect.tsv}" # default: same dir as REC_CORRECT
+REC_BLANK="${3:-${REC_CORRECT%/*}/blank.tsv}" # default: same dir as REC_CORRECT
+REC_EBHS="${4:-${REC_CORRECT%/*}/ebhs.tsv}" # default: same dir as REC_CORRECT
 
 [ -f "$REC_CORRECT" ] || touch "$REC_CORRECT"
 [ -f "$REC_INCORRECT" ] || touch "$REC_INCORRECT"
 [ -f "$REC_BLANK" ] || touch "$REC_BLANK"
+[ -f "$REC_EBHS" ] || touch "$REC_EBHS"
 
 # env
 declare -a IDS_CORRECT=($IDS_CORRECT)
@@ -65,7 +67,7 @@ ts=$(date '+%Y-%m-%d %H:%M:%S')
 # 把待处理数组转成多行文本，交给 awk 一次性处理
 ids_str=$(printf '%s\n' "${IDS_CORRECT[@]}")
 
-awk -v ts="$ts" -v ids_str="$ids_str" '
+awk -v ts="$ts" -v ids_str="$ids_str" -v ebhs="$REC_EBHS" '
     BEGIN {
         FS = OFS = "\t"
         n = split(ids_str, arr, "\n")
@@ -73,6 +75,15 @@ awk -v ts="$ts" -v ids_str="$ids_str" '
             if (arr[i] == "") continue
             want[arr[i]] = 1   # 本次想要记录的 UUID 清单
         }
+
+        # 读取 ebhs.tsv 文件
+        while ((getline line < ebhs) > 0) {
+            n = split(line, f, "\t")
+            if (n >= 3) {
+                day_map[f[1]] = f[3]   # key: uuid, value: "n day"
+            }
+        }
+        close(ebhs)
     }
     {
         # 文件里已存在的行，原样输出，并从 want 中去掉（说明已存在，不需要再追加）
@@ -81,7 +92,10 @@ awk -v ts="$ts" -v ids_str="$ids_str" '
     }
     END {
         # 剩下 want 里还留着的，就是原文件里没有的，需要追加
-        for (uuid in want) print uuid, ts, "1 day"       # 1, 2, 4, 7, 15, 30;  艾宾浩斯遗忘曲线经典的黄金复习时间间隔
+        for (uuid in want) {
+            day_val = (uuid in day_map) ? day_map[uuid] : "1 day"
+            print uuid, ts, day_val
+        }
     }
 ' "$REC_CORRECT" > "${REC_CORRECT}.tmp" && mv "${REC_CORRECT}.tmp" "$REC_CORRECT"
 
