@@ -47,7 +47,7 @@ SESSION_NAME="qdp-services"
 CONFIG_PATH="../../config/nats-server.conf"
 NATS_PORT=4222 # NATS 默认客户端端口，可根据你的 conf 文件修改
 
-[[ check_port $NATS_PORT ]] || {
+[[ $(check_port "$NATS_PORT") -eq 0 ]] || {
     echo "请先释放端口 $NATS_PORT 后再运行本脚本，或者修改脚本中的 NATS_PORT 变量。" >&2
     exit 1
 }
