@@ -177,5 +177,6 @@ awk -v ids_str="$ids_str" '
 export REC_CORRECT
 export REC_INCORRECT
 export REC_BLANK
+export REC_EBHS
 
 ./AnswerRecUpdate.sh

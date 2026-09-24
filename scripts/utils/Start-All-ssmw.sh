@@ -13,6 +13,32 @@ trap on_exit EXIT
 
 ##########################################################
 
+check_port() {
+    local port="$1"
+    if command -v ss >/dev/null 2>&1; then
+        if ss -tuln | awk '{print $5}' | grep -qE "[:.]${PORT}$"; then
+            echo "错误：端口 ${PORT} 已被占用！" >&2
+            return 1
+        fi
+    elif command -v lsof >/dev/null 2>&1; then
+        if lsof -i :"${PORT}" >/dev/null 2>&1; then
+            echo "错误：端口 ${PORT} 已被占用！" >&2
+            return 1
+        fi
+    elif command -v netstat >/dev/null 2>&1; then
+        if netstat -tuln | awk '{print $4}' | grep -qE "[:.]${PORT}$"; then
+            echo "错误：端口 ${PORT} 已被占用！" >&2
+            return 1
+        fi
+    else
+        echo "错误：找不到 ss / lsof / netstat, 无法检测端口占用情况" >&2
+        return 1
+    fi
+    return 0
+}
+
+##########################################################
+
 # ============================================================================
 # 单一 tmux session，内部使用多个 window 分别运行各个服务
 # ============================================================================
@@ -20,6 +46,11 @@ trap on_exit EXIT
 SESSION_NAME="qdp-services"
 CONFIG_PATH="../../config/nats-server.conf"
 NATS_PORT=4222 # NATS 默认客户端端口，可根据你的 conf 文件修改
+
+[[ check_port $NATS_PORT ]] || {
+    echo "请先释放端口 $NATS_PORT 后再运行本脚本，或者修改脚本中的 NATS_PORT 变量。" >&2
+    exit 1
+}
 
 # 窗口名 -> 启动命令 (使用普通数组，保证顺序，兼容性更好)
 WINDOW_NAMES=("nats-server" "quiz-list" "quiz-fetch" "answer-record", "ebbinghaus")

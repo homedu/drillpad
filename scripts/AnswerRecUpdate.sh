@@ -14,15 +14,15 @@ trap on_exit EXIT
 ##########################################################
 
 usage() {
-    echo "[REC_CORRECT], [REC_INCORRECT], [REC_BLANK], [REC_EBHS] all are needed from ENV" >&2
+    echo "<REC_CORRECT>, [REC_INCORRECT], [REC_BLANK], [REC_EBHS] are all needed from ENV" >&2
     exit 1
 }
 
 # ENV: REC_CORRECT, REC_INCORRECT, REC_BLANK, REC_EBHS
 : ${REC_CORRECT:?$(usage)}
-: ${REC_INCORRECT:?$(usage)}
-: ${REC_BLANK:?$(usage)}
-: ${REC_EBHS:?$(usage)}
+: ${REC_INCORRECT:-${REC_CORRECT%/*}/incorrect.tsv}
+: ${REC_BLANK:-${REC_CORRECT%/*}/blank.tsv}
+: ${REC_EBHS:-${REC_CORRECT%/*}/ebhs.tsv}
 
 # 用 mktemp 在目标文件所在目录下生成唯一临时文件名。
 # 原脚本用固定名字 blank.tsv.tmp / correct.tsv.tmp / incorrect.tsv.tmp / ebhs.tsv.tmp：

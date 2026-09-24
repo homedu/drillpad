@@ -49,6 +49,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     REC_CORRECT="$PATH_REC/correct.tsv"
     REC_INCORRECT="$PATH_REC/incorrect.tsv"
     REC_BLANK="$PATH_REC/blank.tsv"
+    REC_EBHS="$PATH_REC/ebhs.tsv"
 
     # file lock
     LOCK_FILE="$PATH_REC/rec.lock"; # echo "${LOCK_FILE} --- reply_answer-record" >> debug.txt
@@ -69,7 +70,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         export IDS_BLANK
 
         # record answer here
-        ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK"
+        ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK" "$REC_EBHS"
 
     } 9>"$LOCK_FILE"
 
