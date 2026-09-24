@@ -14,7 +14,7 @@ trap on_exit EXIT
 ##########################################################
 
 check_port() {
-    local port="$1"
+    local PORT="$1"
     if command -v ss >/dev/null 2>&1; then
         if ss -tuln | awk '{print $5}' | grep -qE "[:.]${PORT}$"; then
             echo "错误：端口 ${PORT} 已被占用！" >&2
@@ -47,7 +47,7 @@ SESSION_NAME="qdp-services"
 CONFIG_PATH="../../config/nats-server.conf"
 NATS_PORT=4222 # NATS 默认客户端端口，可根据你的 conf 文件修改
 
-[[ $(check_port "$NATS_PORT") -eq 0 ]] || {
+check_port "$NATS_PORT" || {
     echo "请先释放端口 $NATS_PORT 后再运行本脚本，或者修改脚本中的 NATS_PORT 变量。" >&2
     exit 1
 }
