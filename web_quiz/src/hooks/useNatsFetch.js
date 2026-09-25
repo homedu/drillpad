@@ -10,7 +10,7 @@ import {
     NatsNoRespondersError,
     NatsRequestFailedError,
     NatsResponseParseError,
-} from "../services/natsClient";
+} from "../../../web_services/natsClient";
 import {
     fetchFile,
     FetchFileInvalidPathError,
@@ -19,7 +19,7 @@ import {
     FetchFileNotFoundError,
     FetchFileHttpError,
     FetchFileReadError,
-} from "../services/fetchClient";
+} from "../../../web_services/fetchClient";
 
 /**
  * fetch_quiz 统一抛出的错误类型。

@@ -122,6 +122,13 @@ scan_file() {
                 map["7 day"]="15 day"
                 map["15 day"]="30 day"
                 map["30 day"]="60 day"
+                map["60 day"]="120 day"
+                map["120 day"]="240 day"
+                map["240 day"]="365 day"
+                map["365 day"]="730 day"
+                map["730 day"]="1460 day"
+                map["1460 day"]="2920 day"
+                map["2920 day"]="5840 day"
             }
 
             {
