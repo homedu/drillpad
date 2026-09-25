@@ -1,0 +1,87 @@
+export const styles = {
+    container: {
+        maxWidth: 640,
+        margin: "0 auto",
+        padding: 24,
+        fontFamily: "system-ui, -apple-system, sans-serif",
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 600,
+        marginBottom: 16,
+    },
+    label: {
+        display: "block",
+        fontSize: 14,
+        fontWeight: 500,
+        marginTop: 16,
+        marginBottom: 8,
+        color: "#374151",
+    },
+    textarea: {
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "8px 10px",
+        fontSize: 14,
+        border: "1px solid #d1d5db",
+        borderRadius: 6,
+        resize: "vertical",
+        fontFamily: "inherit",
+    },
+    optionsList: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+    },
+    optionRow: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+    },
+    optionIndex: {
+        width: 20,
+        fontSize: 14,
+        fontWeight: 600,
+        color: "#6b7280",
+        textAlign: "center",
+    },
+    optionInput: {
+        flex: 1,
+        boxSizing: "border-box",
+        padding: "6px 10px",
+        fontSize: 14,
+        border: "1px solid #d1d5db",
+        borderRadius: 6,
+    },
+    checkLabel: {
+        display: "flex",
+        alignItems: "center",
+        fontSize: 13,
+        whiteSpace: "nowrap",
+        color: "#374151",
+    },
+    message: {
+        marginTop: 12,
+        fontSize: 13,
+    },
+    buttonRow: {
+        display: "flex",
+        gap: 12,
+        marginTop: 20,
+    },
+    button: {
+        padding: "8px 20px",
+        fontSize: 14,
+        borderRadius: 6,
+        border: "none",
+        cursor: "pointer",
+    },
+    primaryButton: {
+        backgroundColor: "#2563eb",
+        color: "#fff",
+    },
+    secondaryButton: {
+        backgroundColor: "#e5e7eb",
+        color: "#111827",
+    },
+};
