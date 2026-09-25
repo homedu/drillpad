@@ -14,20 +14,7 @@ trap on_exit EXIT
 ##########################################################
 
 # 请求内容在 stdin 中也可以通过环境变量拿到
-msg="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
-
-# sleep 1
-
-# echo '{ "ACK": "'"${msg}"'" }'
-# echo "${msg} - $(date)"
-
-# 检查是否传入了参数
-[[ -n "${msg}" ]] || {
-    echo "错误: 请提供一个参数"
-    exit 1
-}
-
-PARAM="${msg}"
+PARAM="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
@@ -115,7 +102,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON message with 'count', 'include', 'exclude' fields"
+    echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON with 'count', 'include', 'exclude' fields"
 
 fi
 

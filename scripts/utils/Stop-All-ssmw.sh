@@ -27,6 +27,7 @@ PATTERNS=(
 "nats-server -c $CONFIG_PATH"
 "nats reply.*quiz-list.*reply_quiz-list.sh"
 "nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
+"nats reply.*quiz-make.*reply_quiz-make.sh"
 "nats reply.*answer-record.*reply_answer-record.sh"
 "EbbinghausRec"
 )

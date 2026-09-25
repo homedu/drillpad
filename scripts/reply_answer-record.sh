@@ -13,15 +13,7 @@ trap on_exit EXIT
 
 ##########################################################
 
-msg="$NATS_REQUEST_BODY"
-
-# 检查是否传入了参数
-[[ -n "${msg}" ]] || {
-    echo "错误: 请提供一个参数"
-    exit 1
-}
-
-PARAM="${msg}"
+PARAM="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
