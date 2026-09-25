@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
-import { style_App, style_ErrorBox, style_InfoBox, style_FetchBtn, style_Input } from "./styles.js";
+import { styles } from "./styles.js";
 import { useNatsFetch, QuizFetchError, QuizListError } from "./hooks/useNatsFetch.js";
 import "./utils/str.js";
 
@@ -96,10 +96,10 @@ function App() {
     const refSelectQuiz = useRef(null);
 
     return (
-        <div style={style_App}>
+        <div style={styles.app}>
             <h2>🚀 QUIZ for today</h2>
 
-            {connError && (<p style={style_ErrorBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
+            {connError && (<p style={styles.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
             <input
                 ref={refInputUser}
@@ -120,7 +120,7 @@ function App() {
                     }
                 }}
                 placeholder="输入用户名选择题目"
-                style={{ ...style_Input, width: '180px' }}
+                style={{ ...styles.input, width: '180px' }}
                 disabled={connError || loading || disabledMap.usernameInput}
             />
 
@@ -138,7 +138,7 @@ function App() {
                     }
                 }}
                 disabled={connError || loading || disabledMap.quizSelect}
-                style={{ ...style_Input, width: '200px', borderRadius: '4px' }}
+                style={{ ...styles.input, width: '200px', borderRadius: '4px' }}
             >
                 {hasQuizList && (
                     <>
@@ -153,20 +153,20 @@ function App() {
                 min="1"
                 value={count}
                 onChange={handleCountChange}
-                style={{ ...style_Input, width: '60px' }}
+                style={{ ...styles.input, width: '60px' }}
                 disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
             />
 
             <button
                 onClick={fetchQuiz}
                 disabled={connError || !canFetch || disabledMap.submitBtn}
-                style={{ ...style_Input, ...style_FetchBtn(canFetch && !disabledMap.submitBtn), width: '120px' }}
+                style={{ ...styles.input, ...styles.fetchBtn(canFetch && !disabledMap.submitBtn), width: '120px' }}
             >
                 {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
             </button>
 
-            {info && !error && <p style={style_InfoBox}> 💬 {info}</p>}
-            {error && !info && <p style={style_ErrorBox}> ❌ {error}</p>}
+            {info && !error && <p style={styles.infoBox}> 💬 {info}</p>}
+            {error && !info && <p style={styles.errBox}> ❌ {error}</p>}
 
             {/* 通过递增 key 彻底重置 DOM 和 State */}
             {hasQuizList && selectedQuiz && fileContent && (

@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { style_Card, style_Option, style_OptionsContainer, style_Question, style_ResetBtn, style_SubmitBtn } from "./styles.js";
+import { styles } from "./styles.js";
 import { useNatsFetch, AnswerRecordError } from "../hooks/useNatsFetch.js";
 
 // 选择题渲染与交互组件
@@ -126,14 +126,14 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                 const isWrong = submitted && selected && q.correctAnswer && selected.text.trim() !== q.correctAnswer.trim();
 
                 return (
-                    <div key={q.id} style={style_Card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
-                        <h3 style={style_Question}> {index + 1}. {q.question} </h3>
+                    <div key={q.id} style={styles.card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
+                        <h3 style={styles.question}> {index + 1}. {q.question} </h3>
 
-                        <div style={style_OptionsContainer}>
+                        <div style={styles.optionsContainer}>
                             {q.options.map((opt) => {
                                 const isOptionSelected = selected?.label === opt.label;
                                 const isThisOptionCorrect = q.correctAnswer && opt.text.trim() === q.correctAnswer.trim();
-                                const optionStyle = style_Option({ submitted, isOptionSelected, isThisOptionCorrect, });
+                                const optionStyle = styles.option({ submitted, isOptionSelected, isThisOptionCorrect });
                                 return (
                                     <label key={opt.label} style={optionStyle}>
                                         <input
@@ -165,9 +165,9 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
 
             <div style={{ marginTop: "20px", display: "flex", alignItems: "center", gap: "16px" }}>
                 {!submitted
-                    ? (<button onClick={handleSubmit} style={style_SubmitBtn}> 提交答案 </button>)
+                    ? (<button onClick={handleSubmit} style={styles.submitBtn}> 提交答案 </button>)
                     : (<>
-                        {/* <button onClick={onReset} style={style_ResetBtn}> 重新作答 </button> */}
+                        {/* <button onClick={onReset} style={styles.resetBtn}> 重新作答 </button> */}
                         <div style={{ fontSize: "18px", fontWeight: "bold", color: "#24292e" }}> 最终得分：{score} / {questions.length} </div>
                     </>)
                 }

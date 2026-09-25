@@ -19,6 +19,7 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # 请求内容在 stdin 中也可以通过环境变量拿到
 PARAM="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
 
+# example request.json
 # {
 #     "user": "test-user",
 #     "quiz": {
