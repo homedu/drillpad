@@ -39,18 +39,26 @@ export default function App() {
     const [options, setOptions] = useState(createEmptyOptions());
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState(null); // { type: "success" | "error", text: string }
-
     const handleOptionTextChange = (index, value) => {
         setOptions((prev) =>
-            prev.map((opt, i) => (i === index ? { ...opt, text: value } : opt))
+            prev.map((opt, i) =>
+                i !== index ? opt : {
+                    ...opt,
+                    text: value,
+                    isCorrect: value.trim() ? opt.isCorrect : false,// 内容被清空时，自动取消该选项的"正确答案"勾选
+                }
+            )
         );
     };
 
     const handleOptionCheck = (index) => {
         setOptions((prev) =>
-            prev.map((opt, i) =>
-                i === index ? { ...opt, isCorrect: !opt.isCorrect } : opt
-            )
+            prev.map((opt, i) => {
+                if (i !== index) return opt;
+                // 内容为空时不允许勾选
+                if (!opt.text.trim()) return opt;
+                return { ...opt, isCorrect: !opt.isCorrect };
+            })
         );
     };
 
@@ -64,9 +72,9 @@ export default function App() {
         if (!question.trim()) {
             return "请输入题目内容";
         }
-        const emptyOption = options.some((opt) => !opt.text.trim());
+        const emptyOption = options.every((opt) => !opt.text.trim());
         if (emptyOption) {
-            return "请填写全部 8 个选项内容";
+            return "请填写合理数量的选项内容";
         }
         const correctCount = options.filter((opt) => opt.isCorrect).length;
         if (correctCount === 0) {
@@ -129,10 +137,17 @@ export default function App() {
                             onChange={(e) => handleOptionTextChange(index, e.target.value)}
                             placeholder={`选项 ${index + 1} 内容`}
                         />
-                        <label style={styles.checkLabel}>
+                        <label
+                            style={{
+                                ...styles.checkLabel,
+                                ...(opt.text.trim() ? null : styles.checkLabelDisabled),
+                            }}
+                            title={opt.text.trim() ? "" : "请先填写选项内容"}
+                        >
                             <input
                                 type="checkbox"
                                 checked={opt.isCorrect}
+                                disabled={!opt.text.trim()}
                                 onChange={() => handleOptionCheck(index)}
                             />
                             <span style={{ marginLeft: 4 }}>正确</span>

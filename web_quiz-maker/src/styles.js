@@ -60,6 +60,10 @@ export const styles = {
         whiteSpace: "nowrap",
         color: "#374151",
     },
+    checkLabelDisabled: {
+        color: "#9ca3af",
+        cursor: "not-allowed",
+    },
     message: {
         marginTop: 12,
         fontSize: 13,
