@@ -53,10 +53,19 @@ check_port "$NATS_PORT" || {
 }
 
 # 窗口名 -> 启动命令 (使用普通数组，保证顺序，兼容性更好)
-WINDOW_NAMES=("nats-server" "quiz-list" "quiz-fetch" "quiz-make" "answer-record", "ebbinghaus")
+WINDOW_NAMES=(
+"nats-server"
+"quiz-list"
+"qa-count"
+"quiz-fetch"
+"quiz-make"
+"answer-record"
+"ebbinghaus"
+)
 WINDOW_CMDS=(
 "nats-server -c $CONFIG_PATH"
 "nats reply \"quiz-list\" --command=\"../reply_quiz-list.sh\" 2>/dev/null"
+"nats reply \"qa-count\" --command=\"../reply_qa-count.sh\" 2>/dev/null"
 "nats reply \"quiz-fetch\" --command=\"../reply_quiz-fetch.sh\" 2>/dev/null"
 "nats reply \"quiz-make\" --command=\"../reply_quiz-make.sh\" 2>/dev/null"
 "nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
@@ -134,6 +143,19 @@ if [[ -n "$PID" ]]; then
 else
     echo "❌ [quiz-list] 错误: 未找到 nats reply 进程，启动可能失败了。"
     echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_quiz-list.sh' 找不到/没有执行权限。"
+fi
+
+# ---------------------------------------------------------------------------
+# 检查 reply qa-count
+# ---------------------------------------------------------------------------
+PID=$(pgrep -f "nats reply.*qa-count.*reply_qa-count.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
+
+if [[ -n "$PID" ]]; then
+    echo "✅ [qa-count] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
+else
+    echo "❌ [qa-count] 错误: 未找到 nats reply 进程，启动可能失败了。"
+    echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_qa-count.sh' 找不到/没有执行权限。"
 fi
 
 # ---------------------------------------------------------------------------
