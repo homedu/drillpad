@@ -17,27 +17,10 @@ trap on_exit EXIT
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 
 # 请求内容在 stdin 中也可以通过环境变量拿到
-PARAM="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
+PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 
-# example request.json
-# {
-#     "user": "test-user",
-#     "quiz": {
-#         "name": "Sample Quiz",
-#         "type": "MCSA",
-#         "question": "What are the cities in Europe?",
-#         "options": [
-#             "Paris",
-#             "London",
-#             "Berlin",
-#             "Madrid"
-#         ],
-#         "answers": [
-#             "Paris",
-#             "London"
-#         ]
-#     }
-# }
+# 如果 PARAM 是一个存在的文件路径，就读取该文件的内容
+[[ -f "$PARAM" ]] && PARAM=$(cat "$PARAM")
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then

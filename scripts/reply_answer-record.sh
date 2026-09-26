@@ -13,7 +13,10 @@ trap on_exit EXIT
 
 ##########################################################
 
-PARAM="${NATS_REQUEST_BODY:?error: empty nats-req-body}"
+PARAM="${NATS_REQUEST_BODY:-${1:-}}"
+
+# 如果 PARAM 是一个存在的文件路径，就读取该文件的内容
+[[ -f "$PARAM" ]] && PARAM=$(cat "$PARAM")
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")

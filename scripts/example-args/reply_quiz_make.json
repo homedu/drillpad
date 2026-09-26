@@ -1,0 +1,18 @@
+{
+    "user": "qmiao",
+    "quiz": {
+        "name": "AZ-900",
+        "type": "MCSA",
+        "question": "What are the cities in Europe?",
+        "options": [
+            "Paris",
+            "London",
+            "Berlin",
+            "Madrid"
+        ],
+        "answers": [
+            "Paris",
+            "London"
+        ]
+    }
+}
