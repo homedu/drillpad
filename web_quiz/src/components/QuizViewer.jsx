@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { styles } from "./styles.js";
+import { styles as tw } from "./styles.js";
 import { useNatsFetch, AnswerRecordError } from "../hooks/useNatsFetch.js";
 
 // 选择题渲染与交互组件
@@ -65,7 +65,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
 
     if (!questions.length) {
         return (
-            <p style={{ color: "#666", marginTop: "20px" }}>⚠️ 未解析到有效题目内容，请检查文件格式。</p>
+            <p className="text-zinc-500 mt-5">⚠️ 未解析到有效题目内容，请检查文件格式。</p>
         );
     }
 
@@ -118,7 +118,7 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
     };
 
     return (
-        <div style={{ marginTop: "24px" }}>
+        <div className="mt-6">
 
             {questions.map((q, index) => {
                 const selected = userAnswers[q.id];
@@ -126,16 +126,16 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                 const isWrong = submitted && selected && q.correctAnswer && selected.text.trim() !== q.correctAnswer.trim();
 
                 return (
-                    <div key={q.id} style={styles.card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
-                        <h3 style={styles.question}> {index + 1}. {q.question} </h3>
+                    <div key={q.id} className={tw.card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
+                        <h3 className={tw.question}> {index + 1}. {q.question} </h3>
 
-                        <div style={styles.optionsContainer}>
+                        <div className={tw.optionsContainer}>
                             {q.options.map((opt) => {
                                 const isOptionSelected = selected?.label === opt.label;
                                 const isThisOptionCorrect = q.correctAnswer && opt.text.trim() === q.correctAnswer.trim();
-                                const optionStyle = styles.option({ submitted, isOptionSelected, isThisOptionCorrect });
+                                const optionStyle = tw.option({ submitted, isOptionSelected, isThisOptionCorrect });
                                 return (
-                                    <label key={opt.label} style={optionStyle}>
+                                    <label key={opt.label} className={optionStyle}>
                                         <input
                                             type="radio"
                                             name={`question-${q.id}`}
@@ -143,9 +143,9 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                                             checked={!!isOptionSelected} // 确保转为纯布尔值
                                             disabled={submitted}
                                             onChange={() => handleSelect(q.id, opt)}
-                                            style={{ marginRight: "10px" }}
+                                            className="me-2.5"
                                         />
-                                        <strong style={{ marginRight: "8px" }}>{opt.label}.</strong>
+                                        <strong className="me-2">{opt.label}.</strong>
                                         <span>{opt.text}</span>
                                     </label>
                                 );
@@ -153,22 +153,22 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                         </div>
 
                         {submitted && q.correctAnswer && (
-                            <div style={{ marginTop: "12px", fontSize: "14px" }}>
-                                {isCorrect && (<span style={{ color: "#28a745", fontWeight: "bold" }}> ✅ 正确 </span>)}
-                                {isWrong && (<span style={{ color: "#dc3545" }}> ❌ 错误 (正确答案：{q.correctAnswer})  </span>)}
-                                {!selected && (<span style={{ color: "#6c757d" }}> ⚠️ 未作答 (正确答案：{q.correctAnswer})  </span>)}
+                            <div className="mt-3 text-sm">
+                                {isCorrect && (<span className="text-green-500 font-bold"> ✅ 正确 </span>)}
+                                {isWrong && (<span className="text-red-500"> ❌ 错误 (正确答案：{q.correctAnswer})  </span>)}
+                                {!selected && (<span className="text-zinc-500"> ⚠️ 未作答 (正确答案：{q.correctAnswer})  </span>)}
                             </div>
                         )}
                     </div>
                 );
             })}
 
-            <div style={{ marginTop: "20px", display: "flex", alignItems: "center", gap: "16px" }}>
+            <div className="mt-5 flex items-center gap-4">
                 {!submitted
-                    ? (<button onClick={handleSubmit} style={styles.submitBtn}> 提交答案 </button>)
+                    ? (<button onClick={handleSubmit} className={tw.submitBtn}> 提交答案 </button>)
                     : (<>
-                        {/* <button onClick={onReset} style={styles.resetBtn}> 重新作答 </button> */}
-                        <div style={{ fontSize: "18px", fontWeight: "bold", color: "#24292e" }}> 最终得分：{score} / {questions.length} </div>
+                        {/* <button onClick={onReset} className={tw.resetBtn}> 重新作答 </button> */}
+                        <div className="text-lg font-bold text-[#24292e]"> 最终得分：{score} / {questions.length} </div>
                     </>)
                 }
             </div>

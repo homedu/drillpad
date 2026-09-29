@@ -1,45 +1,20 @@
 export const styles = {
-    app: {
-        padding: "30px",
-        fontFamily: "system-ui, sans-serif",
-        maxWidth: "700px",
-        margin: "auto",
-    },
-    input: {
-        boxSizing: "border-box",
-        height: "40px",
-        verticalAlign: "middle",
-        fontSize: "14px",
-        marginRight: '5px',
-        padding: '5px',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 0,
-        paddingBottom: 0,
-        lineHeight: 'normal',
-    },
-    errBox: {
-        color: "#dc3545",
-        background: "#f8d7da",
-        padding: "12px",
-        borderRadius: "6px",
-        marginTop: "15px",
-    },
-    infoBox: {
-        color: "#222222",
-        background: "#d3fcda",
-        padding: "12px",
-        borderRadius: "6px",
-        marginTop: "15px",
-    },
-    fetchBtn: (canFetch) => ({
-        padding: "12px 12px",
-        background: "#0070f3",
-        color: "#fff",
-        border: "none",
-        borderRadius: "6px",
-        cursor: canFetch ? "pointer" : "not-allowed",
-        opacity: canFetch ? 1 : 0.6,
-    })
-}
+
+    app: "p-[30px] font-[system-ui,sans-serif] max-w-[700px] m-auto",
+
+    errBox: "text-red-600 bg-red-100 p-3 rounded-md mt-[15px]",
+
+    infoBox: "text-[#222222] bg-[#d3fcda] p-3 rounded-md mt-[15px]",
+
+    input: [
+        "box-border h-10 align-middle text-sm mr-[5px] p-[5px] py-0",
+        "inline-flex items-center justify-center",
+        "leading-[normal]",
+    ].join(" "),
+
+    fetchBtn: (canFetch) =>
+        [
+            "px-3 py-3 bg-[#0070f3] text-white border-none rounded-md",
+            canFetch ? "cursor-pointer opacity-100" : "cursor-not-allowed opacity-60",
+        ].join(" "),
+};
