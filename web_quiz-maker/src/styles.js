@@ -17,7 +17,7 @@ export const styles = {
 
     title: "text-[20px] font-semibold mb-[16px]",
 
-    label: "block text-[15px] font-medium mt-[16px] mb-[8px] text-[#374151]",
+    label: "text-[15px] font-medium mt-[16px] mb-[8px] text-[#374151]",
 
     textarea: cn(
         "w-full box-border py-[8px] px-[10px] text-[14px]",

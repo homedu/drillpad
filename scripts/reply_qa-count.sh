@@ -36,7 +36,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     nQ=$(wc -l < "$QUIZ_FILE")
     nC=$(wc -l < "$REC_CORRECT_FILE")
 
-    jq -n --arg nQ "$nQ" --arg nC "$nC" '{quiz: $nQ, correct: $nC}'
+    jq -n --arg nQ "$nQ" --arg nC "$nC" '{question_count: $nQ, correct_count: $nC}'
 
 else
 
@@ -47,4 +47,4 @@ fi
 
 # topic: qa-count
 # nats reply "qa-count" --command="./reply_qa-count.sh"
-# nats req "qa-count" {} --raw
+# nats req "qa-count" -s nats://192.168.1.159:4222 ./example-args/reply_qa-count.json --raw 2>/dev/null

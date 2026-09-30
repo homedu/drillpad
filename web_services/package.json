@@ -1,5 +1,5 @@
 {
-  "dependencies": {
-    "@nats-io/nats-core": "^3.4.0"
-  }
+	"dependencies": {
+		"@nats-io/nats-core": "^3.4.0"
+	}
 }

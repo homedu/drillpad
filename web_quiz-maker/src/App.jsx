@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { cn } from "./utils/cn.js"
 import { styles as tw } from "./styles.js";
@@ -40,11 +40,12 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz } = useNatsFetch();
+    const { loading, connError, list_quiz, count_questions } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
+    const [questionCount, setQuestionCount] = useState(0);
 
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
@@ -126,6 +127,10 @@ function App() {
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
 
+    useEffect(() => {
+        (async () => user && selectedQuiz && setQuestionCount(await count_questions(user, selectedQuiz)))();
+    }, [user, selectedQuiz]);
+
     return (
         <div className={tw.container}>
             <h2 className={tw.title}>选择题录入</h2>
@@ -178,12 +183,14 @@ function App() {
                 )}
             </select>
 
+            {questionCount > 0 && <label className={tw.label}> {questionCount} 道题目 </label>}
+
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
 
             {/*  */}
 
-            <label className={tw.label}>题目</label>
+            <label className={cn(tw.label, "block")}>题目</label>
             <textarea
                 className={tw.textarea}
                 value={question}
@@ -192,7 +199,7 @@ function App() {
                 rows={3}
             />
 
-            <label className={tw.label}>选项（勾选表示该项为正确答案）</label>
+            <label className={cn(tw.label, "block")}>选项（勾选表示该项为正确答案）</label>
             <div className={tw.optionsList}>
                 {options.map((opt, index) => (
                     <div key={index} className={tw.optionRow}>
@@ -220,11 +227,13 @@ function App() {
                 ))}
             </div>
 
-            {message && (
-                <div className={cn(tw.message, message.type === "error" && "text-[#B91C1C]")}>
-                    {message.text}
-                </div>
-            )}
+            {
+                message && (
+                    <div className={cn(tw.message, message.type === "error" && "text-[#B91C1C]")}>
+                        {message.text}
+                    </div>
+                )
+            }
 
             <div className={tw.buttonRow}>
                 <button className={`${tw.button} ${tw.primaryButton}`} onClick={handleSubmit} disabled={submitting}>

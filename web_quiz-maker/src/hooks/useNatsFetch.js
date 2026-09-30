@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { T_QUIZ_MAKE, T_QUIZ_LIST } from "./topic";
+import { hasProperty } from "../utils/utils.js";
+import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QA_COUNT } from "./topic";
 import {
     getNatsConnection,
     reqNATS,
@@ -16,6 +17,14 @@ export class QuizListError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "QuizListError";
+        this.stage = stage;
+    }
+}
+
+export class QuestionCountError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionCountError";
         this.stage = stage;
     }
 }
@@ -129,7 +138,30 @@ export function useNatsFetch() {
         }
     });
 
-    return { status, loading, connError, list_quiz };
+    const count_questions = useCallback(async (user, quiz) => {
+        const payload = { user, quiz };
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QA_COUNT, payload, { timeout: 10000 });
+            if (!hasProperty(result, "question_count")) {
+                throw new NatsResponseParseError(
+                    "RESP JSON ERROR: missing JSON with 'question_count'",
+                    JSON.stringify(result)
+                );
+            };
+            return result["question_count"];
+        } catch (err) {
+            throw new QuestionCountError(
+                `获取考题数量失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    return { status, loading, connError, list_quiz, count_questions };
 }
 
 if (import.meta.hot) {
