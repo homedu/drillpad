@@ -30,13 +30,16 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
     REC_CORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
+    REC_INCORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
 
     [[ -f "$QUIZ_FILE" ]] || { touch "$QUIZ_FILE"; }
     [[ -f "$REC_CORRECT_FILE" ]] || { touch "$REC_CORRECT_FILE"; }
+    [[ -f "$REC_INCORRECT_FILE" ]] || { touch "$REC_INCORRECT_FILE"; }
     nQ=$(wc -l < "$QUIZ_FILE")
     nC=$(wc -l < "$REC_CORRECT_FILE")
+    nI=$(wc -l < "$REC_INCORRECT_FILE")
 
-    jq -n --arg nQ "$nQ" --arg nC "$nC" '{question_count: $nQ, correct_count: $nC}'
+    jq -n --arg nQ "$nQ" --arg nC "$nC" --arg nI "$nI" '{question_count: $nQ, correct_count: $nC, incorrect_count: $nI}'
 
 else
 

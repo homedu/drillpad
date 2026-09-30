@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
+import { cn } from "./utils/cn.js";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch, QuizFetchError, QuizListError } from "./hooks/useNatsFetch.js";
 import "./utils/str.js";
@@ -97,7 +98,7 @@ function App() {
 
     return (
         <div className={tw.app}>
-            <h2>🚀 QUIZ for today</h2>
+            <h2 className={tw.title}>🚀 QUIZ for today</h2>
 
             {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
@@ -119,8 +120,8 @@ function App() {
                         }
                     }
                 }}
-                placeholder="输入用户名后回车"
-                className={`${tw.input} w-45`}
+                placeholder="用户名"
+                className={cn(tw.input, "w-45")}
                 disabled={connError || loading || disabledMap.usernameInput}
             />
 
@@ -138,7 +139,7 @@ function App() {
                     }
                 }}
                 disabled={connError || loading || disabledMap.quizSelect}
-                className={`${tw.input} w-50 rounded-sm`}
+                className={cn(tw.input, "w-50", "rounded-sm")}
             >
                 {hasQuizList && (
                     <>
@@ -153,14 +154,18 @@ function App() {
                 min="1"
                 value={count}
                 onChange={handleCountChange}
-                className={`${tw.input} w-15`}
+                className={cn(tw.input, "w-15")}
                 disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
             />
 
             <button
                 onClick={fetchQuiz}
                 disabled={connError || !canFetch || disabledMap.submitBtn}
-                className={`${tw.input} ${tw.fetchBtn(canFetch && !disabledMap.submitBtn)} w-30`}
+                className={cn(
+                    tw.input,
+                    tw.fetchBtn(canFetch && !disabledMap.submitBtn),
+                    "w-30"
+                )}
             >
                 {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
             </button>

@@ -5,6 +5,8 @@
   :root, :host {
     --color-white: #fff;
     --spacing: 0.25rem;
+    --text-sm: 0.875rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --radius-sm: 0.25rem;
@@ -68,6 +70,9 @@
   .inline-flex {
     display: inline-flex;
   }
+  .h-10 {
+    height: calc(var(--spacing) * 10);
+  }
   .h-\[40px\] {
     height: 40px;
   }
@@ -94,6 +99,9 @@
   }
   .cursor-pointer {
     cursor: pointer;
+  }
+  .resize {
+    resize: both;
   }
   .resize-y {
     resize: vertical;
@@ -181,6 +189,10 @@
   }
   .font-\[family-name\:system-ui\,-apple-system\,sans-serif\] {
     font-family: system-ui,-apple-system,sans-serif;
+  }
+  .text-sm {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
   }
   .text-\[13px\] {
     font-size: 13px;

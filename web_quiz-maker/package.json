@@ -13,7 +13,7 @@
 	},
 	"scripts": {
 		"dev": "concurrently \"bun dev:css\" \"bun dev:server\"",
-		"dev:server": "bun --hot index.html",
+		"dev:server": "bun --hot --port 3001 index.html",
 		"dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
 		"build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify"
 	}

@@ -2,9 +2,10 @@ import { cn } from "./utils/cn";
 
 export const styles = {
 
+    container: "max-w-[640px] my-0 mx-auto p-[24px] font-[family-name:system-ui,-apple-system,sans-serif]",
+
     input: cn(
-        "box-border h-[40px] align-middle text-[14px]",
-        "mr-[5px] p-[5px] py-0",
+        "box-border h-10 align-middle text-sm mr-[5px] p-[5px] py-0",
         "inline-flex items-center justify-center",
         "leading-[normal]",
     ),
@@ -12,8 +13,6 @@ export const styles = {
     errBox: "text-[#dc3545] bg-[#f8d7da] p-[12px] rounded-[6px] mt-[15px]",
 
     infoBox: "text-[#222222] bg-[#d3fcda] p-[12px] rounded-[6px] mt-[15px]",
-
-    container: "max-w-[640px] my-0 mx-auto p-[24px] font-[family-name:system-ui,-apple-system,sans-serif]",
 
     title: "text-[20px] font-semibold mb-[16px]",
 

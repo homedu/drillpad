@@ -2,11 +2,13 @@ import { cn } from "./utils/cn.js"
 
 export const styles = {
 
-    app: "p-[30px] font-[system-ui,sans-serif] max-w-[700px] m-auto",
+    app: "p-[24px] font-[family-name:system-ui,-apple-system,sans-serif] max-w-[640px] m-auto",
 
     errBox: "text-red-600 bg-red-100 p-3 rounded-md mt-[15px]",
 
     infoBox: "text-[#222222] bg-[#d3fcda] p-3 rounded-md mt-[15px]",
+
+    title: "text-[20px] font-semibold mb-[16px]",
 
     input: cn(
         "box-border h-10 align-middle text-sm mr-[5px] p-[5px] py-0",

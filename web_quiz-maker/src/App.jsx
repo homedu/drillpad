@@ -155,7 +155,7 @@ function App() {
                     }
                 }}
                 placeholder="输入用户名选择题目"
-                className={`${tw.input} w-45`}
+                className={cn(tw.input, "w-45")}
                 disabled={connError || loading}
             />
 
@@ -173,7 +173,7 @@ function App() {
                     }
                 }}
                 disabled={connError || loading}
-                className={`${tw.input} w-50 rounded-sm`}
+                className={cn(tw.input, "w-50", "rounded-sm")}
             >
                 {hasQuizList && (
                     <>
@@ -236,10 +236,10 @@ function App() {
             }
 
             <div className={tw.buttonRow}>
-                <button className={`${tw.button} ${tw.primaryButton}`} onClick={handleSubmit} disabled={submitting}>
+                <button className={cn(tw.button, tw.primaryButton)} onClick={handleSubmit} disabled={submitting}>
                     {submitting ? "提交中..." : "提交"}
                 </button>
-                <button className={`${tw.button} ${tw.secondaryButton}`} onClick={resetForm} disabled={submitting}>
+                <button className={cn(tw.button, tw.secondaryButton)} onClick={resetForm} disabled={submitting}>
                     清空
                 </button>
             </div>
