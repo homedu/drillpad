@@ -133,9 +133,8 @@ export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit 
                             {q.options.map((opt) => {
                                 const isOptionSelected = selected?.label === opt.label;
                                 const isThisOptionCorrect = q.correctAnswer && opt.text.trim() === q.correctAnswer.trim();
-                                const optionStyle = tw.option({ submitted, isOptionSelected, isThisOptionCorrect });
                                 return (
-                                    <label key={opt.label} className={optionStyle}>
+                                    <label key={opt.label} className={tw.option({ submitted, isOptionSelected, isThisOptionCorrect })}>
                                         <input
                                             type="radio"
                                             name={`question-${q.id}`}

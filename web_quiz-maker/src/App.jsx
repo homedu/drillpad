@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { styles } from "./styles.js";
+import { cn } from "./utils/cn.js"
+import { styles as tw } from "./styles.js";
+import { useNatsFetch, QuizListError } from "./hooks/useNatsFetch.js";
 
 /**
  * QuestionUploadForm
@@ -34,11 +36,23 @@ async function submitQuestionToServer(payload) {
 }
 // ================================================================
 
-export default function App() {
+function App() {
+
+    const [info, setInfo] = useState("");
+    const [error, setError] = useState("");
+    const { loading, connError, list_quiz } = useNatsFetch();
+
+    const [user, setUser] = useState("");
+    const [quizList, setQuizList] = useState([]);
+    const [selectedQuiz, setSelectedQuiz] = useState('');
+
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState(null); // { type: "success" | "error", text: string }
+
+    const hasQuizList = quizList?.length > 0;
+
     const handleOptionTextChange = (index, value) => {
         setOptions((prev) =>
             prev.map((opt, i) =>
@@ -69,17 +83,14 @@ export default function App() {
     };
 
     const validate = () => {
-        if (!question.trim()) {
-            return "请输入题目内容";
-        }
+        if (!question.trim()) return "请输入题目内容";
+
         const emptyOption = options.every((opt) => !opt.text.trim());
-        if (emptyOption) {
-            return "请填写合理数量的选项内容";
-        }
+        if (emptyOption) return "请填写合理数量的选项内容";
+
         const correctCount = options.filter((opt) => opt.isCorrect).length;
-        if (correctCount === 0) {
-            return "请至少勾选一个正确答案";
-        }
+        if (correctCount === 0) return "请至少勾选一个正确答案";
+
         return null;
     };
 
@@ -112,36 +123,89 @@ export default function App() {
         }
     };
 
-    return (
-        <div style={styles.container}>
-            <h2 style={styles.title}>选择题录入</h2>
+    const refInputUser = useRef(null);
+    const refSelectQuiz = useRef(null);
 
-            <label style={styles.label}>题目</label>
+    return (
+        <div className={tw.container}>
+            <h2 className={tw.title}>选择题录入</h2>
+
+            {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
+
+            <input
+                ref={refInputUser}
+                value={user}
+                onChange={(e) => { setUser(e.target.value) }}
+                onKeyDown={async (e) => {
+                    if (e.key === 'Enter' || e.key === 'Tab') {
+                        setQuizList(await list_quiz(e.target.value));
+                        if (!hasQuizList) {
+                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择                            
+                            setInfo("");
+                        }
+                        e.target.blur();
+                        if (refSelectQuiz.current) {
+                            refSelectQuiz.current.focus();
+                        }
+                    }
+                }}
+                placeholder="输入用户名选择题目"
+                className={`${tw.input} w-45`}
+                disabled={connError || loading}
+            />
+
+            <select
+                key={user}
+                ref={refSelectQuiz}
+                value={selectedQuiz}
+                onChange={(e) => setSelectedQuiz(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (typeof e.currentTarget.showPicker === 'function') {
+                            e.currentTarget.showPicker();
+                        }
+                    }
+                }}
+                disabled={connError || loading}
+                className={`${tw.input} w-50 rounded-sm`}
+            >
+                {hasQuizList && (
+                    <>
+                        <option value="" disabled hidden>选择题目</option>
+                        {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+                    </>
+                )}
+            </select>
+
+            {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
+            {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
+
+            {/*  */}
+
+            <label className={tw.label}>题目</label>
             <textarea
-                style={styles.textarea}
+                className={tw.textarea}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="请输入题目内容"
                 rows={3}
             />
 
-            <label style={styles.label}>选项（勾选表示该项为正确答案）</label>
-            <div style={styles.optionsList}>
+            <label className={tw.label}>选项（勾选表示该项为正确答案）</label>
+            <div className={tw.optionsList}>
                 {options.map((opt, index) => (
-                    <div key={index} style={styles.optionRow}>
-                        <span style={styles.optionIndex}>{String.fromCharCode(65 + index)}</span>
+                    <div key={index} className={tw.optionRow}>
+                        <span className={tw.optionIndex}>{String.fromCharCode(65 + index)}</span>
                         <input
-                            style={styles.optionInput}
+                            className={tw.optionInput}
                             type="text"
                             value={opt.text}
                             onChange={(e) => handleOptionTextChange(index, e.target.value)}
                             placeholder={`选项 ${index + 1} 内容`}
                         />
                         <label
-                            style={{
-                                ...styles.checkLabel,
-                                ...(opt.text.trim() ? null : styles.checkLabelDisabled),
-                            }}
+                            className={tw.checkLabel(!opt.text.trim())}
                             title={opt.text.trim() ? "" : "请先填写选项内容"}
                         >
                             <input
@@ -157,29 +221,16 @@ export default function App() {
             </div>
 
             {message && (
-                <div
-                    style={{
-                        ...styles.message,
-                        color: message.type === "error" ? "#b91c1c" : "#15803d",
-                    }}
-                >
+                <div className={cn(tw.message, message.type === "error" && "text-[#B91C1C]")}>
                     {message.text}
                 </div>
             )}
 
-            <div style={styles.buttonRow}>
-                <button
-                    style={{ ...styles.button, ...styles.primaryButton }}
-                    onClick={handleSubmit}
-                    disabled={submitting}
-                >
+            <div className={tw.buttonRow}>
+                <button className={`${tw.button} ${tw.primaryButton}`} onClick={handleSubmit} disabled={submitting}>
                     {submitting ? "提交中..." : "提交"}
                 </button>
-                <button
-                    style={{ ...styles.button, ...styles.secondaryButton }}
-                    onClick={resetForm}
-                    disabled={submitting}
-                >
+                <button className={`${tw.button} ${tw.secondaryButton}`} onClick={resetForm} disabled={submitting}>
                     清空
                 </button>
             </div>
