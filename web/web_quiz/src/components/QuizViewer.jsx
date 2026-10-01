@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { styles as tw } from "./styles.js";
-import { useNatsFetch, AnswerRecordError } from "../hooks/useNatsFetch.js";
+import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
 
 // 选择题渲染与交互组件
 export default function QuizViewer({ user, quiz, fileContent, onReset, onSubmit }) {

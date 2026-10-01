@@ -1,0 +1,14 @@
+{
+    "name": "net_service",
+    "dependencies": {
+        "@nats-io/nats-core": "^3.4.0"
+    },
+    "peerDependencies": {
+        "react": "^19.3.0",
+        "react-dom": "^19.3.0"
+    },
+    "devDependencies": {
+        "clsx": "^2.1.1",
+        "tailwind-merge": "^3.7.0"
+    }
+}

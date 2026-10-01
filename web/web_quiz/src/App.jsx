@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
-import { cn } from "./utils/cn.js";
 import { styles as tw } from "./styles.js";
-import { useNatsFetch, QuizFetchError, QuizListError } from "./hooks/useNatsFetch.js";
-import "./utils/str.js";
+import { cn } from "../../net_service/utils.js";
+import { useNatsFetch, QuizFetchError, QuizListError } from "../../net_service/useNatsFetch.js";
+import "../../net_service/util_str.js";
+
+window.React = React;
 
 function App() {
+    const { status, loading, connError, fetch_quiz, list_quiz, count_questions } = useNatsFetch();
+
     const [fileContent, setFileContent] = useState("");
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
-    const { status, loading, connError, fetch_quiz, list_quiz, count_questions } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -161,7 +164,7 @@ function App() {
 
             </div>
 
-            <div>
+            <div className="my-2 flex justify-end gap-2">
 
                 <input
                     type="number"

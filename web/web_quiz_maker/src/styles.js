@@ -2,7 +2,7 @@ import { cn } from "./utils/cn";
 
 export const styles = {
 
-    container: "max-w-[640px] my-0 mx-auto p-[24px] font-[family-name:system-ui,-apple-system,sans-serif]",
+    container: "max-w-[800px] my-0 mx-auto p-[24px] font-[family-name:system-ui,-apple-system,sans-serif]",
 
     input: cn(
         "box-border h-10 align-middle text-sm mr-[5px] p-[5px] py-0",

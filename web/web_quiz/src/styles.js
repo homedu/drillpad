@@ -1,8 +1,8 @@
-import { cn } from "./utils/cn.js"
+import { cn } from "../../net_service/utils.js"
 
 export const styles = {
 
-    app: "p-[24px] font-[family-name:system-ui,-apple-system,sans-serif] max-w-[640px] m-auto",
+    app: "p-[24px] font-[family-name:system-ui,-apple-system,sans-serif] max-w-[800px] m-auto",
 
     errBox: "text-red-600 bg-red-100 p-3 rounded-md mt-[15px]",
 

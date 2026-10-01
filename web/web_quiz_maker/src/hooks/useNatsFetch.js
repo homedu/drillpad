@@ -11,7 +11,7 @@ import {
     NatsNoRespondersError,
     NatsRequestFailedError,
     NatsResponseParseError,
-} from "../../../web_services/natsClient";
+} from "../../../net_service/natsClient";
 
 export class QuizListError extends Error {
     constructor(message, stage, options = {}) {

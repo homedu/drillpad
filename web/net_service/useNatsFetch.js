@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { hasProperty } from "../utils/utils.js";
-import { T_QUIZ_LIST, T_QUIZ_FETCH, T_ANS_REC, T_QA_COUNT } from "./topic";
+import { hasProperty } from "./utils.js";
+import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
 import {
     getNatsConnection,
     reqNATS,
@@ -11,7 +11,7 @@ import {
     NatsNoRespondersError,
     NatsRequestFailedError,
     NatsResponseParseError,
-} from "../../../web_services/natsClient";
+} from "./natsClient";
 import {
     fetchFile,
     FetchFileInvalidPathError,
@@ -20,26 +20,38 @@ import {
     FetchFileNotFoundError,
     FetchFileHttpError,
     FetchFileReadError,
-} from "../../../web_services/fetchClient";
+} from "./fetchClient";
 
-/**
- * fetch_quiz 统一抛出的错误类型。
- * - stage: "request" 表示 NATS 请求路径失败，"fetch" 表示文件拉取失败
- * - cause: 保留 natsClient / fetchClient 抛出的原始分类错误，
- *          组件里仍然可以 `err.cause instanceof NatsRequestTimeoutError` 做精确判断
- */
-export class QuizFetchError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuizFetchError";
-        this.stage = stage;
-    }
-}
+// /////////////////////////////////////////////////////////////////////////////
 
 export class QuizListError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "QuizListError";
+        this.stage = stage;
+    }
+}
+
+export class QuestionCountError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionCountError";
+        this.stage = stage;
+    }
+}
+
+export class QuizMakeError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuizMakeError";
+        this.stage = stage;
+    }
+}
+
+export class QuizFetchError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuizFetchError";
         this.stage = stage;
     }
 }
@@ -52,13 +64,8 @@ export class AnswerRecordError extends Error {
     }
 }
 
-export class QuestionCountError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuestionCountError";
-        this.stage = stage;
-    }
-}
+// /////////////////////////////////////////////////////////////////////////////
+
 
 // 把两个 client 抛出的分类错误翻译成人可读的中文提示，用于 message / UI 展示
 function describeError(err) {
@@ -80,8 +87,6 @@ function describeError(err) {
 export function useNatsFetch() {
     const [status, setStatus] = useState("连接中...");
     const [loading, setLoading] = useState(true);
-    // 连接层面的错误（建连失败 / 状态监听中断），供 UI 展示用，
-    // 与 fetch_quiz 抛出的 QuizFetchError 是两回事，互不覆盖
     const [connError, setConnError] = useState(null);
 
     useEffect(() => {
@@ -109,8 +114,6 @@ export function useNatsFetch() {
                             }
                         }
                     } catch (err) {
-                        // status() 迭代器异常终止，说明连接已经彻底不可用了，
-                        // 原代码这里没有 catch，会变成未处理的 rejection
                         if (!cancelled) {
                             setStatus("连接监听中断");
                             setConnError(err);
@@ -119,7 +122,6 @@ export function useNatsFetch() {
                     }
                 })();
             } catch (err) {
-                // getNatsConnection 失败时会抛 NatsConnectError
                 if (!cancelled) {
                     setStatus("连接失败");
                     setConnError(err);
@@ -137,6 +139,52 @@ export function useNatsFetch() {
             // closeNats();
         };
     }, []);
+
+    const list_quiz = useCallback(async (user) => {
+        const payload = user;
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QUIZ_LIST, payload, { timeout: 10000 });
+            if (!Array.isArray(result)) {
+                throw new NatsResponseParseError(
+                    "返回非数组,格式错误",
+                    JSON.stringify(result)
+                );
+            };
+            return result
+        } catch (err) {
+            throw new QuizListError(
+                `获取题目列表失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    });
+
+    const count_questions = useCallback(async (user, quiz) => {
+        const payload = { user, quiz };
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QA_COUNT, payload, { timeout: 10000 });
+            if (!hasProperty(result, "question_count")) {
+                throw new NatsResponseParseError(
+                    "RESP JSON ERROR: missing JSON with 'question_count'",
+                    JSON.stringify(result)
+                );
+            };
+            return result["question_count"];
+        } catch (err) {
+            throw new QuestionCountError(
+                `获取考题数量失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    });
 
     const fetch_quiz = useCallback(async (user, quiz, count) => {
         const payload = {
@@ -214,53 +262,7 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const list_quiz = useCallback(async (user) => {
-        const payload = user;
-        setLoading(true);
-        try {
-            const result = await reqNATS(T_QUIZ_LIST, payload, { timeout: 10000 });
-            if (!Array.isArray(result)) {
-                throw new NatsResponseParseError(
-                    "返回非数组,格式错误",
-                    JSON.stringify(result)
-                );
-            };
-            return result
-        } catch (err) {
-            throw new QuizListError(
-                `获取题目列表失败: ${describeError(err)}`,
-                "request",
-                { cause: err }
-            );
-        } finally {
-            setLoading(false);
-        }
-    });
-
-    const count_questions = useCallback(async (user, quiz) => {
-        const payload = { user, quiz };
-        setLoading(true);
-        try {
-            const result = await reqNATS(T_QA_COUNT, payload, { timeout: 10000 });
-            if (!hasProperty(result, "question_count")) {
-                throw new NatsResponseParseError(
-                    "RESP JSON ERROR: missing JSON with 'question_count'",
-                    JSON.stringify(result)
-                );
-            };
-            return result["question_count"];
-        } catch (err) {
-            throw new QuestionCountError(
-                `获取考题数量失败: ${describeError(err)}`,
-                "request",
-                { cause: err }
-            );
-        } finally {
-            setLoading(false);
-        }
-    });
-
-    return { status, loading, connError, fetch_quiz, record_answer, list_quiz, count_questions };
+    return { status, loading, connError, list_quiz, count_questions, fetch_quiz, record_answer };
 }
 
 if (import.meta.hot) {
