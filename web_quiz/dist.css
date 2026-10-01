@@ -53,11 +53,11 @@
   .mb-\[16px\] {
     margin-bottom: 16px;
   }
+  .ml-auto {
+    margin-left: auto;
+  }
   .box-border {
     box-sizing: border-box;
-  }
-  .block {
-    display: block;
   }
   .flex {
     display: flex;
@@ -68,17 +68,11 @@
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
-  .w-4 {
-    width: calc(var(--spacing) * 4);
-  }
   .w-15 {
     width: calc(var(--spacing) * 15);
   }
   .w-30 {
     width: calc(var(--spacing) * 30);
-  }
-  .w-40 {
-    width: calc(var(--spacing) * 40);
   }
   .w-45 {
     width: calc(var(--spacing) * 45);
@@ -86,14 +80,8 @@
   .w-50 {
     width: calc(var(--spacing) * 50);
   }
-  .w-450 {
-    width: calc(var(--spacing) * 450);
-  }
   .max-w-\[640px\] {
     max-width: 640px;
-  }
-  .max-w-\[700px\] {
-    max-width: 700px;
   }
   .cursor-default {
     cursor: default;
@@ -200,9 +188,6 @@
   .p-\[24px\] {
     padding: 24px;
   }
-  .p-\[30px\] {
-    padding: 30px;
-  }
   .px-3 {
     padding-inline: calc(var(--spacing) * 3);
   }
@@ -226,9 +211,6 @@
   }
   .font-\[family-name\:system-ui\,-apple-system\,sans-serif\] {
     font-family: system-ui,-apple-system,sans-serif;
-  }
-  .font-\[system-ui\,sans-serif\] {
-    font-family: system-ui,sans-serif;
   }
   .text-lg {
     font-size: var(--text-lg);

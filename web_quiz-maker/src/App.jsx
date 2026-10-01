@@ -133,57 +133,62 @@ function App() {
 
     return (
         <div className={tw.container}>
-            <h2 className={tw.title}>选择题录入</h2>
 
             {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
-            <input
-                ref={refInputUser}
-                value={user}
-                onChange={(e) => { setUser(e.target.value) }}
-                onKeyDown={async (e) => {
-                    if (e.key === 'Enter' || e.key === 'Tab') {
-                        setQuizList(await list_quiz(e.target.value));
-                        if (!hasQuizList) {
-                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择                            
-                            setInfo("");
-                        }
-                        e.target.blur();
-                        if (refSelectQuiz.current) {
-                            refSelectQuiz.current.focus();
-                        }
-                    }
-                }}
-                placeholder="输入用户名选择题目"
-                className={cn(tw.input, "w-45")}
-                disabled={connError || loading}
-            />
+            <h2 className={tw.title}>选择题录入</h2>
 
-            <select
-                key={user}
-                ref={refSelectQuiz}
-                value={selectedQuiz}
-                onChange={(e) => setSelectedQuiz(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (typeof e.currentTarget.showPicker === 'function') {
-                            e.currentTarget.showPicker();
-                        }
-                    }
-                }}
-                disabled={connError || loading}
-                className={cn(tw.input, "w-50", "rounded-sm")}
-            >
-                {hasQuizList && (
-                    <>
-                        <option value="" disabled hidden>选择题目</option>
-                        {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
-                    </>
-                )}
-            </select>
+            <div className="flex items-center">
 
-            {questionCount > 0 && <label className={tw.label}> {questionCount} 道题目 </label>}
+                <input
+                    ref={refInputUser}
+                    value={user}
+                    onChange={(e) => { setUser(e.target.value) }}
+                    onKeyDown={async (e) => {
+                        if (e.key === 'Enter' || e.key === 'Tab') {
+                            setQuizList(await list_quiz(e.target.value));
+                            if (!hasQuizList) {
+                                setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
+                                setInfo("");
+                            }
+                            e.target.blur();
+                            if (refSelectQuiz.current) {
+                                refSelectQuiz.current.focus();
+                            }
+                        }
+                    }}
+                    placeholder="用户名"
+                    className={cn(tw.input, "w-45")}
+                    disabled={connError || loading}
+                />
+
+                <select
+                    key={user}
+                    ref={refSelectQuiz}
+                    value={selectedQuiz}
+                    onChange={(e) => setSelectedQuiz(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (typeof e.currentTarget.showPicker === 'function') {
+                                e.currentTarget.showPicker();
+                            }
+                        }
+                    }}
+                    disabled={connError || loading}
+                    className={cn(tw.input, "w-50", "rounded-sm")}
+                >
+                    {hasQuizList && (
+                        <>
+                            <option value="" disabled hidden>选择题目</option>
+                            {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+                        </>
+                    )}
+                </select>
+
+                {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已有 {questionCount} 道题目 </label>}
+
+            </div>
 
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}

@@ -58,6 +58,9 @@
   .mb-\[16px\] {
     margin-bottom: 16px;
   }
+  .ml-auto {
+    margin-left: auto;
+  }
   .box-border {
     box-sizing: border-box;
   }
@@ -72,9 +75,6 @@
   }
   .h-10 {
     height: calc(var(--spacing) * 10);
-  }
-  .h-\[40px\] {
-    height: 40px;
   }
   .w-45 {
     width: calc(var(--spacing) * 45);
@@ -99,9 +99,6 @@
   }
   .cursor-pointer {
     cursor: pointer;
-  }
-  .resize {
-    resize: both;
   }
   .resize-y {
     resize: vertical;

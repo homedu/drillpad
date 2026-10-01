@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { cn } from "./utils/cn.js";
@@ -11,11 +11,12 @@ function App() {
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
-    const { status, loading, connError, fetch_quiz, list_quiz } = useNatsFetch();
+    const { status, loading, connError, fetch_quiz, list_quiz, count_questions } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
+    const [questionCount, setQuestionCount] = useState(0);
     const [count, setCount] = useState(10);
 
     const [disabledMap, setDisabledMap] = useState({
@@ -96,79 +97,94 @@ function App() {
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
 
+    useEffect(() => {
+        (async () => user && selectedQuiz && setQuestionCount(await count_questions(user, selectedQuiz)))();
+    }, [user, selectedQuiz]);
+
     return (
         <div className={tw.app}>
-            <h2 className={tw.title}>🚀 QUIZ for today</h2>
 
             {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
-            <input
-                ref={refInputUser}
-                value={user}
-                onChange={(e) => { setUser(e.target.value) }}
-                onKeyDown={async (e) => {
-                    if (e.key === 'Enter' || e.key === 'Tab') {
-                        setQuizList(await list_quiz(e.target.value));
-                        if (!hasQuizList) {
-                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
-                            setFileContent(""); // 如果没有题库，清空上一次的作答内容
-                            setInfo("");
-                        }
-                        e.target.blur();
-                        if (refSelectQuiz.current) {
-                            refSelectQuiz.current.focus();
-                        }
-                    }
-                }}
-                placeholder="用户名"
-                className={cn(tw.input, "w-45")}
-                disabled={connError || loading || disabledMap.usernameInput}
-            />
+            <h2 className={tw.title}>QUIZ for today</h2>
 
-            <select
-                key={user}
-                ref={refSelectQuiz}
-                value={selectedQuiz}
-                onChange={(e) => setSelectedQuiz(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (typeof e.currentTarget.showPicker === 'function') {
-                            e.currentTarget.showPicker();
+            <div className="flex items-center">
+
+                <input
+                    ref={refInputUser}
+                    value={user}
+                    onChange={(e) => { setUser(e.target.value) }}
+                    onKeyDown={async (e) => {
+                        if (e.key === 'Enter' || e.key === 'Tab') {
+                            setQuizList(await list_quiz(e.target.value));
+                            if (!hasQuizList) {
+                                setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
+                                setFileContent(""); // 如果没有题库，清空上一次的作答内容
+                                setInfo("");
+                            }
+                            e.target.blur();
+                            if (refSelectQuiz.current) {
+                                refSelectQuiz.current.focus();
+                            }
                         }
-                    }
-                }}
-                disabled={connError || loading || disabledMap.quizSelect}
-                className={cn(tw.input, "w-50", "rounded-sm")}
-            >
-                {hasQuizList && (
-                    <>
-                        <option value="" disabled hidden>选择题目</option>
-                        {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
-                    </>
-                )}
-            </select>
+                    }}
+                    placeholder="用户名"
+                    className={cn(tw.input, "w-45")}
+                    disabled={connError || loading || disabledMap.usernameInput}
+                />
 
-            <input
-                type="number"
-                min="1"
-                value={count}
-                onChange={handleCountChange}
-                className={cn(tw.input, "w-15")}
-                disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
-            />
+                <select
+                    key={user}
+                    ref={refSelectQuiz}
+                    value={selectedQuiz}
+                    onChange={(e) => setSelectedQuiz(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (typeof e.currentTarget.showPicker === 'function') {
+                                e.currentTarget.showPicker();
+                            }
+                        }
+                    }}
+                    disabled={connError || loading || disabledMap.quizSelect}
+                    className={cn(tw.input, "w-50", "rounded-sm")}
+                >
+                    {hasQuizList && (
+                        <>
+                            <option value="" disabled hidden>选择题目</option>
+                            {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+                        </>
+                    )}
+                </select>
 
-            <button
-                onClick={fetchQuiz}
-                disabled={connError || !canFetch || disabledMap.submitBtn}
-                className={cn(
-                    tw.input,
-                    tw.fetchBtn(canFetch && !disabledMap.submitBtn),
-                    "w-30"
-                )}
-            >
-                {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
-            </button>
+                {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 共 {questionCount} 道题目 </label>}
+
+            </div>
+
+            <div>
+
+                <input
+                    type="number"
+                    min="1"
+                    value={count}
+                    onChange={handleCountChange}
+                    className={cn(tw.input, "w-15")}
+                    disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
+                />
+
+                <button
+                    onClick={fetchQuiz}
+                    disabled={connError || !canFetch || disabledMap.submitBtn}
+                    className={cn(
+                        tw.input,
+                        tw.fetchBtn(canFetch && !disabledMap.submitBtn),
+                        "w-30"
+                    )}
+                >
+                    {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
+                </button>
+
+            </div>
 
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
