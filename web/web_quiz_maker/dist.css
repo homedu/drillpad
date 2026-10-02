@@ -88,9 +88,6 @@
   .w-full {
     width: 100%;
   }
-  .max-w-\[640px\] {
-    max-width: 640px;
-  }
   .max-w-\[800px\] {
     max-width: 800px;
   }
@@ -102,9 +99,6 @@
   }
   .cursor-pointer {
     cursor: pointer;
-  }
-  .resize {
-    resize: both;
   }
   .resize-y {
     resize: vertical;

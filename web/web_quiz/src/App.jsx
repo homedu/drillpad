@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { styles as tw } from "./styles.js";
-import { cn } from "../../net_service/utils.js";
+import { cn } from "../../utils/utils.js";
 import { useNatsFetch, QuizFetchError, QuizListError } from "../../net_service/useNatsFetch.js";
-import "../../net_service/util_str.js";
+import "../../utils/util_str.js";
 
 window.React = React;
 
@@ -29,9 +29,12 @@ function App() {
         submitBtn: false       // 提交按钮
     });
 
-    const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
+    const isUserValid = user.trim() !== ""
     const hasQuizList = quizList?.length > 0;
-    const canFetch = !loading && user.trim() !== "" && hasQuizList && selectedQuiz.trim() !== "" && isCountValid;
+    const hasSelectedQuiz = selectedQuiz.trim() !== "";
+    const isUQValid = isUserValid && hasQuizList && hasSelectedQuiz;
+    const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
+    const canFetch = !connError && !loading && isUQValid && isCountValid;
 
     const handleCountChange = (e) => {
         const value = e.target.value;
@@ -109,7 +112,7 @@ function App() {
 
             {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
-            <h2 className={tw.title}>QUIZ for today</h2>
+            <h2 className={tw.title}>Quiz Drill</h2>
 
             <div className="flex items-center">
 
@@ -164,8 +167,7 @@ function App() {
 
             </div>
 
-            <div className="my-2 flex justify-end gap-2">
-
+            {isUQValid && <div className="my-2 flex justify-end gap-2">
                 <input
                     type="number"
                     min="1"
@@ -174,7 +176,6 @@ function App() {
                     className={cn(tw.input, "w-15")}
                     disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
                 />
-
                 <button
                     onClick={fetchQuiz}
                     disabled={connError || !canFetch || disabledMap.submitBtn}
@@ -186,8 +187,7 @@ function App() {
                 >
                     {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
                 </button>
-
-            </div>
+            </div>}
 
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}

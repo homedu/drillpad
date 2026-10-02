@@ -1,4 +1,4 @@
-import { cn } from "../../../net_service/utils.js"
+import { cn } from "../../../utils/utils.js"
 
 export const styles = {
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { hasProperty } from "./utils.js";
+import { hasProperty } from "../utils/utils.js";
 import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
 import {
     getNatsConnection,

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { cn } from "./utils/cn.js"
+import { cn } from "../../utils/utils.js"
 import { styles as tw } from "./styles.js";
-import { useNatsFetch, QuizListError } from "./hooks/useNatsFetch.js";
+import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
 
 /**
  * QuestionUploadForm
