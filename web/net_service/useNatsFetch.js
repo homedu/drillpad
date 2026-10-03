@@ -266,7 +266,46 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, list_quiz, count_qa, fetch_quiz, record_answer };
+    const make_quiz = useCallback(async (user, quiz, type, question, options, answers) => {
+        if (!Array.isArray(options)) {
+            throw new QuizMakeError("选项必须是数组", "validate");
+        }
+        if (!Array.isArray(answers)) {
+            throw new QuizMakeError("答案必须是数组", "validate");
+        }
+
+        const payload = {
+            user,
+            quiz: {
+                name: quiz,
+                type,
+                question,
+                options,
+                answers,
+            },
+        };
+
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QUIZ_MAKE, payload, { timeout: 10000 });
+            if (result === null || !result.status) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 字段",
+                    JSON.stringify(result)
+                );
+            }
+        } catch (err) {
+            throw new QuizMakeError(
+                `上传题目失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return { status, loading, connError, list_quiz, count_qa, fetch_quiz, record_answer, make_quiz };
 }
 
 if (import.meta.hot) {

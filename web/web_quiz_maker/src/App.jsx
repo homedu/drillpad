@@ -17,30 +17,13 @@ import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
 const OPTION_COUNT = 8;
 
 // 生成初始选项数组：[{ text: "", isCorrect: false }, ...]
-const createEmptyOptions = () =>
-    Array.from({ length: OPTION_COUNT }, () => ({ text: "", isCorrect: false }));
-
-// ============ 占位的后端通信函数，请自行替换为真实请求 ============
-async function submitQuestionToServer(payload) {
-    // 示例：
-    // const res = await fetch("/api/questions", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(payload),
-    // });
-    // if (!res.ok) throw new Error("提交失败");
-    // return res.json();
-
-    console.log("提交到题库的数据：", payload);
-    return new Promise((resolve) => setTimeout(resolve, 500));
-}
-// ================================================================
+const createEmptyOptions = () => Array.from({ length: OPTION_COUNT }, () => ({ text: "", isCorrect: false }));
 
 function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_qa } = useNatsFetch();
+    const { loading, connError, list_quiz, count_qa, make_quiz } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -102,21 +85,17 @@ function App() {
             return;
         }
 
-        const payload = {
-            question: question.trim(),
-            options: options.map((opt, i) => ({
-                index: i,
-                text: opt.text.trim(),
-                isCorrect: opt.isCorrect,
-            })),
-        };
+        const opts = options.filter((opt) => opt.text.trim()).map((opt) => opt.text);
+        const answers = options.filter((opt) => opt.isCorrect).map((opt) => opt.text);
+        const type = answers.length > 1 ? "MS" : "MCSA";
 
         setSubmitting(true);
         setMessage(null);
         try {
-            await submitQuestionToServer(payload);
+            await make_quiz(user, selectedQuiz, type, question, opts, answers);
             setMessage({ type: "success", text: "提交成功！" });
             resetForm();
+            setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
         } catch (err) {
             setMessage({ type: "error", text: "提交失败，请重试" });
         } finally {
