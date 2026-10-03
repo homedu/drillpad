@@ -163,21 +163,25 @@ export function useNatsFetch() {
         }
     });
 
-    const count_questions = useCallback(async (user, quiz) => {
+    // count_type: "question_count" | "correct_count" | "incorrect_count" | "raw"
+    const count_qa = useCallback(async (user, quiz, count_type = "raw") => {
         const payload = { user, quiz };
         setLoading(true);
         try {
             const result = await reqNATS(T_QA_COUNT, payload, { timeout: 10000 });
-            if (!hasProperty(result, "question_count")) {
+            if (count_type == "raw") {
+                return result;
+            }
+            if (!hasProperty(result, count_type)) {
                 throw new NatsResponseParseError(
-                    "RESP JSON ERROR: missing JSON with 'question_count'",
+                    `Invalid field '${count_type}', cannot be found in response JSON`,
                     JSON.stringify(result)
                 );
             };
-            return result["question_count"];
+            return result[count_type];
         } catch (err) {
             throw new QuestionCountError(
-                `获取考题数量失败: ${describeError(err)}`,
+                `获取考题记录失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
             );
@@ -262,7 +266,7 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, list_quiz, count_questions, fetch_quiz, record_answer };
+    return { status, loading, connError, list_quiz, count_qa, fetch_quiz, record_answer };
 }
 
 if (import.meta.hot) {

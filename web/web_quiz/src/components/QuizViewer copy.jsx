@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
 
@@ -18,7 +18,7 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                // 索引含义：0: GUID; 1: 题干; 2-9: A-H选项内容; 10-17: 答案内容; 18: ref_id; 19: prompt_id; 20: note_id; 21: quiz_type
+                // 索引含义：0: GUID; 1: 题干; 2-9: A-H选项内容; 10-17: 答案内容; 18: ref_id; 19: quiz_type
                 const [id, question, optA, optB, optC, optD, optE, optF, optG, optH, ans1, _ans2, _ans3, _ans4, _ans5, _ans6, _ans7, _ans8, ref_id, prompt_id, note_id, quiz_type] = fields;
                 if (quiz_type === "MCSA" && ans1) {
                     return {
@@ -36,10 +36,10 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                         ].filter((opt) => opt.text),
                         correctAnswer: ans1
                     };
+                } else {
+                    return null; // 只处理 MCSA 类型题目
                 }
-                return null;
-            })
-            .filter(Boolean);
+            });
     }, [fileContent]);
 
     // 2. 选择选项
@@ -63,49 +63,59 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
         }, 0);
     }, [submitted, questions, userAnswers]);
 
-    // 4. 提交答案
-    const handleSubmit = useCallback(async () => {
-        // 统计答案, 根据当前 userAnswers 直接计算答案分类
+    if (!questions.length) {
+        return (
+            <p className="text-zinc-500 mt-5">⚠️ 未解析到有效题目内容，请检查文件格式。</p>
+        );
+    }
+
+    // 统计答案
+    const { ids_correct, ids_incorrect, ids_blank } = useMemo(() => {
         const correct = [];
         const incorrect = [];
         const blank = [];
-
-        questions.forEach((q) => {
-            const userChoice = userAnswers[q.id];
-            if (!userChoice) {
-                blank.push(q.id);
-            } else if (q.correctAnswer && userChoice.text.trim() === q.correctAnswer.trim()) {
-                correct.push(q.id);
-            } else {
-                incorrect.push(q.id);
-            }
-        });
-
-        // 先让 UI 进入“已提交”状态
-        setSubmitted(true);
-
-        try {
-            // 等待后台保存完成
-            const result = await record_answer(user, quiz, correct, incorrect, blank);
-            console.log(JSON.stringify(result));
-
-            // record_answer 成功完成后，再通知父组件进行后续刷新
-            await onSubmit();
-
-        } catch (err) {
-            const message = err instanceof AnswerRecordError ? err.message : `未知错误: ${err?.message ?? err}`;
-            console.error(message);
+        if (submitted) {
+            questions.forEach((q) => {
+                const userChoice = userAnswers[q.id];
+                if (!userChoice) {
+                    blank.push(q.id);
+                } else if (q.correctAnswer && userChoice.text.trim() === q.correctAnswer.trim()) {
+                    correct.push(q.id);
+                } else {
+                    incorrect.push(q.id);
+                }
+            });
         }
-    }, [questions, userAnswers, user, quiz, record_answer, onSubmit]);
+        return { ids_correct: correct, ids_incorrect: incorrect, ids_blank: blank };
+    }, [submitted, questions, userAnswers]);
 
-    // 6. 双击触发的处理函数
+    useEffect(() => {
+        if (submitted) {
+            // console.log("correct", ids_correct);
+            // console.log("wrong", ids_incorrect);
+            // console.log("blank", ids_blank);
+            // console.log("user", user);
+            // console.log("quiz", quiz);
+
+            try {
+                record_answer(user, quiz, ids_correct, ids_incorrect, ids_blank).then((result) => {
+                    console.log(JSON.stringify(result));
+                })
+            } catch (err) {
+                const message = err instanceof AnswerRecordError ? err.message : `未知错误: ${err?.message ?? err}`
+            }
+        }
+    }, [submitted, ids_correct, ids_incorrect, ids_blank]);
+
+    const handleSubmit = useCallback(() => {
+        setSubmitted(true);
+        onSubmit();
+    }, []);
+
+    // 1. 定义双击触发的处理函数
     const handleDoubleClick = (key, event) => {
-        console.log("quiz id:", key);
+        console.log('quiz id:', key);
     };
-
-    if (!questions.length) {
-        return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
-    }
 
     return (
         <div className="mt-6">

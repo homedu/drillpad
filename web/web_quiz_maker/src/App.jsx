@@ -40,7 +40,7 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_questions } = useNatsFetch();
+    const { loading, connError, list_quiz, count_qa } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -128,7 +128,7 @@ function App() {
     const refSelectQuiz = useRef(null);
 
     useEffect(() => {
-        (async () => user && selectedQuiz && setQuestionCount(await count_questions(user, selectedQuiz)))();
+        (async () => user && selectedQuiz && setQuestionCount(await count_qa(user, selectedQuiz, "question_count")))();
     }, [user, selectedQuiz]);
 
     return (
@@ -186,7 +186,7 @@ function App() {
                     )}
                 </select>
 
-                {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已有 {questionCount} 道题目 </label>}
+                {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已录入 {questionCount} 道题目 </label>}
 
             </div>
 

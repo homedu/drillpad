@@ -9,7 +9,7 @@ import "../../utils/util_str.js";
 window.React = React;
 
 function App() {
-    const { status, loading, connError, fetch_quiz, list_quiz, count_questions } = useNatsFetch();
+    const { status, loading, connError, fetch_quiz, list_quiz, count_qa } = useNatsFetch();
 
     const [fileContent, setFileContent] = useState("");
     const [info, setInfo] = useState("");
@@ -20,6 +20,8 @@ function App() {
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
     const [questionCount, setQuestionCount] = useState(0);
+    const [correctCount, setCorrectCount] = useState(0);
+    const [incorrectCount, setIncorrectCount] = useState(0);
     const [count, setCount] = useState(10);
 
     const [disabledMap, setDisabledMap] = useState({
@@ -89,8 +91,9 @@ function App() {
     // 彻底清空并重新初始化作答
     const handleResetQuiz = () => { setQuizKey((prev) => prev + 1); };
 
-    const handleOnSubmit = () => {
-        // 开始作答后，不可再更改用户输入
+    const handleOnSubmit = async () => {
+
+        // 开始作答后，不可再更改用户输入; 提交后，解锁输入框
         setDisabledMap(prev => ({
             ...prev,
             // usernameInput: false,
@@ -98,14 +101,25 @@ function App() {
             countInput: false,
             submitBtn: false,
         }))
+
+        // 提交后刷新统计数据
+        await showQACount();
     };
+
+    const showQACount = async () => {
+        const qaCount = user && selectedQuiz ? await count_qa(user, selectedQuiz) : { question_count: 0, correct_count: 0, incorrect_count: 0 };
+        setQuestionCount(qaCount.question_count);
+        setCorrectCount(qaCount.correct_count);
+        setIncorrectCount(qaCount.incorrect_count);
+        // console.log(`showQACount: ${JSON.stringify(qaCount)}`);
+    }
+
+    useEffect(() => {
+        (async () => { await showQACount(); })();
+    }, [user, selectedQuiz]);
 
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
-
-    useEffect(() => {
-        (async () => user && selectedQuiz && setQuestionCount(await count_questions(user, selectedQuiz)))();
-    }, [user, selectedQuiz]);
 
     return (
         <div className={tw.app}>
@@ -163,7 +177,15 @@ function App() {
                     )}
                 </select>
 
-                {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 共 {questionCount} 道题目 </label>}
+                {
+                    questionCount > 0 &&
+                    <label className={cn(tw.label, "ml-auto flex items-center gap-3")}>
+                        <span className="font-semibold text-gray-500">题目 {questionCount},</span>
+                        <span className="font-semibold text-black">已做 {+correctCount + +incorrectCount},</span>
+                        <span className="font-semibold text-green-600">掌握 {correctCount},</span>
+                        <span className="font-semibold text-red-600">待练习 {incorrectCount}</span>
+                    </label>
+                }
 
             </div>
 
@@ -199,8 +221,8 @@ function App() {
                     user={user}
                     quiz={selectedQuiz}
                     fileContent={fileContent}
-                    onReset={handleResetQuiz}
                     onSubmit={handleOnSubmit}
+                    onReset={handleResetQuiz}
                 />
             )}
         </div>
