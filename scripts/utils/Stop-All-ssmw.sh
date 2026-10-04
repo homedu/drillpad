@@ -30,6 +30,7 @@ PATTERNS=(
 "nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
 "nats reply.*quiz-make.*reply_quiz-make.sh"
 "nats reply.*answer-record.*reply_answer-record.sh"
+"nats reply.*question-search.*reply_question-search.sh"
 "EbbinghausRec"
 )
 

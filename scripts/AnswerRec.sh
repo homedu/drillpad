@@ -44,19 +44,19 @@ ts=$(date '+%Y-%m-%d %H:%M:%S')
 
 # # echo "--- IDS_CORRECT ---"
 # for item in "${IDS_CORRECT[@]}"; do
-# # [quiz id] [last timestamp] (if same id, ignore recording)
+# # [question id] [last timestamp] (if same id, ignore recording)
 # echo "$item" >> $REC_CORRECT
 # done
 
 # # echo "--- IDS_INCORRECT ---"
 # for item in "${IDS_INCORRECT[@]}"; do
-# # [quiz id]	[repeated count]	[last timestamp] (if same id, update repeated count & last timestamp)
+# # [question id]	[repeated count]	[last timestamp] (if same id, update repeated count & last timestamp)
 # echo "$item" >> $REC_INCORRECT
 # done
 
 # # echo "--- IDS_BLANK ---"
 # for item in "${IDS_BLANK[@]}"; do
-# # [quiz id] (if same id, ignore recording)
+# # [question id] (if same id, ignore recording)
 # echo "$item" >> $REC_BLANK
 # done
 

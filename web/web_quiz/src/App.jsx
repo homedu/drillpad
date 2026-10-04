@@ -183,7 +183,7 @@ function App() {
                         <span className="font-semibold text-gray-500">题目 {questionCount},</span>
                         <span className="font-semibold text-black">已做 {+correctCount + +incorrectCount},</span>
                         <span className="font-semibold text-green-600">掌握 {correctCount},</span>
-                        <span className="font-semibold text-red-600">待练习 {incorrectCount}</span>
+                        <span className="font-semibold text-red-600">待练习 {+questionCount - +correctCount + +incorrectCount}</span>
                     </label>
                 }
 

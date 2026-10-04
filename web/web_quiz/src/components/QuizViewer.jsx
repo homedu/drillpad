@@ -100,7 +100,7 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
     // 6. 双击触发的处理函数
     const handleDoubleClick = (key, event) => {
-        console.log("quiz id:", key);
+        console.log("question id:", key);
     };
 
     if (!questions.length) {

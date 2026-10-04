@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { cn } from "../../utils/utils.js"
+import "../../utils/util_str.js";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
 
@@ -23,12 +24,13 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_qa, make_quiz } = useNatsFetch();
+    const { loading, connError, list_quiz, count_qa, search_question, make_quiz } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
     const [questionCount, setQuestionCount] = useState(0);
+    const [qid, setQid] = useState("");
 
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
@@ -64,6 +66,8 @@ function App() {
         setQuestion("");
         setOptions(createEmptyOptions());
         setMessage(null);
+        setError("");
+        setInfo("");
     };
 
     const validate = () => {
@@ -100,6 +104,32 @@ function App() {
             setMessage({ type: "error", text: "提交失败，请重试" });
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleQuestionSearch = async () => {
+        if (!user || !selectedQuiz || !qid.trim().isValidGuid()) {
+            setError("请输入有效的'用户名', '题库'和 'Question ID'");
+            setInfo("");
+            return;
+        }
+        try {
+            const result = await search_question(user, selectedQuiz, qid.trim());
+            if (result.status === "success") {
+                const [qId, qText, ...qOptions] = result.question.split("\t");
+                setQuestion(qText);
+                setOptions(createEmptyOptions().map((opt, index) => ({
+                    text: qOptions[index] || "",
+                    isCorrect: qOptions[index] ? qOptions[index] === qOptions[8] : false, // 第9列开始是正确答案
+                })));
+                setInfo("题目搜索成功");
+                setError("");
+            } else if (result.status === "failure") {
+                resetForm();                
+                setError("搜索题目失败");
+            }
+        } catch (err) {
+            setError("搜索题目失败");
         }
     };
 
@@ -169,6 +199,24 @@ function App() {
 
             </div>
 
+            <div className="flex items-center justify-end gap-2 mt-3">
+                <input
+                    type="text"
+                    value={qid}
+                    onChange={(e) => setQid(e.target.value)}
+                    placeholder="Question ID"
+                    className="w-80 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                />
+
+                <button
+                    onClick={handleQuestionSearch}
+                    disabled={!user || !selectedQuiz || !qid.trim().isValidGuid()}
+                    className={cn(tw.button, tw.primaryButton, (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
+                >
+                    搜索
+                </button>
+            </div>
+
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
 
@@ -195,10 +243,7 @@ function App() {
                             onChange={(e) => handleOptionTextChange(index, e.target.value)}
                             placeholder={`选项 ${index + 1} 内容`}
                         />
-                        <label
-                            className={tw.checkLabel(!opt.text.trim())}
-                            title={opt.text.trim() ? "" : "请先填写选项内容"}
-                        >
+                        <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "请先填写选项内容"}>
                             <input
                                 type="checkbox"
                                 checked={opt.isCorrect}

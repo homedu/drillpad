@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { hasProperty } from "../utils/utils.js";
-import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
+import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QUESTION_SEARCH, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
 import {
     getNatsConnection,
     reqNATS,
@@ -32,10 +32,18 @@ export class QuizListError extends Error {
     }
 }
 
-export class QuestionCountError extends Error {
+export class QACountError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
-        this.name = "QuestionCountError";
+        this.name = "QACountError";
+        this.stage = stage;
+    }
+}
+
+export class QuestionSearchError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionSearchError";
         this.stage = stage;
     }
 }
@@ -163,6 +171,23 @@ export function useNatsFetch() {
         }
     });
 
+    const search_question = useCallback(async (user, quiz, qid) => {
+        const payload = { user, quiz, qid };
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QUESTION_SEARCH, payload, { timeout: 10000 });
+            return result;
+        } catch (err) {
+            throw new QuestionSearchError(
+                `搜索题目失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     // count_type: "question_count" | "correct_count" | "incorrect_count" | "raw"
     const count_qa = useCallback(async (user, quiz, count_type = "raw") => {
         const payload = { user, quiz };
@@ -180,7 +205,7 @@ export function useNatsFetch() {
             };
             return result[count_type];
         } catch (err) {
-            throw new QuestionCountError(
+            throw new QACountError(
                 `获取考题记录失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -305,7 +330,7 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, list_quiz, count_qa, fetch_quiz, record_answer, make_quiz };
+    return { status, loading, connError, list_quiz, count_qa, search_question, fetch_quiz, record_answer, make_quiz };
 }
 
 if (import.meta.hot) {

@@ -7,3 +7,10 @@ if (!String.prototype.mustEnd) {
         return str.endsWith(tail) ? str : str + tail;
     };
 }
+
+if (!String.prototype.isValidGuid) {
+    String.prototype.isValidGuid = function () {
+        const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+        return guidRegex.test(this.toString());
+    };
+}

@@ -60,6 +60,7 @@ WINDOW_NAMES=(
 "quiz-fetch"
 "quiz-make"
 "answer-record"
+"question-search"
 "ebbinghaus"
 )
 WINDOW_CMDS=(
@@ -69,6 +70,7 @@ WINDOW_CMDS=(
 "nats reply \"quiz-fetch\" --command=\"../reply_quiz-fetch.sh\" 2>/dev/null"
 "nats reply \"quiz-make\" --command=\"../reply_quiz-make.sh\" 2>/dev/null"
 "nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
+"nats reply \"question-search\" --command=\"../reply_question-search.sh\" 2>/dev/null"
 # running *.sh with PWD step into its file directory, args should be relative to *.sh
 "../EbbinghausRec.sh ../users/ 30"
 )
@@ -195,6 +197,19 @@ if [[ -n "$PID" ]]; then
 else
     echo "❌ [answer-record] 错误: 未找到 nats reply 进程，启动可能失败了。"
     echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_answer-record.sh' 找不到/没有执行权限。"
+fi
+
+# ---------------------------------------------------------------------------
+# 检查 reply question-search
+# ---------------------------------------------------------------------------
+PID=$(pgrep -f "nats reply.*question-search.*reply_question-search.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
+
+if [[ -n "$PID" ]]; then
+    echo "✅ [question-search] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
+else
+    echo "❌ [question-search] 错误: 未找到 nats reply 进程，启动可能失败了。"
+    echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_question-search.sh' 找不到/没有执行权限。"
 fi
 
 # ---------------------------------------------------------------------------
