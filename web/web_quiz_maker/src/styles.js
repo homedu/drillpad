@@ -33,6 +33,7 @@ export const styles = {
     optionInput: cn(
         "flex-1 box-border py-[6px] px-[10px] text-[14px]",
         "border border-solid border-[#d1d5db] rounded-[6px]",
+        "disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
     ),
 
     checkLabel: (disabled) => cn(

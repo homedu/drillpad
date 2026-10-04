@@ -29,6 +29,7 @@ function App() {
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
+    const [selectedQuestionType, setSelectedQuestionType] = useState('MCSA'); // "MCSA" 或 "MS"
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
     const [question, setQuestion] = useState("");
@@ -38,25 +39,31 @@ function App() {
 
     const hasQuizList = quizList?.length > 0;
 
-    const handleOptionTextChange = (index, value) => {
+    const handleOptionTextChange = (index, text) => {
+        const isEmpty = !text.trim();
         setOptions((prev) =>
-            prev.map((opt, i) =>
-                i !== index ? opt : {
-                    ...opt,
-                    text: value,
-                    isCorrect: value.trim() ? opt.isCorrect : false,// 内容被清空时，自动取消该选项的"正确答案"勾选
+            prev.map((opt, i) => {
+                if (i === index) {
+                    // 当前项：文本为空时同步取消"正确"
+                    return { ...opt, text, isCorrect: isEmpty ? false : opt.isCorrect };
                 }
-            )
+                if (isEmpty && i > index) {
+                    // 当前项被清空：后面的选项全部清空
+                    return { ...opt, text: "", isCorrect: false };
+                }
+                return opt;
+            })
         );
     };
 
     const handleOptionCheck = (index) => {
         setOptions((prev) =>
             prev.map((opt, i) => {
-                if (i !== index) return opt;
-                // 内容为空时不允许勾选
-                if (!opt.text.trim()) return opt;
-                return { ...opt, isCorrect: !opt.isCorrect };
+                // radio 模式下，当前选项无法被取消勾选；下面逻辑无法执行
+                if (selectedQuestionType === 'MCSA') {
+                    return i === index ? { ...opt, isCorrect: !opt.isCorrect } : { ...opt, isCorrect: false };
+                }
+                return i === index ? { ...opt, isCorrect: !opt.isCorrect } : opt;
             })
         );
     };
@@ -78,6 +85,9 @@ function App() {
 
         const correctCount = options.filter((opt) => opt.isCorrect).length;
         if (correctCount === 0) return "请至少勾选一个正确答案";
+
+        const hasGap = options.some((opt, i) => opt.text.trim() && options.slice(0, i).some((o) => !o.text.trim()));
+        if (hasGap) return "选项必须从上到下依次填写";
 
         return null;
     };
@@ -116,11 +126,20 @@ function App() {
         try {
             const result = await search_question(user, selectedQuiz, qid.trim());
             if (result.status === "success") {
-                const [qId, qText, ...qOptions] = result.question.split("\t");
+
+                const fields = result.question.split("\t");
+                const questionType = fields[fields.length - 1]; // 最后一列是题型
+                setSelectedQuestionType(questionType);
+
+                // const note_id = fields[fields.length - 2]; // 倒数第二列是note_id
+                // const prompt_id = fields[fields.length - 3]; // 倒数第三列是prompt_id
+                // const ref_id = fields[fields.length - 4]; // 倒数第四列是ref_id
+
+                const [qId, qText, ...qOptions] = fields;
                 setQuestion(qText);
                 setOptions(createEmptyOptions().map((opt, index) => ({
                     text: qOptions[index] || "",
-                    isCorrect: qOptions[index] ? qOptions[index] === qOptions[8] : false, // 第9列开始是正确答案
+                    isCorrect: qOptions[index] ? qOptions.slice(8, 15).includes(qOptions[index]) : false, // 第9个Option开始到第16个Option是正确答案
                 })));
                 setInfo("题目搜索成功");
                 setError("");
@@ -140,6 +159,25 @@ function App() {
     useEffect(() => {
         (async () => user && selectedQuiz && setQuestionCount(await count_qa(user, selectedQuiz, "question_count")))();
     }, [user, selectedQuiz]);
+
+    useEffect(() => {
+        if (selectedQuestionType === 'MCSA') {
+            setOptions((prev) => {
+                const correctCount = prev.filter((o) => o.isCorrect).length;
+                if (correctCount <= 1) return prev;
+
+                // 只保留第一个正确答案
+                let found = false;
+                return prev.map((o) => {
+                    if (o.isCorrect && !found) {
+                        found = true;
+                        return o;
+                    }
+                    return { ...o, isCorrect: false };
+                });
+            });
+        }
+    }, [selectedQuestionType]);
 
     return (
         <div className={tw.container}>
@@ -196,6 +234,16 @@ function App() {
                     )}
                 </select>
 
+                <select
+                    value={selectedQuestionType}
+                    onChange={(e) => setSelectedQuestionType(e.target.value)}
+                    disabled={connError || loading}
+                    className={cn(tw.input, "w-30", "rounded-sm")}
+                >
+                    <option value="MCSA">单选题</option>
+                    <option value="MS">多选题</option>
+                </select>
+
                 {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已录入 {questionCount} 道题目 </label>}
 
             </div>
@@ -233,28 +281,36 @@ function App() {
             />
 
             <label className={cn(tw.label, "block")}>选项（勾选表示该项为正确答案）</label>
+
             <div className={tw.optionsList}>
-                {options.map((opt, index) => (
-                    <div key={index} className={tw.optionRow}>
-                        <span className={tw.optionIndex}>{String.fromCharCode(65 + index)}</span>
-                        <input
-                            className={tw.optionInput}
-                            type="text"
-                            value={opt.text}
-                            onChange={(e) => handleOptionTextChange(index, e.target.value)}
-                            placeholder={`选项 ${index + 1} 内容`}
-                        />
-                        <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "请先填写选项内容"}>
+                {options.map((opt, index) => {
+                    // 前面所有选项都已填写，当前行才可编辑
+                    const canEdit = options.slice(0, index).every((o) => o.text.trim());
+
+                    return (
+                        <div key={index} className={tw.optionRow}>
+                            <span className={tw.optionIndex}>{String.fromCharCode(65 + index)}</span>
                             <input
-                                type="checkbox"
-                                checked={opt.isCorrect}
-                                disabled={!opt.text.trim()}
-                                onChange={() => handleOptionCheck(index)}
+                                className={tw.optionInput}
+                                type="text"
+                                value={opt.text}
+                                disabled={!canEdit}
+                                onChange={(e) => handleOptionTextChange(index, e.target.value)}
+                                placeholder={canEdit ? `选项 ${index + 1} 内容` : `请先填写选项 ${String.fromCharCode(64 + index)}`}
                             />
-                            <span style={{ marginLeft: 4 }}>正确</span>
-                        </label>
-                    </div>
-                ))}
+                            <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "请先填写选项内容"}>
+                                <input
+                                    type={selectedQuestionType === 'MCSA' ? 'radio' : 'checkbox'}
+                                    name="correct-option"
+                                    checked={opt.isCorrect}
+                                    disabled={!opt.text.trim()}
+                                    onChange={() => handleOptionCheck(index)}
+                                />
+                                <span style={{ marginLeft: 4 }}>正确</span>
+                            </label>
+                        </div>
+                    );
+                })}
             </div>
 
             {
