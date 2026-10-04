@@ -2,6 +2,21 @@
 
 set -euo pipefail
 
+append_trap() {
+    local cmd="$1"
+    local sig="$2"
+    # 获取已经注册的 trap 命令
+    local existing_trap
+    existing_trap=$(trap -p "$sig" | cut -d"'" -f2)
+
+    # 如果之前有 trap，就用分号拼上新命令；如果没有，就直接设为新命令
+    if [ -n "$existing_trap" ]; then
+        trap "${existing_trap}; ${cmd}" "$sig"
+    else
+        trap "${cmd}" "$sig"
+    fi
+}
+
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -43,6 +58,12 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         exit 1
     }
 
+    tmp=$(mktemp "${QUIZ_BANK_FILE}.XXXXXX")
+    append_trap 'rm -f "$tmp"' EXIT
+
+    QID=$(jq -r '.quiz.qid // ""' <<< "$PARAM")
+    [[ -z "$QID" ]] && QID=$(uuidgen)
+
     QUESTION=$(jq -r '.quiz.question // ""' <<< "$PARAM")
     # OPTIONS=$(jq -r '.quiz.options[]' <<< "$PARAM")
     OPT_1=$(jq -r '.quiz.options[0] // ""' <<< "$PARAM")
@@ -63,15 +84,27 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     ANS_7=$(jq -r '.quiz.answers[6] // ""' <<< "$PARAM")
     ANS_8=$(jq -r '.quiz.answers[7] // ""' <<< "$PARAM")
 
-    awk -v OFS='\t' -v t="$TYPE" -v id="$(uuidgen)" -v q="$QUESTION" \
+    awk -v OFS='\t' -v t="$TYPE" -v id="$QID" -v q="$QUESTION" \
         -v o1="$OPT_1" -v o2="$OPT_2" -v o3="$OPT_3" -v o4="$OPT_4" \
         -v o5="$OPT_5" -v o6="$OPT_6" -v o7="$OPT_7" -v o8="$OPT_8" \
         -v a1="$ANS_1" -v a2="$ANS_2" -v a3="$ANS_3" -v a4="$ANS_4" \
         -v a5="$ANS_5" -v a6="$ANS_6" -v a7="$ANS_7" -v a8="$ANS_8" '
-        BEGIN{
+        BEGIN {
+            found = 0
+        }
+        $1 == id {
+            found = 1
             print id, q, o1, o2, o3, o4, o5, o6, o7, o8, a1, a2, a3, a4, a5, a6, a7, a8, "", "", "ref_id", "prompt_id", "note_id", t
         }
-        ' >> "$QUIZ_BANK_FILE"
+        $1 != id {
+            print $0
+        }
+        END {
+            if (!found) {
+                print id, q, o1, o2, o3, o4, o5, o6, o7, o8, a1, a2, a3, a4, a5, a6, a7, a8, "", "", "ref_id", "prompt_id", "note_id", t
+            }
+        }
+        ' "$QUIZ_BANK_FILE" > "$tmp" && mv "$tmp" "$QUIZ_BANK_FILE"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题

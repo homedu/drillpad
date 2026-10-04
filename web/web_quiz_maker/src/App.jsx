@@ -31,7 +31,6 @@ function App() {
     const [selectedQuiz, setSelectedQuiz] = useState('');
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
-
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
     const [submitting, setSubmitting] = useState(false);
@@ -63,6 +62,7 @@ function App() {
     };
 
     const resetForm = () => {
+        setQid("");
         setQuestion("");
         setOptions(createEmptyOptions());
         setMessage(null);
@@ -96,7 +96,7 @@ function App() {
         setSubmitting(true);
         setMessage(null);
         try {
-            await make_quiz(user, selectedQuiz, type, question, opts, answers);
+            await make_quiz(user, selectedQuiz, type, qid, question, opts, answers);
             setMessage({ type: "success", text: "提交成功！" });
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
@@ -125,10 +125,11 @@ function App() {
                 setInfo("题目搜索成功");
                 setError("");
             } else if (result.status === "failure") {
-                resetForm();                
+                resetForm();
                 setError("搜索题目失败");
             }
         } catch (err) {
+            resetForm();
             setError("搜索题目失败");
         }
     };

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { hasProperty } from "../utils/utils.js";
+import "../utils/util_str.js";
 import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QUESTION_SEARCH, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
 import {
     getNatsConnection,
@@ -291,7 +292,10 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const make_quiz = useCallback(async (user, quiz, type, question, options, answers) => {
+    const make_quiz = useCallback(async (user, quiz, type, qid, question, options, answers) => {
+        if (!qid.isValidGuid()) {
+            qid = "";
+        }
         if (!Array.isArray(options)) {
             throw new QuizMakeError("选项必须是数组", "validate");
         }
@@ -304,11 +308,14 @@ export function useNatsFetch() {
             quiz: {
                 name: quiz,
                 type,
+                qid,
                 question,
                 options,
                 answers,
             },
         };
+
+        console.log("make_quiz payload:", payload);
 
         setLoading(true);
         try {

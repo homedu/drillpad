@@ -3,6 +3,7 @@
     "quiz": {
         "name": "AZ-900",
         "type": "MCSA",
+        "qid": "e081d54a-2c6e-4f7d-9844-76982683952f",
         "question": "What are the cities in Europe?",
         "options": [
             "Paris",
