@@ -3,6 +3,7 @@
 @layer theme, base, components, utilities;
 @layer theme {
   :root, :host {
+    --color-red-500: oklch(63.7% 0.237 25.331);
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-300: oklch(87.2% 0.01 258.338);
@@ -176,6 +177,9 @@
   }
   .bg-\[\#f8d7da\] {
     background-color: #f8d7da;
+  }
+  .bg-red-500 {
+    background-color: var(--color-red-500);
   }
   .p-\[5px\] {
     padding: 5px;

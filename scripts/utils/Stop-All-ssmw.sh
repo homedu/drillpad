@@ -31,6 +31,7 @@ PATTERNS=(
 "nats reply.*quiz-make.*reply_quiz-make.sh"
 "nats reply.*answer-record.*reply_answer-record.sh"
 "nats reply.*question-search.*reply_question-search.sh"
+"nats reply.*question-delete.*reply_question-delete.sh"
 "EbbinghausRec"
 )
 

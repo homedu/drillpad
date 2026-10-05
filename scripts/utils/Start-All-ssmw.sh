@@ -61,6 +61,7 @@ WINDOW_NAMES=(
 "quiz-make"
 "answer-record"
 "question-search"
+"question-delete"
 "ebbinghaus"
 )
 WINDOW_CMDS=(
@@ -71,6 +72,7 @@ WINDOW_CMDS=(
 "nats reply \"quiz-make\" --command=\"../reply_quiz-make.sh\" 2>/dev/null"
 "nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
 "nats reply \"question-search\" --command=\"../reply_question-search.sh\" 2>/dev/null"
+"nats reply \"question-delete\" --command=\"../reply_question-delete.sh\" 2>/dev/null"
 # running *.sh with PWD step into its file directory, args should be relative to *.sh
 "../EbbinghausRec.sh ../users/ 30"
 )
@@ -210,6 +212,19 @@ if [[ -n "$PID" ]]; then
 else
     echo "❌ [question-search] 错误: 未找到 nats reply 进程，启动可能失败了。"
     echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_question-search.sh' 找不到/没有执行权限。"
+fi
+
+# ---------------------------------------------------------------------------
+# 检查 reply question-delete
+# ---------------------------------------------------------------------------
+PID=$(pgrep -f "nats reply.*question-delete.*reply_question-delete.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
+
+if [[ -n "$PID" ]]; then
+    echo "✅ [question-delete] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
+else
+    echo "❌ [question-delete] 错误: 未找到 nats reply 进程，启动可能失败了。"
+    echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_question-delete.sh' 找不到/没有执行权限。"
 fi
 
 # ---------------------------------------------------------------------------

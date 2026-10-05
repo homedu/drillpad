@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { hasProperty } from "../utils/utils.js";
 import "../utils/util_str.js";
-import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QUESTION_SEARCH, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
+import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QUESTION_SEARCH, T_QUESTION_DELETE, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
 import {
     getNatsConnection,
     reqNATS,
@@ -45,6 +45,14 @@ export class QuestionSearchError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "QuestionSearchError";
+        this.stage = stage;
+    }
+}
+
+export class QuestionDeleteError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionDeleteError";
         this.stage = stage;
     }
 }
@@ -181,6 +189,23 @@ export function useNatsFetch() {
         } catch (err) {
             throw new QuestionSearchError(
                 `搜索题目失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const delete_question = useCallback(async (user, quiz, qid) => {
+        const payload = { user, quiz, qid };
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QUESTION_DELETE, payload, { timeout: 10000 });
+            return result;
+        } catch (err) {
+            throw new QuestionDeleteError(
+                `删除题目失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
             );
@@ -337,7 +362,7 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, list_quiz, count_qa, search_question, fetch_quiz, record_answer, make_quiz };
+    return { status, loading, connError, list_quiz, count_qa, search_question, delete_question, fetch_quiz, record_answer, make_quiz };
 }
 
 if (import.meta.hot) {

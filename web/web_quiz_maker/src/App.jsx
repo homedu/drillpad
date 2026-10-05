@@ -24,7 +24,7 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_qa, search_question, make_quiz } = useNatsFetch();
+    const { loading, connError, list_quiz, count_qa, search_question, delete_question, make_quiz } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -153,6 +153,29 @@ function App() {
         }
     };
 
+    const handleQuestionDelete = async () => {
+        if (!user || !selectedQuiz || !qid.trim().isValidGuid()) {
+            setError("请输入有效的'用户名', '题库'和 'Question ID'");
+            setInfo("");
+            return;
+        }
+        try {
+            const result = await delete_question(user, selectedQuiz, qid.trim());
+            if (result.status === "success") {
+                resetForm();
+                setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
+                setInfo("题目删除成功");
+                setError("");
+            } else if (result.status === "failure") {
+                resetForm();
+                setError("删除题目失败");
+            }
+        } catch (err) {
+            resetForm();
+            setError("删除题目失败");
+        }
+    };
+
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
 
@@ -263,6 +286,14 @@ function App() {
                     className={cn(tw.button, tw.primaryButton, (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
                 >
                     搜索
+                </button>
+
+                <button
+                    onClick={handleQuestionDelete}
+                    disabled={!user || !selectedQuiz || !qid.trim().isValidGuid()}
+                    className={cn(tw.button, tw.primaryButton, "bg-red-500", (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
+                >
+                    删除
                 </button>
             </div>
 
