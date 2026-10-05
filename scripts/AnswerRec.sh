@@ -30,10 +30,10 @@ REC_INCORRECT="${2:-${REC_CORRECT%/*}/incorrect.tsv}" # default: same dir as REC
 REC_BLANK="${3:-${REC_CORRECT%/*}/blank.tsv}" # default: same dir as REC_CORRECT
 REC_EBHS="${4:-${REC_CORRECT%/*}/ebhs.tsv}" # default: same dir as REC_CORRECT
 
-[ -f "$REC_CORRECT" ] || touch "$REC_CORRECT"
-[ -f "$REC_INCORRECT" ] || touch "$REC_INCORRECT"
-[ -f "$REC_BLANK" ] || touch "$REC_BLANK"
-[ -f "$REC_EBHS" ] || touch "$REC_EBHS"
+[[ -f "$REC_CORRECT" ]] || touch "$REC_CORRECT"
+[[ -f "$REC_INCORRECT" ]] || touch "$REC_INCORRECT"
+[[ -f "$REC_BLANK" ]] || touch "$REC_BLANK"
+[[ -f "$REC_EBHS" ]] || touch "$REC_EBHS"
 
 # env
 declare -a IDS_CORRECT=($IDS_CORRECT)
@@ -148,6 +148,8 @@ awk -v ts="$ts" -v incr_str="$incr_list" '
 
 # 把待处理数组转成多行文本，交给 awk 一次性处理
 ids_str=$(printf '%s\n' "${IDS_BLANK[@]}")
+
+# echo "ids_str: $ids_str" >> /tmp/answer_rec.log # Debugging line to check the content of ids_str
 
 awk -v ids_str="$ids_str" '
     BEGIN {

@@ -29,7 +29,7 @@ function App() {
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
-    const [selectedQuestionType, setSelectedQuestionType] = useState('MCSA'); // "MCSA" 或 "MS"
+    const [selectedQuestionType, setSelectedQuestionType] = useState(''); // "MCSA" 或 "MS"
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
     const [question, setQuestion] = useState("");
@@ -78,10 +78,14 @@ function App() {
     };
 
     const validate = () => {
+        if (!user.trim()) return "请输入用户名";
+        if (!selectedQuiz.trim()) return "请选择题库";
+        if (!selectedQuestionType) return "请选择题型";
         if (!question.trim()) return "请输入题目内容";
 
-        const emptyOption = options.every((opt) => !opt.text.trim());
-        if (emptyOption) return "请填写合理数量的选项内容";
+        const count = options.filter((opt) => opt.text.trim()).length;
+        if (count < 2) return "请至少填写两个选项";
+        if (count > OPTION_COUNT) return `最多只能填写 ${OPTION_COUNT} 个选项`;
 
         const correctCount = options.filter((opt) => opt.isCorrect).length;
         if (correctCount === 0) return "请至少勾选一个正确答案";
@@ -251,7 +255,7 @@ function App() {
                 >
                     {hasQuizList && (
                         <>
-                            <option value="" disabled hidden>选择题目</option>
+                            <option value="" disabled hidden>考题类别</option>
                             {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
                         </>
                     )}
@@ -263,8 +267,11 @@ function App() {
                     disabled={connError || loading}
                     className={cn(tw.input, "w-30", "rounded-sm")}
                 >
-                    <option value="MCSA">单选题</option>
-                    <option value="MS">多选题</option>
+                    <>
+                        <option value="" disabled hidden>题型</option>
+                        <option value="MCSA">单选题</option>
+                        <option value="MS">多选题</option>
+                    </>
                 </select>
 
                 {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已录入 {questionCount} 道题目 </label>}

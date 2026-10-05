@@ -59,12 +59,20 @@ check_duplicates "$REC_INCORRECT" "REC_INCORRECT"
 # update REC_CORRECT, REC_INCORRECT, REC_BLANK (all 3 from env) files #
 # #########################################################################################
 
-# if correct id exists, and same id exists in blank file, remove it from blank file
-awk -F'\t' 'NR==FNR{ids[$1]=1; next} !($1 in ids)' "$REC_CORRECT" "$REC_BLANK" > "$TMP_BLANK" && mv "$TMP_BLANK" "$REC_BLANK"
-
-# if incorrect id exists, and same id exists in blank file, remove it from blank file
-: > "$TMP_BLANK"
-awk -F'\t' 'NR==FNR{ids[$1]=1; next} !($1 in ids)' "$REC_INCORRECT" "$REC_BLANK" > "$TMP_BLANK" && mv "$TMP_BLANK" "$REC_BLANK"
+# if correct or incorrect id exists, and same id exists in blank file, remove it from blank file
+awk -F '\t' '
+FILENAME == "'"$REC_CORRECT"'" {
+    ids[$1] = 1;
+    next;
+}
+FILENAME == "'"$REC_INCORRECT"'" {
+    ids[$1] = 1;
+    next;
+}
+FILENAME == "'"$REC_BLANK"'" {
+    if (!($1 in ids)) { print $0 }
+}
+' "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK" > "$TMP_BLANK" && mv "$TMP_BLANK" "$REC_BLANK"
 
 ###########################################################################################
 

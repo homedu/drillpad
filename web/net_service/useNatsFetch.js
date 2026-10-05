@@ -296,6 +296,8 @@ export function useNatsFetch() {
             blank: ids_blank,
         };
 
+        console.log("record_answer payload:", payload);
+
         setLoading(true);
         try {
             const result = await reqNATS(T_ANS_REC, payload, { timeout: 10000 });
@@ -306,6 +308,7 @@ export function useNatsFetch() {
                     JSON.stringify(result)
                 );
             }
+            return result;
         } catch (err) {
             throw new AnswerRecordError(
                 `记录答题结果失败: ${describeError(err)}`,

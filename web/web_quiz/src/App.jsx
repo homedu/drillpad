@@ -126,7 +126,7 @@ function App() {
 
             {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
 
-            <h2 className={tw.title}>Quiz Drill</h2>
+            <h2 className={tw.title}>刷题本</h2>
 
             <div className="flex items-center">
 
@@ -171,7 +171,7 @@ function App() {
                 >
                     {hasQuizList && (
                         <>
-                            <option value="" disabled hidden>选择题目</option>
+                            <option value="" disabled hidden>考题类别</option>
                             {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
                         </>
                     )}
@@ -180,7 +180,7 @@ function App() {
                 {
                     questionCount > 0 &&
                     <label className={cn(tw.label, "ml-auto flex items-center gap-3")}>
-                        <span className="font-semibold text-gray-500">题目 {questionCount},</span>
+                        <span className="font-semibold text-gray-500">习题共 {questionCount} 道,</span>
                         <span className="font-semibold text-black">已做 {+correctCount + +incorrectCount},</span>
                         <span className="font-semibold text-green-600">掌握 {correctCount},</span>
                         <span className="font-semibold text-red-600">待练习 {+questionCount - +correctCount + +incorrectCount}</span>
