@@ -1,8 +1,9 @@
 import { useMemo, useState, useCallback } from "react";
 import { styles as tw } from "./styles.js";
+import { cn } from "../../../utils/utils.js";
 import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
 import { AiHelpIcon, NoteIcon } from "./icons.js";
-import { prompt } from "../../../../prompts/prompt.js";
+import { getPrompt } from "../../../prompts/prompt_util.js";
 
 // 选择题渲染与交互组件
 export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset }) {
@@ -122,27 +123,9 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
             throw Error(`cannot find question - ${key}`);
         }
 
-        let p;
-        switch (`${quiz}@${type}`) {
-            case "AZ-900@MCSA":
-                p = prompt.mcsa.az_900;
-                break;
-            default:
-                break;
-        }
-
-        const prompt_str = `${p.quiz_name} 
-        ${question.humanReadableQuestion}
-        ${p.question_profile}
-        ${p.correct_answer}
-        ${p.answer_explanation}
-        ${p.incorrect_options_explanation}
-        ${p.tested_topic}
-        ${p.other_notes}
-        `;
-        console.log(prompt_str);
-
-        setAiPrompt(prompt_str);
+        const prompt = getPrompt(quiz, type, question.humanReadableQuestion);
+        console.log(prompt);
+        setAiPrompt(prompt);
     };
 
     const handleNote = (key, type, event) => {
@@ -167,7 +150,13 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                         <div className="flex items-center justify-between">
                             <h3 className={tw.question}> {index + 1}. {q.question} </h3>
                             {submitted && <div className="flex items-center gap-2">
-                                <button type="button" className={tw.cardButton} onClick={(e) => handleAI(q.id, q.type, e)}> <AiHelpIcon /> </button>
+                                <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, e)}>
+                                    <input type="hidden" name="q" value={aiPrompt} />
+                                    <input type="hidden" name="udm" value="50" />
+                                    <input type="hidden" name="btnK" value="Google Search" />
+                                    <input type="hidden" name="hl" value="zh-CN" />
+                                    <button type="submit" className={tw.cardButton}> <AiHelpIcon /> </button>
+                                </form>
                                 <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}> <NoteIcon /> </button>
                             </div>}
                         </div>
