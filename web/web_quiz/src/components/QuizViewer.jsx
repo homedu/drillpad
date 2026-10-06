@@ -2,12 +2,14 @@ import { useMemo, useState, useCallback } from "react";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
 import { AiHelpIcon, NoteIcon } from "./icons.js";
+import { prompt } from "../../../../prompts/prompt.js";
 
 // 选择题渲染与交互组件
 export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset }) {
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const { record_answer } = useNatsFetch();
+    const [aiPrompt, setAiPrompt] = useState("");
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -19,24 +21,33 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                // 索引含义：0: GUID; 1: 题干; 2-9: A-H选项内容; 10-17: 答案内容; 18: ref_id; 19: prompt_id; 20: note_id; 21: quiz_type
-                const [id, question, optA, optB, optC, optD, optE, optF, optG, optH, ans1, _ans2, _ans3, _ans4, _ans5, _ans6, _ans7, _ans8, ref_id, prompt_id, note_id, quiz_type] = fields;
-                if (quiz_type === "MCSA" && ans1) {
+                const [id, question, // 索引含义：0: GUID; 1: 题干;
+                    optA, optB, optC, optD, optE, optF, optG, optH, // 2-9: A-H选项内容;
+                    ans1, _ans2, _ans3, _ans4, _ans5, _ans6, _ans7, _ans8, // 10-17: 答案内容;
+                    ref_id, prompt_id, note_id, quiz_type] = fields; // 18: ref_id; 19: prompt_id; 20: note_id; 21: quiz_type
+
+                const opts = [
+                    { label: "A", text: optA },
+                    { label: "B", text: optB },
+                    { label: "C", text: optC },
+                    { label: "D", text: optD },
+                    { label: "E", text: optE },
+                    { label: "F", text: optF },
+                    { label: "G", text: optG },
+                    { label: "H", text: optH },
+                ].filter((opt) => opt.text);
+
+                if (quiz_type === "MCSA") {
                     return {
                         id,
                         question,
-                        options: [
-                            { label: "A", text: optA },
-                            { label: "B", text: optB },
-                            { label: "C", text: optC },
-                            { label: "D", text: optD },
-                            { label: "E", text: optE },
-                            { label: "F", text: optF },
-                            { label: "G", text: optG },
-                            { label: "H", text: optH },
-                        ].filter((opt) => opt.text),
-                        correctAnswer: ans1
+                        type: quiz_type,
+                        options: opts,
+                        correctAnswer: ans1,
+                        humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
                     };
+                } else if (quiz_type === "MS") {
+                    console.warn(`⚠️ 题目 ${id} 是多选题 (MS)，当前组件仅支持单选题 (MCSA)，将被忽略。`);
                 }
                 return null;
             })
@@ -104,6 +115,40 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
         console.log("question id:", key);
     };
 
+    const handleAI = (key, type, event) => {
+        console.log("question id:", key, "; question type", type);
+        const question = questions.filter((q) => q.id === key)[0];
+        if (question == undefined || question == null) {
+            throw Error(`cannot find question - ${key}`);
+        }
+
+        let p;
+        switch (`${quiz}@${type}`) {
+            case "AZ-900@MCSA":
+                p = prompt.mcsa.az_900;
+                break;
+            default:
+                break;
+        }
+
+        const prompt_str = `${p.quiz_name} 
+        ${question.humanReadableQuestion}
+        ${p.question_profile}
+        ${p.correct_answer}
+        ${p.answer_explanation}
+        ${p.incorrect_options_explanation}
+        ${p.tested_topic}
+        ${p.other_notes}
+        `;
+        console.log(prompt_str);
+
+        setAiPrompt(prompt_str);
+    };
+
+    const handleNote = (key, type, event) => {
+        console.log("question id:", key, "; question type", type);
+    };
+
     if (!questions.length) {
         return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
     }
@@ -122,8 +167,8 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                         <div className="flex items-center justify-between">
                             <h3 className={tw.question}> {index + 1}. {q.question} </h3>
                             {submitted && <div className="flex items-center gap-2">
-                                <button type="button" className={tw.cardButton}> <AiHelpIcon /> </button>
-                                <button type="button" className={tw.cardButton}> <NoteIcon /> </button>
+                                <button type="button" className={tw.cardButton} onClick={(e) => handleAI(q.id, q.type, e)}> <AiHelpIcon /> </button>
+                                <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}> <NoteIcon /> </button>
                             </div>}
                         </div>
 
