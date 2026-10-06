@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
+import { AiHelpIcon, NoteIcon } from "./icons.js";
 
 // 选择题渲染与交互组件
 export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset }) {
@@ -117,7 +118,14 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
                 return (
                     <div key={q.id} className={tw.card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
-                        <h3 className={tw.question}> {index + 1}. {q.question} </h3>
+
+                        <div className="flex items-center justify-between">
+                            <h3 className={tw.question}> {index + 1}. {q.question} </h3>
+                            {submitted && <div className="flex items-center gap-2">
+                                <button type="button" className={tw.cardButton}> <AiHelpIcon /> </button>
+                                <button type="button" className={tw.cardButton}> <NoteIcon /> </button>
+                            </div>}
+                        </div>
 
                         <div className={tw.optionsContainer}>
                             {q.options.map((opt) => {

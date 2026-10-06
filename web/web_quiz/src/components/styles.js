@@ -24,5 +24,14 @@ export const styles = {
 
     resetBtn: "py-[10px] px-[24px] bg-[#0070f3] text-white border-none rounded-[6px] text-[15px] font-bold cursor-pointer",
 
+    cardButton: cn(
+        "inline-flex h-9 w-10 items-center justify-center gap-1.5 rounded-lg cursor-pointer",
+        "border-none bg-white text-sm font-medium text-gray-700 mb-4",
+        "shadow-sm transition",
+        "hover:border-gray-500 hover:bg-gray-50",
+        "active:scale-95",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
+    ),
+
     errBox: "text-[#dc3545] bg-[#f8d7da] p-[12px] rounded-[6px] mt-[15px]",
 };
