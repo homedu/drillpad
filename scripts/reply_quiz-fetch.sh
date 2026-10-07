@@ -24,8 +24,8 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # 记录本次运行中用过的锁文件，退出时统一清理
 declare -A _LOCKS=()
 
-# /var/www/dp_users must exist AND be set in Caddyfile as "root * /var/www/dp_users"
-FETCH_ROOT="/var/www/dp_users"
+# /var/www/qdp_users must exist AND be set in Caddyfile as "root * /var/www/qdp_users"
+FETCH_ROOT="/var/www/qdp_users"
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
@@ -38,7 +38,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # arg
     QUIZ_BANK="$DIR_USER/quiz_bank/${QUIZ}.tsv"
-    QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"  # will be appended to /var/www/dp_users/
+    QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"  # will be appended to /var/www/qdp_users/
     COUNT=$(jq -r '.count' <<< "$PARAM")
 
     QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"

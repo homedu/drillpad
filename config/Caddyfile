@@ -10,7 +10,7 @@
 
 :8080 {
 	# Set this path to your site's directory.
-	root * /var/www/dp_users
+	root * /var/www/qdp_users
 
 	# Enable the static file server.
 	file_server

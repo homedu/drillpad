@@ -6,6 +6,8 @@
 ### to make sure sh is end of LF (powershell)
 ``Get-ChildItem -Recurse -Filter *.sh | ForEach-Object { (Get-Content $_.FullName -Raw) -replace "`r`n", "`n" | Set-Content $_.FullName -NoNewline }`` 
 
+## deploy ##
+
 ### in root, copy /scripts to remote ###
 add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 
@@ -18,6 +20,8 @@ add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 
 ### in /web_quiz_editor, copy /dist to remote ###
 `sshpass -e rsync -av --inplace ./dist root@192.168.1.159:/var/www/qdp_editor_dist`
+
+## clean up ##
 
 ### clear all node_modules/ dist/ bun.lock under /web ###
 `find . \( -type d \( -name node_modules -o -name dist \) -o -type f -name bun.lock \) -prune -exec rm -rf {} +`
