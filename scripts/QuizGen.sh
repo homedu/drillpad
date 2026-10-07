@@ -186,13 +186,12 @@ END {
         ans[8] = inc_pool_f18[i]
         ref_id = inc_pool_f21[i]
         prompt_id = inc_pool_f22[i]
-        note_id   = inc_pool_f23[i]
-        type      = inc_pool_f24[i]
+        type      = inc_pool_f23[i]
 
 		n = count_non_empty(opt, 8)
         shuffle(opt, n)
 
-        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], ref_id, prompt_id, note_id, type
+        print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], ref_id, prompt_id, type
 
         printed++
     }
@@ -222,13 +221,12 @@ END {
 			ans[8] = cand_pool_f18[j]
 			ref_id = cand_pool_f21[j]
             prompt_id = cand_pool_f22[i]
-            note_id   = cand_pool_f23[i]
-            type      = cand_pool_f24[j]
+            type      = cand_pool_f23[j]
 
 			n = count_non_empty(opt, 8)
             shuffle(opt, n)
 
-            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], ref_id, prompt_id, note_id, type
+            print id, quiz, opt[1], opt[2], opt[3], opt[4], opt[5], opt[6], opt[7], opt[8], ans[1], ans[2], ans[3], ans[4], ans[5], ans[6], ans[7], ans[8], ref_id, prompt_id, type
         }
     }
 

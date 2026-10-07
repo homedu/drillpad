@@ -135,9 +135,8 @@ function App() {
                 const questionType = fields[fields.length - 1]; // 最后一列是题型
                 setSelectedQuestionType(questionType);
 
-                // const note_id = fields[fields.length - 2]; // 倒数第二列是note_id
-                // const prompt_id = fields[fields.length - 3]; // 倒数第三列是prompt_id
-                // const ref_id = fields[fields.length - 4]; // 倒数第四列是ref_id
+                // const prompt_id = fields[fields.length - 2]; // 倒数第二列是prompt_id
+                // const ref_id = fields[fields.length - 3]; // 倒数第三列是ref_id
 
                 const [qId, qText, ...qOptions] = fields;
                 setQuestion(qText);

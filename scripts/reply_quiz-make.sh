@@ -94,14 +94,14 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         }
         $1 == id {
             found = 1
-            print id, q, o1, o2, o3, o4, o5, o6, o7, o8, a1, a2, a3, a4, a5, a6, a7, a8, "", "", "ref_id", "prompt_id", "note_id", t
+            print id, q, o1, o2, o3, o4, o5, o6, o7, o8, a1, a2, a3, a4, a5, a6, a7, a8, "", "", "ref_id", "prompt_id", t
         }
         $1 != id {
             print $0
         }
         END {
             if (!found) {
-                print id, q, o1, o2, o3, o4, o5, o6, o7, o8, a1, a2, a3, a4, a5, a6, a7, a8, "", "", "ref_id", "prompt_id", "note_id", t
+                print id, q, o1, o2, o3, o4, o5, o6, o7, o8, a1, a2, a3, a4, a5, a6, a7, a8, "", "", "ref_id", "prompt_id", t
             }
         }
         ' "$QUIZ_BANK_FILE" > "$tmp" && mv "$tmp" "$QUIZ_BANK_FILE"

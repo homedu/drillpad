@@ -30,5 +30,5 @@ QUIZ_TYPE="${3:-MCSA}"  # 默认 quiz type 为 MCSA
 [[ "${OUTPUT_QUIZ##*/}" == *.* ]] || OUTPUT_QUIZ="${OUTPUT_QUIZ}.tsv"
 
 for ((i=1; i<=QUIZ_COUNT; i++)); do
-    awk -v OFS='\t' -v qt="$QUIZ_TYPE" '{print $0, "quiz", "opt1", "opt2", "opt3", "opt4", "", "", "", "", "ans1", "", "", "", "", "", "", "", "", "", "ref_id", "prompt_id", "note_id", qt}' <<<$(uuidgen)
+    awk -v OFS='\t' -v qt="$QUIZ_TYPE" '{print $0, "quiz", "opt1", "opt2", "opt3", "opt4", "", "", "", "", "ans1", "", "", "", "", "", "", "", "", "", "ref_id", "prompt_id", qt}' <<<$(uuidgen)
 done >> $OUTPUT_QUIZ

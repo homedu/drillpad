@@ -25,7 +25,7 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                 const [id, question, // 索引含义：0: GUID; 1: 题干;
                     optA, optB, optC, optD, optE, optF, optG, optH, // 2-9: A-H选项内容;
                     ans1, _ans2, _ans3, _ans4, _ans5, _ans6, _ans7, _ans8, // 10-17: 答案内容;
-                    ref_id, prompt_id, note_id, quiz_type] = fields; // 18: ref_id; 19: prompt_id; 20: note_id; 21: quiz_type
+                    ref_id, prompt_id, quiz_type] = fields; // 18: ref_id; 19: prompt_id; 20: quiz_type
 
                 const opts = [
                     { label: "A", text: optA },
