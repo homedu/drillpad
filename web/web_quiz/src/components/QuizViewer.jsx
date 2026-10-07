@@ -145,20 +145,38 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                 const isWrong = submitted && selected && q.correctAnswer && selected.text.trim() !== q.correctAnswer.trim();
 
                 return (
-                    <div key={q.id} className={tw.card} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
+                    <div key={q.id} className={cn(tw.card, "relative")}>
 
-                        <div className="flex items-center justify-between">
-                            <h3 className={tw.question}> {index + 1}. {q.question} </h3>
-                            {submitted && <div className="flex items-center gap-2">
-                                <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, e)}>
+                        {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
+                        <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
+                            {index + 1}
+                        </div>
+
+                        {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}
+                        {submitted && (
+                            <div className={tw.cardButtonGrp}>
+                                <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
+                                    <NoteIcon />
+                                </button>
+                                <form
+                                    action="https://www.google.com/search"
+                                    method="get"
+                                    target="_blank"
+                                    className={cn(tw.cardButton, "inline")}
+                                    onSubmit={(e) => handleAI(q.id, q.type, e)}
+                                >
                                     <input type="hidden" name="q" value={aiPrompt} />
                                     <input type="hidden" name="udm" value="50" />
                                     <input type="hidden" name="btnK" value="Google Search" />
                                     <input type="hidden" name="hl" value="zh-CN" />
                                     <button type="submit" className={tw.cardButton}> <AiHelpIcon /> </button>
                                 </form>
-                                <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}> <NoteIcon /> </button>
-                            </div>}
+                            </div>
+                        )}
+
+                        {/* 卡片本体：原来的边框、背景、圆角样式放在这里 */}
+                        <div>
+                            <h3 className={tw.question}>{q.question}</h3>
                         </div>
 
                         <div className={tw.optionsContainer}>
