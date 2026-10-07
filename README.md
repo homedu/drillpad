@@ -14,4 +14,10 @@ add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 `sshpass -e rsync -av --inplace ./scripts root@192.168.1.159:/home/qmiao/qm1_share/drillpad`
 
 ### in /web_quiz, copy /dist to remote ###
-`sshpass -e rsync -av --inplace ./dist root@192.168.1.159:/var/www/dp_dist`
+`sshpass -e rsync -av --inplace ./dist root@192.168.1.159:/var/www/qdp_dist`
+
+### in /web_quiz_editor, copy /dist to remote ###
+`sshpass -e rsync -av --inplace ./dist root@192.168.1.159:/var/www/qdp_editor_dist`
+
+### clear all node_modules/ dist/ bun.lock under /web ###
+`find . \( -type d \( -name node_modules -o -name dist \) -o -type f -name bun.lock \) -prune -exec rm -rf {} +`

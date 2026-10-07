@@ -4,6 +4,6 @@
         "utils",
         "net_service",
         "web_quiz",
-        "web_quiz_maker"
+        "web_quiz_editor"
     ]
 }

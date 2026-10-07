@@ -14,6 +14,8 @@
         "dev": "concurrently \"bun dev:css\" \"bun dev:server\"",
         "dev:server": "bun --hot --port 3000 index.html",
         "dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
-        "build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify"
+        "build:html": "bun build index.html --outdir ./dist",
+        "build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify",
+        "build": "bun build:css && bun build:html"
     }
 }

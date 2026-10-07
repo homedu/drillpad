@@ -143,6 +143,7 @@ vite.config.ts.timestamp-*
 .vite/
 
 #
+web_gAI/
 users/*/answer_record
 scripts/useless
 *.lock
