@@ -5,8 +5,32 @@ import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFet
 import { AiHelpIcon, NoteIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 
+// ---------- 题型通用工具函数 ----------
+
+// 是否已作答：单选是对象，多选是非空数组
+const hasAnswered = (q, userChoice) => q.type === "MS" ? Array.isArray(userChoice) && userChoice.length > 0 : !!userChoice;
+
+// 判断作答是否正确：单选比较文本；多选要求"选中集合"与"正确答案集合"完全一致
+const isAnswerCorrect = (q, userChoice) => {
+    if (!q.correctAnswer || !hasAnswered(q, userChoice)) return false;
+
+    if (q.type === "MCSA") {
+        return userChoice.text.trim() === q.correctAnswer.trim();
+    }
+    if (q.type === "MS") {
+        const picked = new Set(userChoice.map((o) => o.text.trim()));
+        const correct = new Set(q.correctAnswer.map((a) => a.trim()));
+        return picked.size === correct.size && [...picked].every((t) => correct.has(t));
+    }
+    return false;
+};
+
+// 用于界面展示的正确答案文本
+const formatCorrectAnswer = (q) => Array.isArray(q.correctAnswer) ? q.correctAnswer.join(";") : q.correctAnswer;
+
 // 选择题渲染与交互组件
 export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset }) {
+    // userAnswers: { [questionId]: 单选 -> optionObj；多选 -> optionObj[] }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const { record_answer } = useNatsFetch();
@@ -24,8 +48,8 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                 const fields = line.split("\t").map((f) => f.trim());
                 const [id, question, // 索引含义：0: GUID; 1: 题干;
                     optA, optB, optC, optD, optE, optF, optG, optH, // 2-9: A-H选项内容;
-                    ans1, _ans2, _ans3, _ans4, _ans5, _ans6, _ans7, _ans8, // 10-17: 答案内容;
-                    ref_id, prompt_id, quiz_type] = fields; // 18: ref_id; 19: prompt_id; 20: quiz_type
+                    ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8, // 10-17: 答案内容;
+                    ref_id, prompt_id, question_type] = fields; // 18: ref_id; 19: prompt_id; 20: question_type
 
                 const opts = [
                     { label: "A", text: optA },
@@ -38,24 +62,30 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                     { label: "H", text: optH },
                 ].filter((opt) => opt.text);
 
-                if (quiz_type === "MCSA") {
-                    return {
-                        id,
-                        question,
-                        type: quiz_type,
-                        options: opts,
-                        correctAnswer: ans1,
-                        humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
-                    };
-                } else if (quiz_type === "MS") {
-                    console.warn(`⚠️ 题目 ${id} 是多选题 (MS)，当前组件仅支持单选题 (MCSA)，将被忽略。`);
+                const answers = [ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8].filter((ans) => ans && ans.trim());
+
+                if (question_type === "MCSA" && answers.length > 1) {
+                    throw Error(`question - ${id} is MCSA, but has multiple answers`);
                 }
-                return null;
+
+                const ansMap = new Map([
+                    ["MCSA", ans1],
+                    ["MS", answers]
+                ]);
+
+                return {
+                    id,
+                    question,
+                    type: question_type,
+                    options: opts,
+                    correctAnswer: ansMap.get(question_type),
+                    humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
+                };
             })
             .filter(Boolean);
     }, [fileContent]);
 
-    // 2. 选择选项
+    // 2a. 单选：直接替换
     const handleSelect = (questionId, optionObj) => {
         if (submitted) return;
         setUserAnswers((prev) => ({
@@ -64,16 +94,28 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
         }));
     };
 
-    // 3. 计算得分
+    // 2b. 多选：已选则取消，未选则加入
+    const handleToggleMulti = (questionId, optionObj) => {
+        if (submitted) return;
+        setUserAnswers((prev) => {
+            const current = Array.isArray(prev[questionId]) ? prev[questionId] : [];
+            const exists = current.some((o) => o.label === optionObj.label);
+            return {
+                ...prev,
+                [questionId]: exists
+                    ? current.filter((o) => o.label !== optionObj.label)
+                    : [...current, optionObj],
+            };
+        });
+    };
+
+    // 3. 计算得分（多选全对才得分）
     const score = useMemo(() => {
         if (!submitted) return 0;
-        return questions.reduce((acc, q) => {
-            const userChoice = userAnswers[q.id];
-            if (q.correctAnswer && userChoice && userChoice.text.trim() === q.correctAnswer.trim()) {
-                return acc + 1;
-            }
-            return acc;
-        }, 0);
+        return questions.reduce(
+            (acc, q) => (isAnswerCorrect(q, userAnswers[q.id]) ? acc + 1 : acc),
+            0
+        );
     }, [submitted, questions, userAnswers]);
 
     // 4. 提交答案
@@ -85,9 +127,9 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
         questions.forEach((q) => {
             const userChoice = userAnswers[q.id];
-            if (!userChoice) {
+            if (!hasAnswered(q, userChoice)) {
                 blank.push(q.id);
-            } else if (q.correctAnswer && userChoice.text.trim() === q.correctAnswer.trim()) {
+            } else if (isAnswerCorrect(q, userChoice)) {
                 correct.push(q.id);
             } else {
                 incorrect.push(q.id);
@@ -141,8 +183,15 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
             {questions.map((q, index) => {
                 const selected = userAnswers[q.id];
-                const isCorrect = submitted && selected && q.correctAnswer && selected.text.trim() === q.correctAnswer.trim();
-                const isWrong = submitted && selected && q.correctAnswer && selected.text.trim() !== q.correctAnswer.trim();
+                const isMulti = q.type === "MS";
+                const answered = hasAnswered(q, selected);
+                const isCorrect = submitted && answered && isAnswerCorrect(q, selected);
+                const isWrong = submitted && answered && q.correctAnswer && !isAnswerCorrect(q, selected);
+
+                // 多选题预先规范化正确答案，避免每个选项里重复 trim
+                const correctTexts = isMulti && Array.isArray(q.correctAnswer)
+                    ? q.correctAnswer.map((a) => a.trim())
+                    : [];
 
                 return (
                     <div key={q.id} className={cn(tw.card, "relative")}>
@@ -176,36 +225,68 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
                         {/* 卡片本体：原来的边框、背景、圆角样式放在这里 */}
                         <div>
-                            <h3 className={tw.question}>{q.question}</h3>
+                            <h3 className={tw.question}>
+                                {q.question}
+                                {isMulti && <span className="ms-2 text-sm text-zinc-500">（多选）</span>}
+                            </h3>
                         </div>
 
                         <div className={tw.optionsContainer}>
                             {q.options.map((opt) => {
-                                const isOptionSelected = selected?.label === opt.label;
-                                const isThisOptionCorrect = q.correctAnswer && opt.text.trim() === q.correctAnswer.trim();
-                                return (
-                                    <label key={opt.label} className={tw.option({ submitted, isOptionSelected, isThisOptionCorrect })}>
-                                        <input
-                                            type="radio"
-                                            name={`question-${q.id}`}
-                                            value={opt.label}
-                                            checked={!!isOptionSelected} // 确保转为纯布尔值
-                                            disabled={submitted}
-                                            onChange={() => handleSelect(q.id, opt)}
-                                            className="me-2.5"
-                                        />
-                                        <strong className="me-2">{opt.label}.</strong>
-                                        <span>{opt.text}</span>
-                                    </label>
+
+                                const isOptionSelected = isMulti
+                                    ? Array.isArray(selected) && selected.some((s) => s.label === opt.label)
+                                    : selected?.label === opt.label;
+
+                                const isThisOptionCorrect = q.correctAnswer && (
+                                    (q.type === "MCSA" && opt.text.trim() === q.correctAnswer.trim()) ||
+                                    (q.type === "MS" && correctTexts.includes(opt.text.trim()))
                                 );
+
+                                switch (q.type) {
+                                    case "MCSA":
+                                        return (
+                                            <label key={opt.label} className={tw.option({ submitted, isOptionSelected, isThisOptionCorrect })}>
+                                                <input
+                                                    type="radio"
+                                                    name={`question-${q.id}`}
+                                                    value={opt.label}
+                                                    checked={!!isOptionSelected} // 确保转为纯布尔值
+                                                    disabled={submitted}
+                                                    onChange={() => handleSelect(q.id, opt)}
+                                                    className="me-2.5"
+                                                />
+                                                <strong className="me-2">{opt.label}.</strong>
+                                                <span>{opt.text}</span>
+                                            </label>
+                                        );
+                                    case "MS":
+                                        return (
+                                            <label key={opt.label} className={tw.option({ submitted, isOptionSelected, isThisOptionCorrect })}>
+                                                <input
+                                                    type="checkbox"
+                                                    name={`question-${q.id}`}
+                                                    value={opt.label}
+                                                    checked={!!isOptionSelected}
+                                                    disabled={submitted}
+                                                    onChange={() => handleToggleMulti(q.id, opt)}
+                                                    className="me-2.5"
+                                                />
+                                                <strong className="me-2">{opt.label}.</strong>
+                                                <span>{opt.text}</span>
+                                            </label>
+                                        );
+                                    default:
+                                        return null;
+                                }
                             })}
                         </div>
 
                         {submitted && q.correctAnswer && (
                             <div className="mt-3 text-sm">
                                 {isCorrect && (<span className="text-green-500 font-bold"> ✅ 正确 </span>)}
-                                {isWrong && (<span className="text-red-500"> ❌ 错误 (正确答案：{q.correctAnswer})  </span>)}
-                                {!selected && (<span className="text-zinc-500"> ⚠️ 未作答 (正确答案：{q.correctAnswer})  </span>)}
+                                {isWrong && (<span className="text-red-500"> ❌ 错误 (正确答案：{formatCorrectAnswer(q)})  </span>)}
+                                {!answered && (<span className="text-zinc-500"> ⚠️ 未作答 (正确答案：{formatCorrectAnswer(q)})  </span>)}
                             </div>
                         )}
                     </div>

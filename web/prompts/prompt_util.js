@@ -1,7 +1,8 @@
 import { prompt } from "./prompt.js";
 
 const promptPathMap = new Map([
-    ['AZ-900@MCSA', prompt.az_900.mcsa]
+    ['AZ-900@MCSA', prompt.az_900.mcsa],
+    ['AZ-900@MS', prompt.az_900.ms]
     // ...
 ]);
 
@@ -15,6 +16,14 @@ function createPromptMap(p, question) {
                          ${p.incorrect_options_explanation}
                          ${p.tested_topic}
                          ${p.other_notes}`],
+        ['AZ-900@MS', `${p.quiz_name}
+                         ${question}
+                         ${p.question_profile}
+                         ${p.correct_answer}
+                         ${p.answer_explanation}
+                         ${p.incorrect_options_explanation}
+                         ${p.tested_topic}
+                         ${p.other_notes}`]
         //  ...
     ])
 }

@@ -25,3 +25,5 @@ add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 
 ### clear all node_modules/ dist/ bun.lock under /web ###
 `find . \( -type d \( -name node_modules -o -name dist \) -o -type f -name bun.lock \) -prune -exec rm -rf {} +`
+
+then under ***/web*** `bun install` (is same OS platform with `bun run ...`).
