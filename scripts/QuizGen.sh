@@ -125,7 +125,6 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         inc_pool_f21[inc_count] = $21
         inc_pool_f22[inc_count] = $22
         inc_pool_f23[inc_count] = $23
-        inc_pool_f24[inc_count] = $24
 
     } else if ($1 in map_exc) {
 
@@ -158,7 +157,7 @@ NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
         cand_pool_f21[cand_count] = $21
         cand_pool_f22[cand_count] = $22
         cand_pool_f23[cand_count] = $23
-        cand_pool_f24[cand_count] = $24
+
     }
 }
 

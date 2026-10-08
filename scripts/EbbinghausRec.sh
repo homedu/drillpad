@@ -195,7 +195,7 @@ scan_all() {
 cleanup() {
     local l
     for l in "${!_LOCKS[@]}"; do
-        echo "$l" >> debug.txt
+        # echo "$l" >> debug.txt
         rm -f "$l"
     done
 }

@@ -38,19 +38,23 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # arg
     QUIZ_BANK="$DIR_USER/quiz_bank/${QUIZ}.tsv"
+    [[ -f ${QUIZ_BANK} ]] || { mkdir -p "$(dirname "$QUIZ_BANK")"; touch ${QUIZ_BANK}; }
+
     QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"  # will be appended to /var/www/qdp_users/
+    [[ -f ${QUIZ_OUT} ]] || { mkdir -p "$(dirname "$QUIZ_OUT")"; touch ${QUIZ_OUT}; } # make dir into /scripts/
+
     COUNT=$(jq -r '.count' <<< "$PARAM")
 
     QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
-    mkdir -p "$(dirname "$QUIZ_OUT_ABS")"
+    [[ -f ${QUIZ_OUT_ABS} ]] || { mkdir -p "$(dirname "$QUIZ_OUT_ABS")"; touch ${QUIZ_OUT_ABS}; }
 
     [[ -f "$QUIZ_BANK" ]] || {
         QUIZ_OUT="user_missing/quiz_gen/quiz_missing.tsv"
         QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
-        mkdir -p "$(dirname "$QUIZ_OUT_ABS")"
+        [[ -f ${QUIZ_OUT_ABS} ]] || { mkdir -p "$(dirname "$QUIZ_OUT_ABS")"; touch ${QUIZ_OUT_ABS}; }
 
         _id=$(uuidgen)
-        _quiz="Example Quiz - Why does this quiz appear?"
+        _question="Example Queston - Why does this quiz appear?"
         _opt1="Invalid User"
         _opt2="Missing Quiz Bank"
         _opt3="Storage Path Issue"
@@ -58,10 +62,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         _ans1="Any Above"
         _rid=""
         _pid=""
-        _nid=""
         _type="MCSA"
 
-        echo -e "$_id\t$_quiz\t$_opt1\t$_opt2\t$_opt3\t$_opt4\t\t\t\t\t$_ans1\t\t\t\t\t\t\t\t$_rid\t$_pid\t$_nid\t$_type" > "${QUIZ_OUT_ABS}"
+        echo -e "$_id\t$_question\t$_opt1\t$_opt2\t$_opt3\t$_opt4\t\t\t\t\t$_ans1\t\t\t\t\t\t\t\t$_rid\t$_pid\t$_type" > "${QUIZ_OUT_ABS}"
 
         jq -n --arg t "$CURRENT_TIME" --arg p "/$QUIZ_OUT" '{time: $t, path: $p}'
         exit 0
@@ -72,11 +75,18 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # make ENV (get those from /answer_record/, rather than from the request)
     REC_CORRECT="$PATH_REC/correct.tsv"
+    [[ -f ${REC_CORRECT} ]] || touch ${REC_CORRECT}
+
     REC_INCORRECT="$PATH_REC/incorrect.tsv"
+    [[ -f ${REC_INCORRECT} ]] || touch ${REC_INCORRECT}
+
     REC_BLANK="$PATH_REC/blank.tsv"
+    [[ -f ${REC_BLANK} ]] || touch ${REC_BLANK}
 
     # file lock
     LOCK_FILE="$PATH_REC/rec.lock"; # echo "${LOCK_FILE} --- reply_quiz-fetch" >> debug.txt
+    [[ -f ${LOCK_FILE} ]] || touch ${LOCK_FILE}
+
     _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {

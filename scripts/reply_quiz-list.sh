@@ -22,7 +22,7 @@ trap on_exit EXIT
 USER="${NATS_REQUEST_BODY:-${1:-}}"
 DIR_USER="../users/${USER}"
 
-[[ -n "$USER" && -d "${DIR_USER}" ]] || { echo "[]"; exit 0; }
+[[ -n "$USER" && -d "${DIR_USER}" ]] || { jq -n '[ "Not Found" ]'; exit 0; }
 
 QUIZ_LIST=$(find "${DIR_USER}/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 

@@ -161,6 +161,8 @@ export async function reqNATS(subject, payload, opts = { timeout: 10000 }) {
         );
     }
 
+    console.log(subject, body);
+
     let rawMsg;
     try {
         const reply = await connection.request(subject, body, opts);
