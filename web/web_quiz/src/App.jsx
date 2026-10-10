@@ -189,27 +189,30 @@ function App() {
 
             </div>
 
-            {isUQValid && <div className="my-2 flex justify-end gap-2">
-                <input
-                    type="number"
-                    min="1"
-                    value={count}
-                    onChange={handleCountChange}
-                    className={cn(tw.input, "w-15")}
-                    disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
-                />
-                <button
-                    onClick={fetchQuiz}
-                    disabled={connError || !canFetch || disabledMap.submitBtn}
-                    className={cn(
-                        tw.input,
-                        tw.fetchBtn(canFetch && !disabledMap.submitBtn),
-                        "w-30"
-                    )}
-                >
-                    {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
-                </button>
-            </div>}
+            {
+                isUQValid &&
+                <div className="my-2 flex justify-end gap-2">
+                    <input
+                        type="number"
+                        min="1"
+                        value={count}
+                        onChange={handleCountChange}
+                        className={cn(tw.input, "w-15")}
+                        disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
+                    />
+                    <button
+                        onClick={fetchQuiz}
+                        disabled={connError || !canFetch || disabledMap.submitBtn}
+                        className={cn(
+                            tw.input,
+                            tw.fetchBtn(canFetch && !disabledMap.submitBtn),
+                            "w-30"
+                        )}
+                    >
+                        {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
+                    </button>
+                </div>
+            }
 
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}

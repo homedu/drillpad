@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
@@ -28,7 +31,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
     QID=$(jq -r '.qid' <<< "$PARAM")
-    QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
+    ensure_file QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
 
     # echo "用户: $USER, 测验: $QUIZ, 问题ID: $QID, 文件: $QUIZ_FILE"
 

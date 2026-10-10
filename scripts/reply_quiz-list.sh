@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 # [[ "$#" -eq 1 ]] || {
@@ -22,11 +25,11 @@ trap on_exit EXIT
 USER="${NATS_REQUEST_BODY:-${1:-}}"
 DIR_USER="../users/${USER}"
 
-[[ -n "$USER" && -d "${DIR_USER}" ]] || { jq -n '[ "Not Found" ]'; exit 0; }
+[[ -n "$USER" && -d "${DIR_USER}" ]] || { jq -n '[]'; exit 0; }
 
 QUIZ_LIST=$(find "${DIR_USER}/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 
-[[ -n "$QUIZ_LIST" ]] || {	echo "[]";	exit 0; }
+[[ -n "$QUIZ_LIST" ]] || {	jq -n '[]';	exit 0; }
 awk -F. '{print $1}' <<< "$QUIZ_LIST" | jq -R -s 'split("\n") | map(select(length>0))'
 
 # topic: quiz-list

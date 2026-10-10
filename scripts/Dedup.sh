@@ -34,6 +34,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 usage() {

@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 # [[ "$#" -eq 3 ]] || {
@@ -25,15 +28,10 @@ usage() {
 }
 
 # arg
-REC_CORRECT="${1:?$(usage)}"
-REC_INCORRECT="${2:-${REC_CORRECT%/*}/incorrect.tsv}" # default: same dir as REC_CORRECT
-REC_BLANK="${3:-${REC_CORRECT%/*}/blank.tsv}" # default: same dir as REC_CORRECT
-REC_EBHS="${4:-${REC_CORRECT%/*}/ebhs.tsv}" # default: same dir as REC_CORRECT
-
-[[ -f "$REC_CORRECT" ]] || touch "$REC_CORRECT"
-[[ -f "$REC_INCORRECT" ]] || touch "$REC_INCORRECT"
-[[ -f "$REC_BLANK" ]] || touch "$REC_BLANK"
-[[ -f "$REC_EBHS" ]] || touch "$REC_EBHS"
+ensure_file REC_CORRECT="${1:?$(usage)}" || { echo $?; exit 1;}
+ensure_file REC_INCORRECT="${2:-${REC_CORRECT%/*}/incorrect.tsv}" || { echo $?; exit 1;}
+ensure_file REC_BLANK="${3:-${REC_CORRECT%/*}/blank.tsv}" || { echo $?; exit 1;}
+ensure_file REC_EBHS="${4:-${REC_CORRECT%/*}/ebhs.tsv}" || { echo $?; exit 1;}
 
 # env
 declare -a IDS_CORRECT=($IDS_CORRECT)

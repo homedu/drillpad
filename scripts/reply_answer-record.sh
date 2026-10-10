@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
@@ -30,24 +33,21 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
-    DIR_USER="../users/${USER}"
-
-    [[ -d "${DIR_USER}/quiz_bank" ]] || {
-        jq -n --arg t "$CURRENT_TIME" --arg s "test for missing user or quiz" '{time: $t, status: $s}'
-        exit 0
+    require_dir DIR_USER="../users/${USER}" || {
+        echo "错误: 用户目录不存在: $DIR_USER" >&2
+        exit 1
     }
 
     PATH_REC="${DIR_USER}/answer_record/${QUIZ}"
-    mkdir -p "$PATH_REC"
 
     # arg
-    REC_CORRECT="$PATH_REC/correct.tsv"
-    REC_INCORRECT="$PATH_REC/incorrect.tsv"
-    REC_BLANK="$PATH_REC/blank.tsv"
-    REC_EBHS="$PATH_REC/ebhs.tsv"
+    ensure_file REC_CORRECT="$PATH_REC/correct.tsv"
+    ensure_file REC_INCORRECT="$PATH_REC/incorrect.tsv"
+    ensure_file REC_BLANK="$PATH_REC/blank.tsv"
+    ensure_file REC_EBHS="$PATH_REC/ebhs.tsv"
 
     # file lock
-    LOCK_FILE="$PATH_REC/rec.lock"; # echo "${LOCK_FILE} --- reply_answer-record" >> debug.txt
+    ensure_file LOCK_FILE="$PATH_REC/rec.lock"; # echo "${LOCK_FILE} --- reply_answer-record" >> debug.txt
     _LOCKS["$LOCK_FILE"]=1
     {
         flock -w 5 9 || {

@@ -15,6 +15,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 # 主循环控制标志，收到 SIGHUP 后置 0 退出

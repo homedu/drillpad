@@ -144,7 +144,7 @@ vite.config.ts.timestamp-*
 
 #
 web_gAI/
-users/*/answer_record
+users/
 scripts/useless
 scripts/*/quiz_gen
 *.lock

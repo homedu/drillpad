@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
@@ -28,17 +31,18 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
-    QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
-    REC_CORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
-    REC_INCORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
+    require_dir DIR_USER="../users/${USER}" || {
+        echo "错误: 用户目录不存在: $DIR_USER" >&2
+        exit 1
+    }
 
-    [[ -f "$QUIZ_FILE" ]] || { mkdir -p "$(dirname "$QUIZ_FILE")"; touch "$QUIZ_FILE"; }
-    [[ -f "$REC_CORRECT_FILE" ]] || { mkdir -p "$(dirname "$REC_CORRECT_FILE")"; touch "$REC_CORRECT_FILE"; }
-    [[ -f "$REC_INCORRECT_FILE" ]] || { mkdir -p "$(dirname "$REC_INCORRECT_FILE")"; touch "$REC_INCORRECT_FILE"; }
+    ensure_file QUIZ_FILE="${DIR_USER}/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
+    ensure_file REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}/correct.tsv" || { echo $?; exit 1;}
+    ensure_file REC_INCORRECT="${DIR_USER}/answer_record/${QUIZ}/incorrect.tsv" || { echo $?; exit 1;}
 
     nQ=$(wc -l < "$QUIZ_FILE")
-    nC=$(wc -l < "$REC_CORRECT_FILE")
-    nI=$(wc -l < "$REC_INCORRECT_FILE")
+    nC=$(wc -l < "$REC_CORRECT")
+    nI=$(wc -l < "$REC_INCORRECT")
 
     jq -n --arg nQ "$nQ" --arg nC "$nC" --arg nI "$nI" '{question_count: $nQ, correct_count: $nC, incorrect_count: $nI}'
 

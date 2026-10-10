@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
@@ -25,7 +28,7 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 declare -A _LOCKS=()
 
 # /var/www/qdp_users must exist AND be set in Caddyfile as "root * /var/www/qdp_users"
-FETCH_ROOT="/var/www/qdp_users"
+require_dir FETCH_ROOT="/var/www/qdp_users" || { echo $?; exit 1;}
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
@@ -33,59 +36,30 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     # USER should be extract from token
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
-
-    DIR_USER="../users/${USER}"
-
-    # arg
-    QUIZ_BANK="$DIR_USER/quiz_bank/${QUIZ}.tsv"
-    [[ -f ${QUIZ_BANK} ]] || { mkdir -p "$(dirname "$QUIZ_BANK")"; touch ${QUIZ_BANK}; }
-
-    QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"  # will be appended to /var/www/qdp_users/
-    [[ -f ${QUIZ_OUT} ]] || { mkdir -p "$(dirname "$QUIZ_OUT")"; touch ${QUIZ_OUT}; } # make dir into /scripts/
-
     COUNT=$(jq -r '.count' <<< "$PARAM")
 
-    QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
-    [[ -f ${QUIZ_OUT_ABS} ]] || { mkdir -p "$(dirname "$QUIZ_OUT_ABS")"; touch ${QUIZ_OUT_ABS}; }
-
-    [[ -f "$QUIZ_BANK" ]] || {
-        QUIZ_OUT="user_missing/quiz_gen/quiz_missing.tsv"
-        QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT"
-        [[ -f ${QUIZ_OUT_ABS} ]] || { mkdir -p "$(dirname "$QUIZ_OUT_ABS")"; touch ${QUIZ_OUT_ABS}; }
-
-        _id=$(uuidgen)
-        _question="Example Queston - Why does this quiz appear?"
-        _opt1="Invalid User"
-        _opt2="Missing Quiz Bank"
-        _opt3="Storage Path Issue"
-        _opt4="Any Above"
-        _ans1="Any Above"
-        _rid=""
-        _pid=""
-        _type="MCSA"
-
-        echo -e "$_id\t$_question\t$_opt1\t$_opt2\t$_opt3\t$_opt4\t\t\t\t\t$_ans1\t\t\t\t\t\t\t\t$_rid\t$_pid\t$_type" > "${QUIZ_OUT_ABS}"
-
-        jq -n --arg t "$CURRENT_TIME" --arg p "/$QUIZ_OUT" '{time: $t, path: $p}'
-        exit 0
+    require_dir DIR_USER="../users/${USER}" || {
+        echo "错误: 用户目录不存在: $DIR_USER" >&2
+        exit 1
     }
 
+    # arg
+    ensure_file QUIZ_BANK="$DIR_USER/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
+
+    # will be appended to /var/www/qdp_users/
+    QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"
+
+    ensure_file QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT" || { echo $?; exit 1;}
+
     PATH_REC="$DIR_USER/answer_record/${QUIZ}"
-    mkdir -p "$PATH_REC"
 
     # make ENV (get those from /answer_record/, rather than from the request)
-    REC_CORRECT="$PATH_REC/correct.tsv"
-    [[ -f ${REC_CORRECT} ]] || touch ${REC_CORRECT}
-
-    REC_INCORRECT="$PATH_REC/incorrect.tsv"
-    [[ -f ${REC_INCORRECT} ]] || touch ${REC_INCORRECT}
-
-    REC_BLANK="$PATH_REC/blank.tsv"
-    [[ -f ${REC_BLANK} ]] || touch ${REC_BLANK}
+    ensure_file REC_CORRECT="$PATH_REC/correct.tsv" || { echo $?; exit 1;}
+    ensure_file REC_INCORRECT="$PATH_REC/incorrect.tsv" || { echo $?; exit 1;}
+    ensure_file REC_BLANK="$PATH_REC/blank.tsv" || { echo $?; exit 1;}
 
     # file lock
-    LOCK_FILE="$PATH_REC/rec.lock"; # echo "${LOCK_FILE} --- reply_quiz-fetch" >> debug.txt
-    [[ -f ${LOCK_FILE} ]] || touch ${LOCK_FILE}
+    ensure_file LOCK_FILE="$PATH_REC/rec.lock" || { echo $?; exit 1;} # echo "${LOCK_FILE} --- reply_quiz-fetch" >> debug.txt
 
     _LOCKS["$LOCK_FILE"]=1
     {

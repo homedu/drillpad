@@ -2,21 +2,6 @@
 
 set -euo pipefail
 
-append_trap() {
-    local cmd="$1"
-    local sig="$2"
-    # 获取已经注册的 trap 命令
-    local existing_trap
-    existing_trap=$(trap -p "$sig" | cut -d"'" -f2)
-
-    # 如果之前有 trap，就用分号拼上新命令；如果没有，就直接设为新命令
-    if [ -n "$existing_trap" ]; then
-        trap "${existing_trap}; ${cmd}" "$sig"
-    else
-        trap "${cmd}" "$sig"
-    fi
-}
-
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -25,6 +10,9 @@ on_exit() {
     popd > /dev/null
 }
 trap on_exit EXIT
+
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
 
 ##########################################################
 
@@ -45,21 +33,15 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QUIZ=$(jq -r '.quiz.name' <<< "$PARAM")
     TYPE=$(jq -r '.quiz.type // "MCSA"' <<< "$PARAM")
 
-    DIR_USER="../users/${USER}"
-    QUIZ_BANK_FILE="$DIR_USER/quiz_bank/${QUIZ}.tsv"
-
-    [[ -d "$DIR_USER" ]] || {
+    require_dir DIR_USER="../users/${USER}" || {
         echo "error: user does not exist: $DIR_USER"
         exit 1
     }
 
-    mkdir -p "$(dirname "$QUIZ_BANK_FILE")" && touch "$QUIZ_BANK_FILE" || {
-        echo "error: failed to create quiz bank file: $QUIZ_BANK_FILE"
-        exit 1
-    }
+    ensure_file QUIZ_BANK_FILE="$DIR_USER/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
 
     tmp=$(mktemp "${QUIZ_BANK_FILE}.XXXXXX")
-    append_trap 'rm -f "$tmp"' EXIT
+    defer_trap 'rm -f "$tmp"' EXIT
 
     QID=$(jq -r '.quiz.qid // ""' <<< "$PARAM")
     [[ -z "$QID" ]] && QID=$(uuidgen)

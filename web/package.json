@@ -5,8 +5,5 @@
         "net_service",
         "web_quiz",
         "web_quiz_editor"
-    ],
-    "devDependencies": {
-        "concurrently": "^10.0.5"
-    }
+    ]
 }

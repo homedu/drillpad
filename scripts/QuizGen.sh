@@ -11,16 +11,19 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 # [[ "$#" -eq 3 ]] || {
 #     echo "error: must give 3 arguments!"
-#     echo "usage: $0 <quiz-bank-tsv> <quiz-output> [count]; Also ENV [IDS_INC] [IDS_EXC]"
+#     echo "usage: $0 <quiz-bank-tsv> <quiz-out> [count]; Also ENV [IDS_INC] [IDS_EXC]"
 #     exit 1
 # }
 
-QUIZ_BANK="${1:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
-QUIZ_OUT="${2:?usage: $0 <quiz-bank.tsv> <quiz-output.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
+QUIZ_BANK="${1:?usage: $0 <quiz-bank.tsv> <quiz-out.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
+QUIZ_OUT="${2:?usage: $0 <quiz-bank.tsv> <quiz-out.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
 COUNT="${3:-10}"  # 默认生成 10 道题
 
 declare -a IDS_INC=($IDS_INC)
@@ -40,16 +43,11 @@ declare -a IDS_EXC=($IDS_EXC)
 # 判断文件名是否包含扩展名（即最后一个斜杠后面是否有小数点）
 # ${QUIZ##*/} 获取不含路径的文件名
 [[ "${QUIZ_BANK##*/}" == *.* ]] || QUIZ_BANK="${QUIZ_BANK}.tsv"
+require_file QUIZ_BANK="${QUIZ_BANK}" || { echo $?; exit 1; }
 
-# 检查参数是否存在
-[[ -f "$QUIZ_BANK" ]] || {
-    echo "error: quiz-bank file (${QUIZ_BANK}) is not found"
-    exit 1
-}
-
-mkdir -p "$(dirname "$QUIZ_OUT")"
 
 [[ "${QUIZ_OUT##*/}" == *.* ]] || QUIZ_OUT="${QUIZ_OUT}.tsv"
+ensure_file QUIZ_OUT="${QUIZ_OUT}" || { echo $?; exit 1; }
 
 # [[ "${#IDS_INC[@]}" -ne 0 ]] || {
 #     echo "error: empty IDS_INC"

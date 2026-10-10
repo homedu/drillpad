@@ -11,6 +11,9 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "./utils/ensure_df.sh"
+source "./utils/trap.sh"
+
 ##########################################################
 
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
@@ -28,14 +31,14 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
     QID=$(jq -r '.qid' <<< "$PARAM")
-    QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
+    ensure_file QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
 
     # echo "用户: $USER, 测验: $QUIZ, 问题ID: $QID, 文件: $QUIZ_FILE"
 
-    REC_CORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
-    REC_INCORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
-    REC_BLANK_FILE="../users/${USER}/answer_record/${QUIZ}/blank.tsv"
-    EBHS_FILE="../users/${USER}/answer_record/${QUIZ}/ebhs.tsv"
+    ensure_file REC_CORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/correct.tsv"
+    ensure_file REC_INCORRECT_FILE="../users/${USER}/answer_record/${QUIZ}/incorrect.tsv"
+    ensure_file REC_BLANK_FILE="../users/${USER}/answer_record/${QUIZ}/blank.tsv"
+    ensure_file EBHS_FILE="../users/${USER}/answer_record/${QUIZ}/ebhs.tsv"
 
     tmp=$(mktemp) && awk -F '\t' -v id="$QID" '$1 != id' "$QUIZ_FILE" > "$tmp" && mv "$tmp" "$QUIZ_FILE"
     tmp=$(mktemp) && awk -F '\t' -v id="$QID" '$1 != id' "$REC_CORRECT_FILE" > "$tmp" && mv "$tmp" "$REC_CORRECT_FILE"
