@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ensure_df.sh —— 库文件，请用 source 引入，不要直接执行
+# path_assign.sh —— 库文件，请用 source 引入，不要直接执行
 
 # 函数已定义则不再重复加载
 declare -F ensure_file >/dev/null && return 0

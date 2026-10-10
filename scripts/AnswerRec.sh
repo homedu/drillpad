@@ -11,8 +11,8 @@ on_exit() {
 }
 trap on_exit EXIT
 
-source "./utils/ensure_df.sh"
-source "./utils/trap.sh"
+source "./utils/path_assign.sh"
+source "./utils/trap_ex.sh"
 
 ##########################################################
 

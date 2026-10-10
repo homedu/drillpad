@@ -37,6 +37,11 @@ function App() {
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState(null); // { type: "success" | "error", text: string }
 
+    const [disabledMap, setDisabledMap] = useState({
+        userInput: false,  // 用户名输入框
+        quizSelect: false,     // 题目下拉框
+    });
+
     const hasQuizList = quizList?.length > 0;
 
     const handleOptionTextChange = (index, text) => {
@@ -179,12 +184,20 @@ function App() {
         }
     };
 
-    const refInputUser = useRef(null);
-    const refSelectQuiz = useRef(null);
-
+    // 根据用户名找出来QUIZ列表后，用户名便不可更改了
     useEffect(() => {
-        (async () => user && selectedQuiz && setQuestionCount(await count_qa(user, selectedQuiz, "question_count")))();
-    }, [user, selectedQuiz]);
+        if (hasQuizList) {
+            setDisabledMap(prev => ({
+                ...prev,
+                userInput: true,
+            }))
+        }
+    }, [hasQuizList]);
+
+    // 更换不同的QUIZ，刷新不同的用户数据
+    useEffect(() => {
+        (async () => setQuestionCount(await count_qa(user, selectedQuiz, "question_count")))();
+    }, [selectedQuiz]);
 
     useEffect(() => {
         if (selectedQuestionType === 'MCSA') {
@@ -204,6 +217,9 @@ function App() {
             });
         }
     }, [selectedQuestionType]);
+
+    const refInputUser = useRef(null);
+    const refSelectQuiz = useRef(null);
 
     return (
         <div className={tw.container}>
@@ -233,7 +249,7 @@ function App() {
                     }}
                     placeholder="用户名"
                     className={cn(tw.input, "w-45")}
-                    disabled={connError || loading}
+                    disabled={connError || loading || disabledMap.userInput}
                 />
 
                 <select

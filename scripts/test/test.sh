@@ -12,10 +12,10 @@ trap on_exit EXIT
 
 # #########################################################
 
-# source "$(dirname "${BASH_SOURCE[0]}")/../utils/ensure_df.sh"
+# source "$(dirname "${BASH_SOURCE[0]}")/../utils/path_assign.sh"
 
-source "../utils/ensure_df.sh"
-source "../utils/trap.sh"
+source "../utils/path_assign.sh"
+source "../utils/trap_ex.sh"
 
 # #########################################################
 

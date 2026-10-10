@@ -25,7 +25,7 @@ function App() {
     const [count, setCount] = useState(10);
 
     const [disabledMap, setDisabledMap] = useState({
-        usernameInput: false,  // 用户名输入框
+        userInput: false,  // 用户名输入框
         quizSelect: false,     // 题目下拉框
         countInput: false,     // 题目数量输入框
         submitBtn: false       // 提交按钮
@@ -34,9 +34,9 @@ function App() {
     const isUserValid = user.trim() !== ""
     const hasQuizList = quizList?.length > 0;
     const hasSelectedQuiz = selectedQuiz.trim() !== "";
-    const isUQValid = isUserValid && hasQuizList && hasSelectedQuiz;
+    const isUserQuizReady = isUserValid && hasQuizList && hasSelectedQuiz;
     const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
-    const canFetch = !connError && !loading && isUQValid && isCountValid;
+    const canFetch = !connError && !loading && isUserQuizReady && isCountValid;
 
     const handleCountChange = (e) => {
         const value = e.target.value;
@@ -70,7 +70,7 @@ function App() {
             // 开始作答，不可再更改用户输入
             setDisabledMap(prev => ({
                 ...prev,
-                usernameInput: true,
+                userInput: true,
                 quizSelect: !!text,
                 countInput: !!text,
                 submitBtn: !!text,
@@ -96,7 +96,7 @@ function App() {
         // 开始作答后，不可再更改用户输入; 提交后，解锁输入框
         setDisabledMap(prev => ({
             ...prev,
-            // usernameInput: false,
+            // userInput: false,
             quizSelect: false,
             countInput: false,
             submitBtn: false,
@@ -114,9 +114,20 @@ function App() {
         // console.log(`showQACount: ${JSON.stringify(qaCount)}`);
     }
 
+    // 根据用户名找出来QUIZ列表后，用户名便不可更改了
+    useEffect(() => {
+        if (hasQuizList) {
+            setDisabledMap(prev => ({
+                ...prev,
+                userInput: true,
+            }))
+        }
+    }, [hasQuizList]);
+
+    // 更换不同的QUIZ，刷新不同的用户数据
     useEffect(() => {
         (async () => { await showQACount(); })();
-    }, [user, selectedQuiz]);
+    }, [selectedQuiz]);
 
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
@@ -150,7 +161,7 @@ function App() {
                     }}
                     placeholder="用户名"
                     className={cn(tw.input, "w-45")}
-                    disabled={connError || loading || disabledMap.usernameInput}
+                    disabled={connError || loading || disabledMap.userInput}
                 />
 
                 <select
@@ -190,7 +201,7 @@ function App() {
             </div>
 
             {
-                isUQValid &&
+                isUserQuizReady &&
                 <div className="my-2 flex justify-end gap-2">
                     <input
                         type="number"

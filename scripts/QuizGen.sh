@@ -11,8 +11,8 @@ on_exit() {
 }
 trap on_exit EXIT
 
-source "./utils/ensure_df.sh"
-source "./utils/trap.sh"
+source "./utils/path_assign.sh"
+source "./utils/trap_ex.sh"
 
 ##########################################################
 
@@ -44,7 +44,6 @@ declare -a IDS_EXC=($IDS_EXC)
 # ${QUIZ##*/} 获取不含路径的文件名
 [[ "${QUIZ_BANK##*/}" == *.* ]] || QUIZ_BANK="${QUIZ_BANK}.tsv"
 require_file QUIZ_BANK="${QUIZ_BANK}" || { echo $?; exit 1; }
-
 
 [[ "${QUIZ_OUT##*/}" == *.* ]] || QUIZ_OUT="${QUIZ_OUT}.tsv"
 ensure_file QUIZ_OUT="${QUIZ_OUT}" || { echo $?; exit 1; }
@@ -94,7 +93,7 @@ BEGIN {
     cand_count = 0
 }
 
-NF >= 21 && $1 !="" && $2 != "quiz" && $2 != "" {
+NF >= 5 && $1 !="" && $2 != "" && $3 != "" {
 
     if ($1 in map_inc) {
 
