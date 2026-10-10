@@ -365,7 +365,50 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, list_quiz, count_qa, search_question, delete_question, fetch_quiz, record_answer, make_quiz };
+    const make_quiz_v2 = useCallback(async (user, quiz, type, qid, question, options, answers) => {
+        if (!qid.isValidGuid()) {
+            qid = "";
+        }
+        if (!Array.isArray(options)) {
+            throw new QuizMakeError("选项必须是数组", "validate");
+        }
+        if (!Array.isArray(answers)) {
+            throw new QuizMakeError("答案必须是数组", "validate");
+        }
+
+        const payload = {
+            user,
+            quiz,
+            question_id: qid,
+            question_type: type,
+            question,
+            options,
+            answers,
+        };
+
+        console.log("make_quiz_v2 payload:", payload);
+
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_QUIZ_MAKE, payload, { timeout: 10000 });
+            if (result === null || !result.status) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 字段",
+                    JSON.stringify(result)
+                );
+            }
+        } catch (err) {
+            throw new QuizMakeError(
+                `上传题目失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return { status, loading, connError, list_quiz, count_qa, search_question, delete_question, fetch_quiz, record_answer, make_quiz_v2 };
 }
 
 if (import.meta.hot) {

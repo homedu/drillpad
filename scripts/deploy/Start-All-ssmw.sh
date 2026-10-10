@@ -69,7 +69,7 @@ WINDOW_CMDS=(
 "nats reply \"quiz-list\" --command=\"../reply_quiz-list.sh\" 2>/dev/null"
 "nats reply \"qa-count\" --command=\"../reply_qa-count.sh\" 2>/dev/null"
 "nats reply \"quiz-fetch\" --command=\"../reply_quiz-fetch.sh\" 2>/dev/null"
-"nats reply \"quiz-make\" --command=\"../reply_quiz-make.sh\" 2>/dev/null"
+"nats reply \"quiz-make\" --command=\"../reply_quiz-make-v2.sh\" 2>/dev/null"
 "nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
 "nats reply \"question-search\" --command=\"../reply_question-search.sh\" 2>/dev/null"
 "nats reply \"question-delete\" --command=\"../reply_question-delete.sh\" 2>/dev/null"
@@ -178,7 +178,7 @@ fi
 # ---------------------------------------------------------------------------
 # 检查 reply quiz-make
 # ---------------------------------------------------------------------------
-PID=$(pgrep -f "nats reply.*quiz-make.*reply_quiz-make.sh")
+PID=$(pgrep -f "nats reply.*quiz-make.*reply_quiz-make-v2.sh")
 PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
 
 if [[ -n "$PID" ]]; then

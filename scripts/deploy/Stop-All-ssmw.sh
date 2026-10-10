@@ -28,7 +28,7 @@ PATTERNS=(
 "nats reply.*quiz-list.*reply_quiz-list.sh"
 "nats reply.*qa-count.*reply_qa-count.sh"
 "nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
-"nats reply.*quiz-make.*reply_quiz-make.sh"
+"nats reply.*quiz-make.*reply_quiz-make-v2.sh"
 "nats reply.*answer-record.*reply_answer-record.sh"
 "nats reply.*question-search.*reply_question-search.sh"
 "nats reply.*question-delete.*reply_question-delete.sh"

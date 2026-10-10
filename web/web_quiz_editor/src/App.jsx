@@ -24,7 +24,7 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_qa, search_question, delete_question, make_quiz } = useNatsFetch();
+    const { loading, connError, list_quiz, count_qa, search_question, delete_question, make_quiz_v2 } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -115,7 +115,7 @@ function App() {
         setSubmitting(true);
         setMessage(null);
         try {
-            await make_quiz(user, selectedQuiz, type, qid, question, opts, answers);
+            await make_quiz_v2(user, selectedQuiz, type, qid, question, opts, answers);
             setMessage({ type: "success", text: "提交成功！" });
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
@@ -137,18 +137,26 @@ function App() {
             if (result.status === "success") {
 
                 const fields = result.question.split("\t");
-                const questionType = fields[fields.length - 1]; // 最后一列是题型
+
+                const questionType = fields[1];
+                const qText = fields[+fields[2]];
+                const qOptions = fields.slice(+fields[3], +fields[4]).filter(o => o.trim());
+                const qAnswers = fields.slice(+fields[4]).filter(a => a.trim());
+                const ref_id = fields[5];
+                const prev_id = fields[6];
+                const next_id = fields[7];
+                const prompt_id = fields[8];
+
+                // console.log(qOptions);
+                // console.log(qAnswers);
+
                 setSelectedQuestionType(questionType);
-
-                // const prompt_id = fields[fields.length - 2]; // 倒数第二列是prompt_id
-                // const ref_id = fields[fields.length - 3]; // 倒数第三列是ref_id
-
-                const [qId, qText, ...qOptions] = fields;
                 setQuestion(qText);
                 setOptions(createEmptyOptions().map((opt, index) => ({
                     text: qOptions[index] || "",
-                    isCorrect: qOptions[index] ? qOptions.slice(8, 15).includes(qOptions[index]) : false, // 第9个Option开始到第16个Option是正确答案
+                    isCorrect: qOptions[index] ? qAnswers.includes(qOptions[index]) : false,
                 })));
+
                 setInfo("题目搜索成功");
                 setError("");
             } else if (result.status === "failure") {

@@ -1,0 +1,21 @@
+{
+    "user": "qmiao",
+    "quiz": "AZ-900",
+    "question_id": "",
+    "question_type": "MCSA",
+    "question": "What are the cities in Europe?",
+    "options": [
+        "Paris",
+        "London",
+        "Berlin",
+        "Madrid"
+    ],
+    "answers": [
+        "Paris",
+        "London"
+    ],
+    "ref_id": "",
+    "prev_id": "",
+    "next_id": "",
+    "prompt_id": ""
+}
