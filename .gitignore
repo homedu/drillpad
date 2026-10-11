@@ -147,6 +147,7 @@ web_gAI/
 users/
 scripts/useless
 scripts/*/quiz_gen
+scripts/*.tsv
 *.lock
 debug.txt
 resource
