@@ -185,7 +185,7 @@ if [[ -n "$PID" ]]; then
     echo "✅ [quiz-make] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
 else
     echo "❌ [quiz-make] 错误: 未找到 nats reply 进程，启动可能失败了。"
-    echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_quiz-make.sh' 找不到/没有执行权限。"
+    echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_quiz-make-v2.sh' 找不到/没有执行权限。"
 fi
 
 # ---------------------------------------------------------------------------

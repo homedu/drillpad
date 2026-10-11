@@ -70,13 +70,13 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
             # iXXX start from 0
 
-            iQuestion = 10                               # 0-9 kept for qid, type, etc.
+            iQuestion = 10                                              # 0-9 kept for qid, type, etc.
 
-            iOption = iQuestion + 1 + 1                                       # insert an empty string between question & options
+            iOption = iQuestion + 1 + 1                                 # question_size is 1; and insert an empty string between question & options
             options_size = split(options, arr_opt, "\t")
-            options_size = (options_size == 0) ? 1 : options_size             # empty string ("") deemed as size(1)
+            options_size = (options_size == 0) ? 1 : options_size       # empty string ("") deemed as size(1)
 
-            iAnswer = iOption + options_size + 1                              # insert an empty string between options & answers
+            iAnswer = iOption + options_size + 1                        # insert an empty string between options & answers
             answers_size = split(answers, arr_ans, "\t")
 
             # 9 is set by already occupied fields count

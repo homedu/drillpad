@@ -192,9 +192,9 @@ function App() {
                     questionCount > 0 &&
                     <label className={cn(tw.label, "ml-auto flex items-center gap-3")}>
                         <span className="font-semibold text-gray-500">习题共 {questionCount} 道,</span>
-                        <span className="font-semibold text-black">已做 {+correctCount + +incorrectCount},</span>
+                        <span className="font-semibold text-black">已练习 {+correctCount + +incorrectCount},</span>
                         <span className="font-semibold text-green-600">掌握 {correctCount},</span>
-                        <span className="font-semibold text-red-600">待练习 {+questionCount - +correctCount + +incorrectCount}</span>
+                        <span className="font-semibold text-red-600">待巩固 {+questionCount - +correctCount}</span>
                     </label>
                 }
 

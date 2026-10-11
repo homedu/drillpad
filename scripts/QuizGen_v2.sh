@@ -60,11 +60,17 @@ ensure_file QUIZ_OUT="${QUIZ_OUT}" || { echo $?; exit 1; }
 #
 
 awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" '
+
+# start from 1, exclude 'end'
 function slice(arr, start, end, sep,      i, slice_str) {
+    # for (idx in arr) print "DEBUG(slice):", idx - 1, arr[idx]
+
     slice_str = "";
     for (i = start; i < end; i++) {
         slice_str = (slice_str == "" ? "" : slice_str sep) arr[i];
     }
+    sub(/^\t/, "", slice_str)
+    sub(/\t$/, "", slice_str)
     return slice_str
 }
 
@@ -177,7 +183,7 @@ END {
 
         print id, type, iQuestion, iOptions, iAnswers,
               ref_id, prev_id, next_id, prompt_id, "",
-              question, shuffle_tabs(options), answers
+              question, "", shuffle_tabs(options), "", answers       # pad "" to fit iOptions & iAnswers
 
         printed++
     }
@@ -203,7 +209,7 @@ END {
 
             print id, type, iQuestion, iOptions, iAnswers,
                   ref_id, prev_id, next_id, prompt_id, "",
-                  question, shuffle_tabs(options), answers
+                  question, "", shuffle_tabs(options), "", answers   # pad "" to fit iOptions & iAnswers
         }
     }
 

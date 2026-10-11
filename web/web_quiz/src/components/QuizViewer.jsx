@@ -46,30 +46,23 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                const [id, question, // 索引含义：0: GUID; 1: 题干;
-                    optA, optB, optC, optD, optE, optF, optG, optH, // 2-9: A-H选项内容;
-                    ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8, // 10-17: 答案内容;
-                    ref_id, prompt_id, question_type] = fields; // 18: ref_id; 19: prompt_id; 20: question_type
+                const [id, question_type, iQuestion, iOptions, iAnswers, // 索引含义：0: 题目GUID; 1: 题目类型; 2: 题干位置; 3: 选项位置; 4: 答案位置;
+                    ref_id, prev_id, next_id, prompt_id] = fields; // 5: 引用ID; 6: 前置题目ID; 7: 后置题目ID; 8: 提示词ID;
 
-                const opts = [
-                    { label: "A", text: optA },
-                    { label: "B", text: optB },
-                    { label: "C", text: optC },
-                    { label: "D", text: optD },
-                    { label: "E", text: optE },
-                    { label: "F", text: optF },
-                    { label: "G", text: optG },
-                    { label: "H", text: optH },
-                ].filter((opt) => opt.text);
-
-                const answers = [ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8].filter((ans) => ans && ans.trim());
+                const question = fields[+iQuestion];
+                const options = fields.slice(+iOptions, +iAnswers).filter(o => o.trim());
+                const answers = fields.slice(+iAnswers).filter(a => a.trim());
+                const opts = options.map((opt, index) => ({
+                    label: String.fromCharCode(65 + index), // A, B, C...
+                    text: opt
+                }));
 
                 if (question_type === "MCSA" && answers.length > 1) {
                     throw Error(`question - ${id} is MCSA, but has multiple answers`);
                 }
 
                 const ansMap = new Map([
-                    ["MCSA", ans1],
+                    ["MCSA", answers[0]],
                     ["MS", answers]
                 ]);
 

@@ -40,9 +40,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     ensure_file REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}/correct.tsv" || { echo $?; exit 1;}
     ensure_file REC_INCORRECT="${DIR_USER}/answer_record/${QUIZ}/incorrect.tsv" || { echo $?; exit 1;}
 
-    nQ=$(wc -l < "$QUIZ_FILE")
-    nC=$(wc -l < "$REC_CORRECT")
-    nI=$(wc -l < "$REC_INCORRECT")
+    nQ=$(awk 'END {print NR}' < "$QUIZ_FILE")
+    nC=$(awk 'END {print NR}' < "$REC_CORRECT")
+    nI=$(awk 'END {print NR}' < "$REC_INCORRECT")
 
     jq -n --arg nQ "$nQ" --arg nC "$nC" --arg nI "$nI" '{question_count: $nQ, correct_count: $nC, incorrect_count: $nI}'
 

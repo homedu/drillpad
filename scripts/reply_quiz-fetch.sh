@@ -77,7 +77,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         export IDS_EXC
 
         # generate quiz here
-        ./QuizGen.sh "$QUIZ_BANK" "$QUIZ_OUT_ABS" "$COUNT"
+        ./QuizGen_v2.sh "$QUIZ_BANK" "$QUIZ_OUT_ABS" "$COUNT"
 
     } 9>"$LOCK_FILE"
 
