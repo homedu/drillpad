@@ -46,7 +46,7 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                const [id, question_type, iQuestion, iOptions, iAnswers, // 索引含义：0: 题目GUID; 1: 题目类型; 2: 题干位置; 3: 选项位置; 4: 答案位置;
+                const [id, question_type, iQuestion, iOptions, iAnswers, // 0: 题目GUID; 1: 题目类型; 2: 题干位置; 3: 选项位置; 4: 答案位置;
                     ref_id, prev_id, next_id, prompt_id] = fields; // 5: 引用ID; 6: 前置题目ID; 7: 后置题目ID; 8: 提示词ID;
 
                 const question = fields[+iQuestion];
@@ -191,7 +191,9 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
                         <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
-                            {index + 1}
+                            <span class="inline-block transform -translate-y-[5px]">
+                                {index + 1}
+                            </span>
                         </div>
 
                         {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}

@@ -24,7 +24,10 @@ export const styles = {
 
     resetBtn: "py-[10px] px-[24px] bg-[#0070f3] text-white border-none rounded-[6px] text-[15px] font-bold cursor-pointer",
 
-    cardNum: "absolute right-full -top-[1px] min-w-6 px-2 py-1 text-center text-sm font-semibold border-y border-l border-r-0 border-solid border-[#e1e4e8] text-black bg-white rounded-l-md select-none",
+    cardNum: cn("absolute right-full -top-[1px] min-w-6 px-3 py-3",
+        "text-center text-sm font-semibold border-[#e1e4e8]",
+        "text-black bg-[#e1e4e8] rounded-l-md select-none",
+        "[clip-path:polygon(0_0%,100%_0,100%_100%,0_60%)]"),
 
     cardButtonGrp: "absolute top-0 left-full ml-6 flex flex-col items-center gap-3",
 
