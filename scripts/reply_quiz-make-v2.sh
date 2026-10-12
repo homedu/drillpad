@@ -31,8 +31,11 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     # USER should be extract from token
     USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
+
     QID=$(jq -r '.question_id // ""' <<< "$PARAM")
     TYPE=$(jq -r '.question_type // "MCSA"' <<< "$PARAM")
+    GROUP=$(jq -r '.group // ""' <<< "$PARAM")
+    GROUP_IDX=$(jq -r '.group_idx // ""' <<< "$PARAM")
 
     ACTION="edited"
     [[ -z "$QID" ]] && {
@@ -53,13 +56,15 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QUESTION=$(jq -r '.question // ""' <<< "$PARAM")
     OPTIONS=$(jq -r '.options | @tsv' <<< "$PARAM")
     ANSWERS=$(jq -r '.answers | @tsv' <<< "$PARAM")
+    SKILLS=$(jq -r '.skills | @tsv' <<< "$PARAM")
+
     REF_ID=$(jq -r '.ref_id // ""' <<< "$PARAM")
     PREV_ID=$(jq -r '.prev_id // ""' <<< "$PARAM")
     NEXT_ID=$(jq -r '.next_id // ""' <<< "$PARAM")
     PROMPT_ID=$(jq -r '.prompt_id // ""' <<< "$PARAM")
 
-    awk -v OFS='\t' -v qid="$QID" -v type="$TYPE" \
-        -v question="$QUESTION" -v options="$OPTIONS" -v answers="$ANSWERS" \
+    awk -v OFS='\t' -v qid="$QID" -v type="$TYPE" -v group="$GROUP" -v group_idx="$GROUP_IDX" \
+        -v question="$QUESTION" -v options="$OPTIONS" -v answers="$ANSWERS" -v skills="$SKILLS" \
         -v ref_id="$REF_ID" -v prev_id="$PREV_ID" -v next_id="$NEXT_ID" -v prompt_id="$PROMPT_ID" '
 
         function repeat_tsv(s, n,   i, result) {
@@ -74,28 +79,39 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
             # iXXX start from 0
 
-            iQuestion = 10                                              # 0-9 kept for qid, type, etc.
+            iQuestion = 16                                              # 0-15 kept for qid, type, etc.
+            question_size = 1                                           # insert "Q:" before question
 
-            iOption = iQuestion + 1 + 1                                 # question_size is 1; and insert an empty string between question & options
+            iOption = iQuestion + question_size + 1                     # insert "O:" between question & options
             options_size = split(options, arr_opt, "\t")
             options_size = (options_size == 0) ? 1 : options_size       # empty string ("") deemed as size(1)
 
-            iAnswer = iOption + options_size + 1                        # insert an empty string between options & answers
+            iAnswer = iOption + options_size + 1                        # insert "A:" between options & answers
             answers_size = split(answers, arr_ans, "\t")
+            answers_size = (answers_size == 0) ? 1 : answers_size       # empty string ("") deemed as size(1)
 
-            # 9 is set by already occupied fields count
-            _pad = repeat_tsv("", iQuestion - 9)
+            iSkill = iAnswer + answers_size + 1                         # insert "S:" between answers & skills
+            skills_size = split(skills, arr_ski, "\t")
+            skills_size = (skills_size == 0) ? 1 : skills_size          # empty string ("") deemed as size(1)
+
+            _pad = repeat_tsv("", iQuestion - 13)                       # 13 is occupied fields count (before 'question' and exclude '_pad')
         }
         $1 == qid {
             found = 1
-            print qid, type, iQuestion, iOption, iAnswer, ref_id, prev_id, next_id, prompt_id, _pad, question, "", options, "", answers
+            print qid, type, group, group_idx,
+                  iQuestion, iOption, iAnswer, iSkill,
+                  ref_id, prev_id, next_id, prompt_id, _pad,
+                  "Q:", question, "O:", options, "A:", answers, "S:", skills
         }
         $1 != qid {
             print $0
         }
         END {
             if (!found) {
-                print qid, type, iQuestion, iOption, iAnswer, ref_id, prev_id, next_id, prompt_id, _pad, question, "", options, "", answers
+                print qid, type, group, group_idx,
+                      iQuestion, iOption, iAnswer, iSkill,
+                      ref_id, prev_id, next_id, prompt_id, _pad,
+                      "Q:", question, "O:", options, "A:", answers, "S:", skills
             }
         }
         ' "$QUIZ_BANK_FILE" > "$tmp" && mv "$tmp" "$QUIZ_BANK_FILE"

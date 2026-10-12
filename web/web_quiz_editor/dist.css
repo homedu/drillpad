@@ -14,6 +14,7 @@
     --text-sm--line-height: calc(1.25 / 0.875);
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
+    --font-weight-bold: 700;
     --radius-sm: 0.25rem;
     --radius-md: 0.375rem;
   }
@@ -108,12 +109,6 @@
   }
   .flex-1 {
     flex: 1;
-  }
-  .animate-\[fadeOut_0\.5s_ease-in-out_3s_forwards\] {
-    animation: fadeOut 0.5s ease-in-out 3s forwards;
-  }
-  .animate-\[fadeOut_0\.5s_ease-in-out_5s_forwards\] {
-    animation: fadeOut 0.5s ease-in-out 5s forwards;
   }
   .cursor-not-allowed {
     cursor: not-allowed;
@@ -248,6 +243,10 @@
   .leading-\[normal\] {
     --tw-leading: normal;
     line-height: normal;
+  }
+  .font-bold {
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
   }
   .font-medium {
     --tw-font-weight: var(--font-weight-medium);

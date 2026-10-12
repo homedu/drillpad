@@ -3,6 +3,8 @@
     "quiz": "AZ-900",
     "question_id": "",
     "question_type": "MCSA",
+    "group": "GROUP-A",
+    "group_idx": "1",
     "question": "What are the cities in Europe?",
     "options": [
         "Paris",
@@ -13,6 +15,10 @@
     "answers": [
         "Paris",
         "London"
+    ],
+    "skills": [
+        "Synonyms & Word Meaning",
+        "Perimeter & Area"
     ],
     "ref_id": "",
     "prev_id": "",

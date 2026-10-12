@@ -133,16 +133,23 @@ function App() {
                 const fields = result.question_line.split("\t");
 
                 const questionType = fields[1];
-                const qText = fields[+fields[2]];
-                const qOptions = fields.slice(+fields[3], +fields[4]).filter(o => o.trim());
-                const qAnswers = fields.slice(+fields[4]).filter(a => a.trim());
-                const ref_id = fields[5];
-                const prev_id = fields[6];
-                const next_id = fields[7];
-                const prompt_id = fields[8];
+                const questionGroup = fields[2];
+                const qGroupIdx = +fields[3];
 
-                // console.log(qOptions);
-                // console.log(qAnswers);
+                const qText = fields[+fields[4]];
+                const qOptions = fields.slice(+fields[5], +fields[6] - 1).filter(o => o.trim()); // "- 1" is skip "A:" 
+                const qAnswers = fields.slice(+fields[6], +fields[7] - 1).filter(a => a.trim()); // "- 1" is skip "S:"
+                const qSkills = fields.slice(+fields[7]);
+
+                const ref_id = fields[8];
+                const prev_id = fields[9];
+                const next_id = fields[10];
+                const prompt_id = fields[11];
+
+                // console.log("Q:", qText);
+                // console.log("O:", qOptions);
+                // console.log("A:", qAnswers);
+                // console.log("S:", qSkills);
 
                 setSelectedQuestionType(questionType);
                 setQuestion(qText);
@@ -320,7 +327,9 @@ function App() {
 
             {/*  */}
 
-            <label className={cn(tw.label, "block")}>题目</label>
+            <label className={cn(tw.label, "block", "font-bold")}>类组</label>
+
+            <label className={cn(tw.label, "block", "font-bold")}>题目</label>
             <textarea
                 className={tw.textarea}
                 value={question}
@@ -329,7 +338,7 @@ function App() {
                 rows={3}
             />
 
-            <label className={cn(tw.label, "block")}>选项（勾选表示该项为正确答案）</label>
+            <label className={cn(tw.label, "block", "font-bold")}>选项（勾选表示该项为正确答案）</label>
 
             <div className={tw.optionsList}>
                 {options.map((opt, index) => {

@@ -14,3 +14,15 @@ if (!String.prototype.isValidGuid) {
         return guidRegex.test(this.toString());
     };
 }
+
+if (!String.prototype.toLiteral) {
+    String.prototype.toLiteral = function () {
+        const str = this.toString();
+        return str.replace(/[\r\n\t]/g, (match) => {
+            if (match === '\n') return '\\n';
+            if (match === '\r') return '\\r';
+            if (match === '\t') return '\\t';
+            return match;
+        });
+    }
+}

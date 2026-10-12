@@ -320,51 +320,6 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const make_quiz = useCallback(async (user, quiz, type, qid, question, options, answers) => {
-        if (!qid.isValidGuid()) {
-            qid = "";
-        }
-        if (!Array.isArray(options)) {
-            throw new QuizMakeError("选项必须是数组", "validate");
-        }
-        if (!Array.isArray(answers)) {
-            throw new QuizMakeError("答案必须是数组", "validate");
-        }
-
-        const payload = {
-            user,
-            quiz: {
-                name: quiz,
-                type,
-                qid,
-                question,
-                options,
-                answers,
-            },
-        };
-
-        console.log("make_quiz payload:", payload);
-
-        setLoading(true);
-        try {
-            const result = await reqNATS(T_QUIZ_MAKE, payload, { timeout: 10000 });
-            if (result === null || !result.status) {
-                throw new NatsResponseParseError(
-                    "响应中缺少 status 字段",
-                    JSON.stringify(result)
-                );
-            }
-        } catch (err) {
-            throw new QuizMakeError(
-                `上传题目失败: ${describeError(err)}`,
-                "request",
-                { cause: err }
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
     const make_quiz_v2 = useCallback(async (user, quiz, type, qid, question, options, answers) => {
         if (!qid.isValidGuid()) {
             qid = "";
@@ -381,9 +336,13 @@ export function useNatsFetch() {
             quiz,
             question_id: qid,
             question_type: type,
-            question,
+            group: "",
+            group_idx: 0,
+            question: question.toLiteral(),
             options,
             answers,
+            skills: []
+            // ...
         };
 
         console.log("make_quiz_v2 payload:", payload);

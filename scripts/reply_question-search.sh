@@ -37,7 +37,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     LINE=$(awk -F '\t' -v id="$QID" '$1 == id { print; exit }' "$QUIZ_FILE")
     STATUS="success"
-    INFO="Question found"
+    INFO="question found"
 
     [[ -z "$LINE" ]] && {
         STATUS="failure"
