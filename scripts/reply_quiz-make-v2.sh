@@ -13,6 +13,7 @@ trap on_exit EXIT
 
 source "./utils/path_assign.sh"
 source "./utils/trap_ex.sh"
+source "./utils/trim.sh"
 
 ##########################################################
 
@@ -53,7 +54,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     tmp=$(mktemp "${QUIZ_BANK_FILE}.XXXXXX")
     defer_trap 'rm -f "$tmp"' EXIT
 
-    QUESTION=$(jq -r '.question // ""' <<< "$PARAM")
+    QUESTION=$(jq '.question // ""' <<< "$PARAM") # keep some literal string like '\n'
+    trim_inplace QUESTION "\""                    # trim "" auto-wrapped by jq without '-r'
+
     OPTIONS=$(jq -r '.options | @tsv' <<< "$PARAM")
     ANSWERS=$(jq -r '.answers | @tsv' <<< "$PARAM")
     SKILLS=$(jq -r '.skills | @tsv' <<< "$PARAM")

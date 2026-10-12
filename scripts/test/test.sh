@@ -16,32 +16,44 @@ trap on_exit EXIT
 
 source "../utils/path_assign.sh"
 source "../utils/trap_ex.sh"
+source "../utils/trim.sh"
 
 # #########################################################
 
-rmf() {
-    echo "removing file ${FILE}"
-    rm -rf ${FILE}
-    echo "file ${FILE} is removed"
-}
+# rmf() {
+#     echo "removing file ${FILE}"
+#     rm -rf ${FILE}
+#     echo "file ${FILE} is removed"
+# }
 
-rmd() {
-    echo "removing dir ${DIR}"
-    rm -rf ${DIR}
-    echo "dir ${DIR} is removed"
-}
+# rmd() {
+#     echo "removing dir ${DIR}"
+#     rm -rf ${DIR}
+#     echo "dir ${DIR} is removed"
+# }
 
-ensure_file FILE="${1:?error: file path arg is missing}" || { echo $?; exit 1;}
-echo "file $FILE created"
+# ensure_file FILE="${1:?error: file path arg is missing}" || { echo $?; exit 1;}
+# echo "file $FILE created"
 
-ensure_dir DIR="$(dirname $FILE)" || { echo $?; exit 1;}
-echo "dir $DIR created"
+# ensure_dir DIR="$(dirname $FILE)" || { echo $?; exit 1;}
+# echo "dir $DIR created"
 
-defer_trap rmd EXIT
-defer_trap rmf EXIT
+# defer_trap rmd EXIT
+# defer_trap rmf EXIT
 
-require_file FILE="./c/a.txt" || { echo $?; exit 1;}
-echo "$FILE is existing"
+# require_file FILE="./c/a.txt" || { echo $?; exit 1;}
+# echo "$FILE is existing"
 
-require_dir DIR="./c" || { echo $?; exit 1;}
-echo "$DIR is existing"
+# require_dir DIR="./c" || { echo $?; exit 1;}
+# echo "$DIR is existing"
+
+# #########################################################
+
+# 💡 使用示例：
+MY_VAR="  xxx---[MY_CONTENT]---xxx  "
+
+# 直接传入变量名，指定裁剪 'x' 和 '-'
+trim_inplace MY_VAR "x|-|\[|\]| "
+
+echo "$MY_VAR" 
+# 输出: MY_CONTENT

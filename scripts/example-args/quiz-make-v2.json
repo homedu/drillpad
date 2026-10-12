@@ -5,7 +5,7 @@
     "question_type": "MCSA",
     "group": "GROUP-A",
     "group_idx": "1",
-    "question": "What are the cities in Europe?",
+    "question": "What are the cities in \"Europe\"? \\n This is a new line",
     "options": [
         "Paris",
         "London",
