@@ -8,9 +8,6 @@
     --color-red-600: oklch(57.7% 0.245 27.325);
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-600: oklch(62.7% 0.194 149.214);
-    --color-blue-100: oklch(93.2% 0.032 255.585);
-    --color-blue-200: oklch(88.2% 0.059 254.128);
-    --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-400: oklch(70.7% 0.022 261.325);
     --color-gray-500: oklch(55.1% 0.027 264.364);
@@ -39,9 +36,6 @@
   }
   .relative {
     position: relative;
-  }
-  .-top-\[0px\] {
-    top: calc(0px * -1);
   }
   .-top-\[1px\] {
     top: calc(1px * -1);
@@ -139,20 +133,8 @@
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
   }
-  .-translate-y-\[1px\] {
-    --tw-translate-y: calc(1px * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .-translate-y-\[2px\] {
-    --tw-translate-y: calc(2px * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
   .-translate-y-\[5px\] {
     --tw-translate-y: calc(5px * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-  .-translate-y-\[10px\] {
-    --tw-translate-y: calc(10px * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .transform {
@@ -218,18 +200,6 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
-  .border-y {
-    border-block-style: var(--tw-border-style);
-    border-block-width: 1px;
-  }
-  .border-r-0 {
-    border-right-style: var(--tw-border-style);
-    border-right-width: 0px;
-  }
-  .border-l {
-    border-left-style: var(--tw-border-style);
-    border-left-width: 1px;
-  }
   .border-none {
     --tw-border-style: none;
     border-style: none;
@@ -277,15 +247,6 @@
   .bg-\[\#f8d7da\] {
     background-color: #f8d7da;
   }
-  .bg-blue-100 {
-    background-color: var(--color-blue-100);
-  }
-  .bg-blue-200 {
-    background-color: var(--color-blue-200);
-  }
-  .bg-blue-800 {
-    background-color: var(--color-blue-800);
-  }
   .bg-red-100 {
     background-color: var(--color-red-100);
   }
@@ -307,9 +268,6 @@
   .p-\[24px\] {
     padding: 24px;
   }
-  .px-2 {
-    padding-inline: calc(var(--spacing) * 2);
-  }
   .px-3 {
     padding-inline: calc(var(--spacing) * 3);
   }
@@ -321,12 +279,6 @@
   }
   .py-0 {
     padding-block: 0px;
-  }
-  .py-1 {
-    padding-block: var(--spacing);
-  }
-  .py-2 {
-    padding-block: calc(var(--spacing) * 2);
   }
   .py-3 {
     padding-block: calc(var(--spacing) * 3);
@@ -452,56 +404,8 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  .\[clip-path\:polygon\(0_0\%\,80\%_0\,100\%_100\%\,0_100\%\)\] {
-    clip-path: polygon(0 0%,80% 0,100% 100%,0 100%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,90\%_0\,100\%_100\%\,0_60\%\)\] {
-    clip-path: polygon(0 0%,90% 0,100% 100%,0 60%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,100\%_0\,90\%_100\%\,0_60\%\)\] {
-    clip-path: polygon(0 0%,100% 0,90% 100%,0 60%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_90\%\,0_60\%\)\] {
-    clip-path: polygon(0 0%,100% 0,100% 90%,0 60%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_100\%\,0_50\%\)\] {
-    clip-path: polygon(0 0%,100% 0,100% 100%,0 50%);
-  }
   .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_100\%\,0_60\%\)\] {
     clip-path: polygon(0 0%,100% 0,100% 100%,0 60%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_100\%\,0_70\%\)\] {
-    clip-path: polygon(0 0%,100% 0,100% 100%,0 70%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_100\%\,0_80\%\)\] {
-    clip-path: polygon(0 0%,100% 0,100% 100%,0 80%);
-  }
-  .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_100\%\,0_100\%\)\] {
-    clip-path: polygon(0 0%,100% 0,100% 100%,0 100%);
-  }
-  .\[clip-path\:polygon\(0_0\%100\%_0\,100\%_100\%\,0_100\%\)\] {
-    clip-path: polygon(0 0%100% 0,100% 100%,0 100%);
-  }
-  .\[clip-path\:polygon\(0_10\%\,100\%_0\,100\%_100\%\,0_100\%\)\] {
-    clip-path: polygon(0 10%,100% 0,100% 100%,0 100%);
-  }
-  .\[clip-path\:polygon\(0_30\%\,100\%_0\,100\%_100\%\,0_50\%\)\] {
-    clip-path: polygon(0 30%,100% 0,100% 100%,0 50%);
-  }
-  .\[clip-path\:polygon\(0_30\%\,100\%_0\,100\%_100\%\,0_100\%\)\] {
-    clip-path: polygon(0 30%,100% 0,100% 100%,0 100%);
-  }
-  .\[clip-path\:polygon\(0_50\%\,50\%_0\,100\%_100\%\,0_50\%\)\] {
-    clip-path: polygon(0 50%,50% 0,100% 100%,0 50%);
-  }
-  .\[clip-path\:polygon\(0_50\%\,100\%_0\,100\%_100\%\,0_50\%\)\] {
-    clip-path: polygon(0 50%,100% 0,100% 100%,0 50%);
-  }
-  .\[clip-path\:polygon\(0_100\%\,100\%_0\,100\%_100\%\,0_50\%\)\] {
-    clip-path: polygon(0 100%,100% 0,100% 100%,0 50%);
-  }
-  .\[clip-path\:polygon\(0_100\%\,100\%_0\,100\%_100\%\,0_100\%\)\] {
-    clip-path: polygon(0 100%,100% 0,100% 100%,0 100%);
   }
   @media (hover: hover) {
     .hover\:border-gray-500:hover {

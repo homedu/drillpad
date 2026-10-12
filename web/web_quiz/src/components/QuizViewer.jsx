@@ -191,7 +191,7 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
                         <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
-                            <span class="inline-block transform -translate-y-[5px]">
+                            <span className="inline-block transform -translate-y-[5px]">
                                 {index + 1}
                             </span>
                         </div>
