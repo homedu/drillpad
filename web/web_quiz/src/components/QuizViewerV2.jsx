@@ -46,15 +46,11 @@ export default function QuizViewerV2({ user, quiz, fileContent, onSubmit, onRese
                 if (question_type === "MCSA" && answers.length > 1) {
                     throw Error(`question - ${id} is MCSA, but has multiple answers`);
                 }
-                if (question_type === "SF" && answers.length > 1) {
-                    throw Error(`question - ${id} is SF, but has multiple answers`);
-                }
 
                 const ansMap = new Map([
                     ["MCSA", answers[0]],   // multiple choice, single answer
-                    ["MS", answers]         // multiple select
-                    // ["SF", answers[0]],  // single fill
-                    // ["MF", answers]      // multiple fill
+                    ["MS", answers],        // multiple select
+                    ["FILL", answers]       // fill
                 ]);
 
                 return {
@@ -189,16 +185,11 @@ export default function QuizViewerV2({ user, quiz, fileContent, onSubmit, onRese
 
                         {/* 作答区域：完全交给题型组件 */}
                         <div className={tw.optionsContainer}>
-                            {handler ? (
-                                <handler.Input
-                                    q={q}
-                                    answer={selected}
-                                    submitted={submitted}
-                                    onChange={(next) => setAnswer(q.id, next)}
-                                />
-                            ) : (
-                                <p className="text-sm text-zinc-500">⚠️ 不支持的题型：{q.type}</p>
-                            )}
+                            {
+                                handler ?
+                                    (<handler.Input q={q} answer={selected} submitted={submitted} onChange={(next) => setAnswer(q.id, next)} />) :
+                                    (<p className="text-sm text-zinc-500">⚠️ 不支持的题型：{q.type}</p>)
+                            }
                         </div>
 
                         {/* 对错提示 */}

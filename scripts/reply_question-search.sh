@@ -35,16 +35,16 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # echo "用户: $USER, 测验: $QUIZ, 问题ID: $QID, 文件: $QUIZ_FILE"
 
-    QUESTION=$(awk -F '\t' -v id="$QID" '$1 == id { print; exit }' "$QUIZ_FILE")
+    LINE=$(awk -F '\t' -v id="$QID" '$1 == id { print; exit }' "$QUIZ_FILE")
     STATUS="success"
     INFO="Question found"
 
-    [[ -z "$QUESTION" ]] && {
+    [[ -z "$LINE" ]] && {
         STATUS="failure"
         INFO="Question not found with id '$QID' in quiz '$QUIZ' for user '$USER'"
     }
 
-    jq -n --arg question "$QUESTION" --arg status "$STATUS" --arg info "$INFO" '{status: $status, question: $question, info: $info}'
+    jq -n --arg line "$LINE" --arg status "$STATUS" --arg info "$INFO" '{status: $status, question_line: $line, info: $info}'
 
 else
 

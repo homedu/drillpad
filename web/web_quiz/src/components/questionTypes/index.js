@@ -1,10 +1,10 @@
 // questionTypes/index.js
-import { MCSAType } from "./mcsa.jsx";
-import { MSType } from "./ms.jsx";
-import { FillType } from "./fill.jsx";
+import { MCSA } from "./mcsa.jsx";
+import { MS } from "./ms.jsx";
+import { FILL } from "./fill.jsx";
 
 export const questionTypes = {
-    MCSA: MCSAType,
-    MS: MSType,
-    FILL: FillType,
+    MCSA,
+    MS,
+    FILL,
 };

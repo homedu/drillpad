@@ -1,6 +1,6 @@
 import ChoiceOption from "./ChoiceOption.jsx";
 
-export const MCSAType = {
+export const MCSA = {
     label: "单选",
 
     // 从 TSV 的非空答案列得到 correctAnswer（字符串）
@@ -18,7 +18,7 @@ export const MCSAType = {
 
     formatCorrect: (q) => q.correctAnswer,
 
-    Input: function MCSAInput({ q, answer, onChange, submitted }) {
+    Input: ({ q, answer, onChange, submitted }) => {
         return q.options.map((opt) => (
             <ChoiceOption
                 key={opt.label}

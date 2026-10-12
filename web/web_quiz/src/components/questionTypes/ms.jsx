@@ -2,7 +2,7 @@ import ChoiceOption from "./ChoiceOption.jsx";
 
 const normalize = (arr) => arr.map((a) => a.trim());
 
-export const MSType = {
+export const MS = {
     label: "多选",
 
     // correctAnswer 为字符串数组
@@ -23,16 +23,14 @@ export const MSType = {
 
     formatCorrect: (q) => q.correctAnswer.join("；"),
 
-    Input: function MSInput({ q, answer, onChange, submitted }) {
+    Input: ({ q, answer, onChange, submitted }) => {
         const current = Array.isArray(answer) ? answer : [];
         const correctTexts = Array.isArray(q.correctAnswer) ? normalize(q.correctAnswer) : [];
 
         // 已选则取消，未选则加入
         const toggle = (opt) => {
             const exists = current.some((o) => o.label === opt.label);
-            onChange(
-                exists ? current.filter((o) => o.label !== opt.label) : [...current, opt]
-            );
+            onChange(exists ? current.filter((o) => o.label !== opt.label) : [...current, opt]);
         };
 
         return q.options.map((opt) => (

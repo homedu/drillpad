@@ -1,17 +1,13 @@
-export const FillType = {
+export const FILL = {
     label: "填空",
 
-    parseAnswer: (answers, id) => {
+    parseAnswer: (answers, id) => { },
 
-    },
+    hasAnswered: (q, answer) => { },
 
-    hasAnswered: (q, answer) => !!answer,
+    isCorrect: (q, answer) => { },
 
-    isCorrect: (q, answer) => !!q.correctAnswer && !!answer && answer.text.trim() === q.correctAnswer.trim(),
+    formatCorrect: (q) => { },
 
-    formatCorrect: (q) => q.correctAnswer,
-
-    Input: function FillInput({ q, answer, onChange, submitted }) {
-
-    },
+    Input: function FillInput({ q, answer, onChange, submitted }) { },
 };

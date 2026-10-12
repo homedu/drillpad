@@ -397,6 +397,7 @@ export function useNatsFetch() {
                     JSON.stringify(result)
                 );
             }
+            return result.question_id;
         } catch (err) {
             throw new QuizMakeError(
                 `上传题目失败: ${describeError(err)}`,

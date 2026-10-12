@@ -115,10 +115,12 @@ function App() {
         setSubmitting(true);
         setMessage(null);
         try {
-            await make_quiz_v2(user, selectedQuiz, type, qid, question, opts, answers);
+            const id = await make_quiz_v2(user, selectedQuiz, type, qid, question, opts, answers);
             setMessage({ type: "success", text: "提交成功！" });
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
+            setQid(id);
+            await handleQuestionSearch();
         } catch (err) {
             setMessage({ type: "error", text: "提交失败，请重试" });
         } finally {
@@ -136,7 +138,7 @@ function App() {
             const result = await search_question(user, selectedQuiz, qid.trim());
             if (result.status === "success") {
 
-                const fields = result.question.split("\t");
+                const fields = result.question_line.split("\t");
 
                 const questionType = fields[1];
                 const qText = fields[+fields[2]];

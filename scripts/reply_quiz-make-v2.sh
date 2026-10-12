@@ -34,7 +34,11 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QID=$(jq -r '.question_id // ""' <<< "$PARAM")
     TYPE=$(jq -r '.question_type // "MCSA"' <<< "$PARAM")
 
-    [[ -z "$QID" ]] && QID=$(uuidgen)
+    ACTION="edited"
+    [[ -z "$QID" ]] && {
+        QID=$(uuidgen)
+        ACTION="created"
+    }
 
     require_dir DIR_USER="../users/${USER}" || {
         echo "error: user does not exist: $DIR_USER"
@@ -98,7 +102,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题
-    jq -n --arg t "$CURRENT_TIME" --arg s "success" '{time: $t, status: $s}'
+    jq -n --arg t "$CURRENT_TIME" --arg s "success: ${ACTION}" --arg id "$QID" '{ time: $t, status: $s, question_id: $id }'
 
 else
 
