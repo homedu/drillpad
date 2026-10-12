@@ -109,6 +109,12 @@
   .flex-1 {
     flex: 1;
   }
+  .animate-\[fadeOut_0\.5s_ease-in-out_3s_forwards\] {
+    animation: fadeOut 0.5s ease-in-out 3s forwards;
+  }
+  .animate-\[fadeOut_0\.5s_ease-in-out_5s_forwards\] {
+    animation: fadeOut 0.5s ease-in-out 5s forwards;
+  }
   .cursor-not-allowed {
     cursor: not-allowed;
   }
@@ -271,9 +277,6 @@
   }
   .text-\[\#374151\] {
     color: #374151;
-  }
-  .text-\[\#B91C1C\] {
-    color: #B91C1C;
   }
   .text-\[\#dc3545\] {
     color: #dc3545;

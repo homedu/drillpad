@@ -35,7 +35,6 @@ function App() {
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
     const [submitting, setSubmitting] = useState(false);
-    const [message, setMessage] = useState(null); // { type: "success" | "error", text: string }
 
     const [disabledMap, setDisabledMap] = useState({
         userInput: false,  // 用户名输入框
@@ -77,9 +76,8 @@ function App() {
         setQid("");
         setQuestion("");
         setOptions(createEmptyOptions());
-        setMessage(null);
-        setError("");
         setInfo("");
+        setError("");
     };
 
     const validate = () => {
@@ -102,9 +100,9 @@ function App() {
     };
 
     const handleSubmit = async () => {
-        const error = validate();
-        if (error) {
-            setMessage({ type: "error", text: error });
+        const err = validate();
+        if (err) {
+            setError(err)
             return;
         }
 
@@ -113,29 +111,23 @@ function App() {
         const type = answers.length > 1 ? "MS" : "MCSA";
 
         setSubmitting(true);
-        setMessage(null);
         try {
             const id = await make_quiz_v2(user, selectedQuiz, type, qid, question, opts, answers);
-            setMessage({ type: "success", text: "提交成功！" });
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
             setQid(id);
-            await handleQuestionSearch();
+            await question_search(user, selectedQuiz, id);
+            setInfo("提交成功!")
         } catch (err) {
-            setMessage({ type: "error", text: "提交失败，请重试" });
+            setError("提交失败!");
         } finally {
             setSubmitting(false);
         }
     };
 
-    const handleQuestionSearch = async () => {
-        if (!user || !selectedQuiz || !qid.trim().isValidGuid()) {
-            setError("请输入有效的'用户名', '题库'和 'Question ID'");
-            setInfo("");
-            return;
-        }
+    const question_search = async (user, quiz, qid) => {
         try {
-            const result = await search_question(user, selectedQuiz, qid.trim());
+            const result = await search_question(user, quiz, qid.trim());
             if (result.status === "success") {
 
                 const fields = result.question_line.split("\t");
@@ -169,19 +161,14 @@ function App() {
             resetForm();
             setError("搜索题目失败");
         }
-    };
+    }
 
-    const handleQuestionDelete = async () => {
-        if (!user || !selectedQuiz || !qid.trim().isValidGuid()) {
-            setError("请输入有效的'用户名', '题库'和 'Question ID'");
-            setInfo("");
-            return;
-        }
+    const question_delete = async (user, quiz, qid) => {
         try {
-            const result = await delete_question(user, selectedQuiz, qid.trim());
+            const result = await delete_question(user, quiz, qid.trim());
             if (result.status === "success") {
                 resetForm();
-                setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
+                setQuestionCount(await count_qa(user, quiz, "question_count"));
                 setInfo("题目删除成功");
                 setError("");
             } else if (result.status === "failure") {
@@ -235,6 +222,8 @@ function App() {
         <div className={tw.container}>
 
             {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
+            {info && !error && <p className={cn(tw.infoBox)}> 💬 {info}</p>}
+            {error && <p className={cn(tw.errBox)}> ❌ {error}</p>}
 
             <h2 className={tw.title}>选择题录入</h2>
 
@@ -313,7 +302,7 @@ function App() {
                 />
 
                 <button
-                    onClick={handleQuestionSearch}
+                    onClick={async () => { await question_search(user, selectedQuiz, qid) }}
                     disabled={!user || !selectedQuiz || !qid.trim().isValidGuid()}
                     className={cn(tw.button, tw.primaryButton, (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
                 >
@@ -321,16 +310,13 @@ function App() {
                 </button>
 
                 <button
-                    onClick={handleQuestionDelete}
+                    onClick={async () => { await question_delete(user, selectedQuiz, qid) }}
                     disabled={!user || !selectedQuiz || !qid.trim().isValidGuid()}
                     className={cn(tw.button, tw.primaryButton, "bg-red-500", (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
                 >
                     删除
                 </button>
             </div>
-
-            {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
-            {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
 
             {/*  */}
 
@@ -375,14 +361,6 @@ function App() {
                     );
                 })}
             </div>
-
-            {
-                message && (
-                    <div className={cn(tw.message, message.type === "error" && "text-[#B91C1C]")}>
-                        {message.text}
-                    </div>
-                )
-            }
 
             <div className={tw.buttonRow}>
                 <button className={cn(tw.button, tw.primaryButton)} onClick={handleSubmit} disabled={submitting}>
