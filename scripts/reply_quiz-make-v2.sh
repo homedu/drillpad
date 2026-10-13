@@ -36,7 +36,6 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     QID=$(jq -r '.question_id // ""' <<< "$PARAM")
     TYPE=$(jq -r '.question_type // "MCSA"' <<< "$PARAM")
     GROUP=$(jq -r '.group // ""' <<< "$PARAM")
-    GROUP_IDX=$(jq -r '.group_idx // ""' <<< "$PARAM")
 
     ACTION="edited"
     [[ -z "$QID" ]] && {
@@ -66,7 +65,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     NEXT_ID=$(jq -r '.next_id // ""' <<< "$PARAM")
     PROMPT_ID=$(jq -r '.prompt_id // ""' <<< "$PARAM")
 
-    awk -v OFS='\t' -v qid="$QID" -v type="$TYPE" -v group="$GROUP" -v group_idx="$GROUP_IDX" \
+    awk -v OFS='\t' -v qid="$QID" -v type="$TYPE" -v group="$GROUP" \
         -v question="$QUESTION" -v options="$OPTIONS" -v answers="$ANSWERS" -v skills="$SKILLS" \
         -v ref_id="$REF_ID" -v prev_id="$PREV_ID" -v next_id="$NEXT_ID" -v prompt_id="$PROMPT_ID" '
 
@@ -80,7 +79,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         BEGIN {
             found = 0
 
-            # iXXX start from 0
+            group_idx = 0
+
+            # iXXX below start from 0
 
             iQuestion = 16                                              # 0-15 kept for qid, type, etc.
             question_size = 1                                           # insert "Q:" before question
@@ -99,8 +100,30 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
             _pad = repeat_tsv("", iQuestion - 13)                       # 13 is occupied fields count (before 'question' and exclude '_pad')
         }
+
+        # 扫描已有文件：记录每个第三列(group)值对应的第四列(group_idx)最大值
+        $3 != "" {
+            if (!($3 in max) || $4 + 0 > max[$3])
+                max[$3] = $4 + 0
+        }
+
         $1 == qid {
             found = 1
+
+            split($0, fs, "\t")
+            group_idx = fs[4]      # 'group_idx' in existing line
+
+            # on edit, if 'group' changed, re-assign 'group_idx',
+            # if 'group' not changed, keep existing one
+            if (group != fs[3]) {
+                if (group == "")
+                    group_idx = 0
+                else if (group in max)
+                    group_idx = max[group] + 1
+                else
+                    group_idx = 1
+            }
+
             print qid, type, group, group_idx,
                   iQuestion, iOption, iAnswer, iSkill,
                   ref_id, prev_id, next_id, prompt_id, _pad,
@@ -109,8 +132,18 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         $1 != qid {
             print $0
         }
+
         END {
             if (!found) {
+
+                # on create, always assign 'group_idx'
+                if (group == "")
+                    group_idx = 0
+                else if (group in max)
+                    group_idx = max[group] + 1
+                else
+                    group_idx = 1
+
                 print qid, type, group, group_idx,
                       iQuestion, iOption, iAnswer, iSkill,
                       ref_id, prev_id, next_id, prompt_id, _pad,

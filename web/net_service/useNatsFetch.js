@@ -320,7 +320,7 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const make_quiz_v2 = useCallback(async (user, quiz, type, qid, question, options, answers) => {
+    const make_quiz_v2 = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
         if (!qid.isValidGuid()) {
             qid = "";
         }
@@ -336,13 +336,11 @@ export function useNatsFetch() {
             quiz,
             question_id: qid,
             question_type: type,
-            group: "",
-            group_idx: 0,
+            group,
             question: question.toLiteral(),
             options,
             answers,
-            skills: []
-            // ...
+            skills
         };
 
         console.log("make_quiz_v2 payload:", payload);

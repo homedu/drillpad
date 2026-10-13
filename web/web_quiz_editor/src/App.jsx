@@ -32,13 +32,15 @@ function App() {
     const [selectedQuestionType, setSelectedQuestionType] = useState(''); // "MCSA" 或 "MS"
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
+    const [group, setGroup] = useState("");
+    const [idxGrp, setIdxGrp] = useState("");
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
     const [submitting, setSubmitting] = useState(false);
 
     const [disabledMap, setDisabledMap] = useState({
         userInput: false,  // 用户名输入框
-        quizSelect: false,     // 题目下拉框
+        quizSelect: false, // 题目下拉框
     });
 
     const hasQuizList = quizList?.length > 0;
@@ -74,6 +76,8 @@ function App() {
 
     const resetForm = () => {
         setQid("");
+        setGroup("");
+        setIdxGrp("");
         setQuestion("");
         setOptions(createEmptyOptions());
         setInfo("");
@@ -109,10 +113,11 @@ function App() {
         const opts = options.filter((opt) => opt.text.trim()).map((opt) => opt.text);
         const answers = options.filter((opt) => opt.isCorrect).map((opt) => opt.text);
         const type = answers.length > 1 ? "MS" : "MCSA";
+        const skills = [];
 
         setSubmitting(true);
         try {
-            const id = await make_quiz_v2(user, selectedQuiz, type, qid, question, opts, answers);
+            const id = await make_quiz_v2(user, selectedQuiz, qid, type, group, question, opts, answers, skills);
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
             setQid(id);
@@ -132,11 +137,11 @@ function App() {
 
                 const fields = result.question_line.split("\t");
 
-                const questionType = fields[1];
-                const questionGroup = fields[2];
+                const qType = fields[1];
+                const qGroup = fields[2];
                 const qGroupIdx = +fields[3];
 
-                const qText = fields[+fields[4]];
+                const qText = fields[+fields[4]].fromLiteral();
                 const qOptions = fields.slice(+fields[5], +fields[6] - 1).filter(o => o.trim()); // "- 1" is skip "A:" 
                 const qAnswers = fields.slice(+fields[6], +fields[7] - 1).filter(a => a.trim()); // "- 1" is skip "S:"
                 const qSkills = fields.slice(+fields[7]);
@@ -151,7 +156,9 @@ function App() {
                 // console.log("A:", qAnswers);
                 // console.log("S:", qSkills);
 
-                setSelectedQuestionType(questionType);
+                setSelectedQuestionType(qType);
+                setGroup(qGroup);
+                setIdxGrp(qGroupIdx);
                 setQuestion(qText);
                 setOptions(createEmptyOptions().map((opt, index) => ({
                     text: qOptions[index] || "",
@@ -327,7 +334,17 @@ function App() {
 
             {/*  */}
 
-            <label className={cn(tw.label, "block", "font-bold")}>类组</label>
+            <div className={cn("mt-10")}>
+                <label className={cn(tw.label, "font-bold", "mr-3")}>类组</label>
+                <input
+                    type="text"
+                    value={group}
+                    className={cn(tw.optionInput, "mr-3")}
+                    onChange={(e) => setGroup(e.target.value)}
+                    placeholder="Group Name"
+                />
+                {idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>}
+            </div>
 
             <label className={cn(tw.label, "block", "font-bold")}>题目</label>
             <textarea

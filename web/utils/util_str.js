@@ -26,3 +26,15 @@ if (!String.prototype.toLiteral) {
         });
     }
 }
+
+if (!String.prototype.fromLiteral) {
+    String.prototype.fromLiteral = function () {
+        const str = this.toString();
+        return str.replace(/\\([nrt])/g, (match, char) => {
+            if (char === 'n') return '\n';
+            if (char === 'r') return '\r';
+            if (char === 't') return '\t';
+            return match;
+        });
+    };
+}
