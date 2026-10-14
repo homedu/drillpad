@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { cn } from "../../utils/utils.js"
 import "../../utils/util_str.js";
+import Demo from "../../utils/showInputModalS.jsx";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
 
@@ -418,6 +419,8 @@ function App() {
                 </button>
             </div>
         </div>
+
+        // <Demo />
     );
 }
 
