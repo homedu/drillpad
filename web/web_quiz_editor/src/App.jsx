@@ -36,6 +36,7 @@ function App() {
     const [idxGrp, setIdxGrp] = useState("");
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
+    const [skillStr, setSkillStr] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
     const [disabledMap, setDisabledMap] = useState({
@@ -80,6 +81,7 @@ function App() {
         setIdxGrp("");
         setQuestion("");
         setOptions(createEmptyOptions());
+        setSkillStr("");
         setInfo("");
         setError("");
     };
@@ -113,7 +115,7 @@ function App() {
         const opts = options.filter((opt) => opt.text.trim()).map((opt) => opt.text);
         const answers = options.filter((opt) => opt.isCorrect).map((opt) => opt.text);
         const type = answers.length > 1 ? "MS" : "MCSA";
-        const skills = [];
+        const skills = skillStr.trim().replace(/^;+|;+$/g, '').split(";").filter(s => s.trim()).map(s => s.trim());
 
         setSubmitting(true);
         try {
@@ -164,6 +166,7 @@ function App() {
                     text: qOptions[index] || "",
                     isCorrect: qOptions[index] ? qAnswers.includes(qOptions[index]) : false,
                 })));
+                setSkillStr(qSkills.join("; "))
 
                 setInfo("题目搜索成功");
                 setError("");
@@ -289,19 +292,6 @@ function App() {
                     )}
                 </select>
 
-                <select
-                    value={selectedQuestionType}
-                    onChange={(e) => setSelectedQuestionType(e.target.value)}
-                    disabled={connError || loading}
-                    className={cn(tw.input, "w-30", "rounded-sm")}
-                >
-                    <>
-                        <option value="" disabled hidden>题型</option>
-                        <option value="MCSA">单选题</option>
-                        <option value="MS">多选题</option>
-                    </>
-                </select>
-
                 {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已录入 {questionCount} 道题目 </label>}
 
             </div>
@@ -312,7 +302,7 @@ function App() {
                     value={qid}
                     onChange={(e) => setQid(e.target.value)}
                     placeholder="Question ID"
-                    className="w-80 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                    className={cn(tw.input, "w-80")}
                 />
 
                 <button
@@ -334,16 +324,47 @@ function App() {
 
             {/*  */}
 
-            <div className={cn("mt-10")}>
-                <label className={cn(tw.label, "font-bold", "mr-3")}>类组</label>
-                <input
-                    type="text"
-                    value={group}
-                    className={cn(tw.optionInput, "mr-3")}
-                    onChange={(e) => setGroup(e.target.value)}
-                    placeholder="Group Name"
-                />
-                {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>}
+            <div className="flex items-center gap-3 mt-6">
+                <label className={cn(tw.label, "font-bold")}>题型</label>
+                <select
+                    value={selectedQuestionType}
+                    onChange={(e) => setSelectedQuestionType(e.target.value)}
+                    disabled={connError || loading}
+                    className={cn(tw.input, "w-45", "rounded-sm")}
+                >
+                    <>
+                        <option value="" disabled hidden>题型</option>
+                        <option value="MCSA">单选题</option>
+                        <option value="MS">多选题</option>
+                    </>
+                </select>
+            </div>
+
+            <div className="flex items-center gap-6 mt-5">
+
+                <div className="shrink-0">
+                    <label className={cn(tw.label, "font-bold", "mr-3")}>类组</label>
+                    <input
+                        type="text"
+                        value={group}
+                        className={cn(tw.input)}
+                        onChange={(e) => setGroup(e.target.value)}
+                        placeholder="题目组类"
+                    />
+                    {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>}
+                </div>
+
+                <div className="flex flex-1 min-w-0 items-center">
+                    <label className={cn(tw.label, "font-bold mr-3 shrink-0", "mt-0 mb-0")}>技能知识点</label>
+                    <input
+                        type="text"
+                        value={skillStr}
+                        className={cn(tw.input, "w-full")}
+                        onChange={(e) => setSkillStr(e.target.value)}
+                        placeholder="分号(;)分隔多个技能知识点输入"
+                    />
+                </div>
+
             </div>
 
             <label className={cn(tw.label, "block", "font-bold")}>题目</label>
@@ -351,7 +372,7 @@ function App() {
                 className={tw.textarea}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="请输入题目内容"
+                placeholder="输入题目内容"
                 rows={3}
             />
 
@@ -371,9 +392,9 @@ function App() {
                                 value={opt.text}
                                 disabled={!canEdit}
                                 onChange={(e) => handleOptionTextChange(index, e.target.value)}
-                                placeholder={canEdit ? `选项 ${index + 1} 内容` : `请先填写选项 ${String.fromCharCode(64 + index)}`}
+                                placeholder={canEdit ? `选项 ${index + 1} 内容` : `先填写选项 ${String.fromCharCode(64 + index)}`}
                             />
-                            <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "请先填写选项内容"}>
+                            <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "先填写选项内容"}>
                                 <input
                                     type={selectedQuestionType === 'MCSA' ? 'radio' : 'checkbox'}
                                     name="correct-option"
