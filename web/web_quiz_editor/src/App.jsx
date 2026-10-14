@@ -343,7 +343,7 @@ function App() {
                     onChange={(e) => setGroup(e.target.value)}
                     placeholder="Group Name"
                 />
-                {idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>}
+                {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>}
             </div>
 
             <label className={cn(tw.label, "block", "font-bold")}>题目</label>

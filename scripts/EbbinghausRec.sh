@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# remove from correct.tsv (whitelist) if it has been expired,
-# and append to ebhs.tsv for future comparison
+# 1. remove from correct.tsv (whitelist) if it has been expired,
+# 2. append to ebhs.tsv for future comparison
 
 set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder code
 

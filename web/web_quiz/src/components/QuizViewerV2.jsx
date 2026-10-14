@@ -32,18 +32,18 @@ export default function QuizViewerV2({ user, quiz, fileContent, onSubmit, onRese
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                const [id, question_type, iQuestion, iOptions, iAnswers, // 0: 题目GUID; 1: 题目类型; 2: 题干位置; 3: 选项位置; 4: 答案位置;
-                    ref_id, prev_id, next_id, prompt_id] = fields; // 5: 引用ID; 6: 前置题目ID; 7: 后置题目ID; 8: 提示词ID;
+                const [id, qType, qGroup, qIdxGrp, iQuestion, iOption, iAnswer, iSkill, ref_id, prev_id, next_id, prompt_id] = fields;
 
-                const question = fields[+iQuestion];
-                const options = fields.slice(+iOptions, +iAnswers).filter(o => o.trim());
-                const answers = fields.slice(+iAnswers).filter(a => a.trim());
+                const question = fields[+iQuestion].fromLiteral();
+                const options = fields.slice(+iOption, +iAnswer - 1).filter(o => o.trim());
+                const answers = fields.slice(+iAnswer, +iSkill - 1).filter(a => a.trim());
+                const skills = fields.slice(+iSkill).filter(s => s.trim());
                 const opts = options.map((opt, index) => ({
                     label: String.fromCharCode(65 + index), // A, B, C...
                     text: opt
                 }));
 
-                if (question_type === "MCSA" && answers.length > 1) {
+                if (qType === "MCSA" && answers.length > 1) {
                     throw Error(`question - ${id} is MCSA, but has multiple answers`);
                 }
 
@@ -56,9 +56,9 @@ export default function QuizViewerV2({ user, quiz, fileContent, onSubmit, onRese
                 return {
                     id,
                     question,
-                    type: question_type,
+                    type: qType,
                     options: opts,
-                    correctAnswer: ansMap.get(question_type),
+                    correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
                 };
             })
@@ -175,7 +175,7 @@ export default function QuizViewerV2({ user, quiz, fileContent, onSubmit, onRese
 
                         {/* 题干 */}
                         <div>
-                            <h3 className={tw.question}>
+                            <h3 className={cn(tw.question, "whitespace-pre-line")}>
                                 {q.question}
                                 {handler && q.type !== "MCSA" && (
                                     <span className="ms-2 text-sm text-zinc-500">（{handler.label}）</span>
