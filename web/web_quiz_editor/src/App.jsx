@@ -366,14 +366,16 @@ function App() {
                 />
                 {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
                 <button onClick={async () => {
-                    const group_ref_content = await showInputModal({
+                    const result = await showInputModal({
                         title: `${group} 引用内容`,
                         defaultValue: groupRef?.html || "",
                     });
-                    if (group_ref_content !== null) setGroupRef(group_ref_content);
-                    console.log(group_ref_content);
-                    const r = await save_group_content(user, selectedQuiz, group, group_ref_content);
-                    console.log(r);
+                    if (result !== null) {
+                        setGroupRef(result);
+                        console.log(result.html);
+                        const r = await save_group_content(user, selectedQuiz, group, result.html);
+                        console.log(r);
+                    }
                 }}
                     disabled={!user.trim() || !selectedQuiz.trim() || !group.trim()}
                     className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11 disabled:opacity-50 disabled:cursor-not-allowed")}

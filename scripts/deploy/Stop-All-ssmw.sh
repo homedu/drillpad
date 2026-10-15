@@ -22,19 +22,6 @@ trap on_exit EXIT
 SESSION_NAME="qdp-services"
 CONFIG_PATH="../../config/nats-server.conf"
 
-# 需要精确匹配的进程特征（和启动脚本里 pgrep -f 用的一致）
-PATTERNS=(
-"nats-server -c $CONFIG_PATH"
-"nats reply.*quiz-list.*reply_quiz-list.sh"
-"nats reply.*qa-count.*reply_qa-count.sh"
-"nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
-"nats reply.*quiz-make.*reply_quiz-make-v2.sh"
-"nats reply.*answer-record.*reply_answer-record.sh"
-"nats reply.*question-search.*reply_question-search.sh"
-"nats reply.*question-delete.*reply_question-delete.sh"
-"EbbinghausRec"
-)
-
 echo "--------------------------------------------------"
 echo "正在清理 tmux 会话 '$SESSION_NAME' ..."
 tmux kill-session -t "$SESSION_NAME" 2>/dev/null
@@ -43,6 +30,20 @@ echo "--------------------------------------------------"
 
 # 给进程一点优雅退出的时间
 sleep 2
+
+# 需要精确匹配的进程特征（和启动脚本里 pgrep -f 用的一致）
+PATTERNS=(
+"nats-server -c $CONFIG_PATH"
+"nats reply.*quiz-list.*reply_quiz-list.sh"
+"nats reply.*qa-count.*reply_qa-count.sh"
+"nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
+"nats reply.*quiz-make.*reply_quiz-make-v2.sh"
+"nats reply.*group-content-save.*reply_group-content-save.sh"
+"nats reply.*answer-record.*reply_answer-record.sh"
+"nats reply.*question-search.*reply_question-search.sh"
+"nats reply.*question-delete.*reply_question-delete.sh"
+"EbbinghausRec"
+)
 
 echo "正在停止 qdp 相关进程..."
 

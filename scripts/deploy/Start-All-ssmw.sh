@@ -35,6 +35,7 @@ WINDOW_NAMES=(
 "qa-count"
 "quiz-fetch"
 "quiz-make"
+"group-content-save"
 "answer-record"
 "question-search"
 "question-delete"
@@ -46,6 +47,7 @@ WINDOW_CMDS=(
 "nats reply \"qa-count\" --command=\"../reply_qa-count.sh\" 2>/dev/null"
 "nats reply \"quiz-fetch\" --command=\"../reply_quiz-fetch.sh\" 2>/dev/null"
 "nats reply \"quiz-make\" --command=\"../reply_quiz-make-v2.sh\" 2>/dev/null"
+"nats reply \"group-content-save\" --command=\"../reply_group-content-save.sh\" 2>/dev/null"
 "nats reply \"answer-record\" --command=\"../reply_answer-record.sh\" 2>/dev/null"
 "nats reply \"question-search\" --command=\"../reply_question-search.sh\" 2>/dev/null"
 "nats reply \"question-delete\" --command=\"../reply_question-delete.sh\" 2>/dev/null"
@@ -165,6 +167,19 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# 检查 reply group-content-save
+# ---------------------------------------------------------------------------
+PID=$(pgrep -f "nats reply.*group-content-save.*reply_group-content-save.sh")
+PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
+
+if [[ -n "$PID" ]]; then
+    echo "✅ [group-content-save] 进程检查: nats reply 响应服务已成功启动并正在运行! (PID: $PID)"
+else
+    echo "❌ [group-content-save] 错误: 未找到 nats reply 进程，启动可能失败了。"
+    echo "   原因分析: 可能是 NATS 服务器未启动、凭证错误、或者 './reply_group-content-save.sh' 找不到/没有执行权限。"
+fi
+
+# ---------------------------------------------------------------------------
 # 检查 reply answer-record
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "nats reply.*answer-record.*reply_answer-record.sh")
@@ -217,6 +232,6 @@ else
 fi
 
 echo "--------------------------------------------------"
-echo "提示: 你可以运行 'tmux attach -t $SESSION_NAME' 进入会话，"
+echo "提示: 运行 'tmux attach -t $SESSION_NAME' 进入会话，"
 echo "然后使用 Ctrl-b 加数字键(0,1,2,3) 或 Ctrl-b w 在各个 window 间切换查看日志。"
 echo "--------------------------------------------------"
