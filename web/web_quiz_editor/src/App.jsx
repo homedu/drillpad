@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { cn } from "../../utils/utils.js"
 import "../../utils/util_str.js";
-import Demo from "../../utils/showInputModalS.jsx";
+import { showInputModal } from "../../utils/showInputModal.jsx";
 import { styles as tw } from "./styles.js";
+import { PenIcon } from "./icons.js";
 import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
 
 /**
@@ -35,6 +36,7 @@ function App() {
     const [qid, setQid] = useState("");
     const [group, setGroup] = useState("");
     const [idxGrp, setIdxGrp] = useState("");
+    const [groupRef, setGroupRef] = useState(null);
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
     const [skillStr, setSkillStr] = useState("");
@@ -283,7 +285,7 @@ function App() {
                         }
                     }}
                     disabled={connError || loading}
-                    className={cn(tw.input, "w-50", "rounded-sm")}
+                    className={cn(tw.input, "w-50 rounded-sm")}
                 >
                     {hasQuizList && (
                         <>
@@ -331,7 +333,7 @@ function App() {
                     value={selectedQuestionType}
                     onChange={(e) => setSelectedQuestionType(e.target.value)}
                     disabled={connError || loading}
-                    className={cn(tw.input, "w-45", "rounded-sm")}
+                    className={cn(tw.input, "w-45 rounded-sm")}
                 >
                     <>
                         <option value="" disabled hidden>题型</option>
@@ -343,8 +345,8 @@ function App() {
 
             <div className="flex items-center gap-6 mt-5">
 
-                <div className="shrink-0">
-                    <label className={cn(tw.label, "font-bold", "mr-3")}>类组</label>
+                <div className="shrink-0 flex items-center ">
+                    <label className={cn(tw.label, "font-bold mr-3")}>类组</label>
                     <input
                         type="text"
                         value={group}
@@ -352,11 +354,25 @@ function App() {
                         onChange={(e) => setGroup(e.target.value)}
                         placeholder="题目组类"
                     />
-                    {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>}
+                    {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
+                    <button onClick={async () => {
+                        const r = await showInputModal({
+                            title: "组引用内容",
+                            defaultValue: groupRef?.html || "",
+                        });
+                        if (r !== null) setGroupRef(r);
+                        console.log(r);
+                    }}
+                        disabled={!group.trim()}
+                        className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11", (!group) && "opacity-50 cursor-not-allowed")}
+                    >
+
+                        <PenIcon />
+                    </button>
                 </div>
 
                 <div className="flex flex-1 min-w-0 items-center">
-                    <label className={cn(tw.label, "font-bold mr-3 shrink-0", "mt-0 mb-0")}>技能知识点</label>
+                    <label className={cn(tw.label, "shrink-0 font-bold mr-3 mt-0 mb-0")}>技能知识点</label>
                     <input
                         type="text"
                         value={skillStr}
@@ -368,7 +384,7 @@ function App() {
 
             </div>
 
-            <label className={cn(tw.label, "block", "font-bold")}>题目</label>
+            <label className={cn(tw.label, "block font-bold mt-6")}>题目</label>
             <textarea
                 className={tw.textarea}
                 value={question}
@@ -377,7 +393,7 @@ function App() {
                 rows={3}
             />
 
-            <label className={cn(tw.label, "block", "font-bold")}>选项（勾选表示该项为正确答案）</label>
+            <label className={cn(tw.label, "block font-bold")}>选项（勾选表示该项为正确答案）</label>
 
             <div className={tw.optionsList}>
                 {options.map((opt, index) => {
@@ -420,7 +436,6 @@ function App() {
             </div>
         </div>
 
-        // <Demo />
     );
 }
 

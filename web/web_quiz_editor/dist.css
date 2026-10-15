@@ -4,6 +4,7 @@
 @layer theme {
   :root, :host {
     --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-400: oklch(70.7% 0.022 261.325);
     --color-white: #fff;
@@ -53,14 +54,14 @@
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
   }
+  .mt-\[8px\] {
+    margin-top: 8px;
+  }
   .mt-\[12px\] {
     margin-top: 12px;
   }
   .mt-\[15px\] {
     margin-top: 15px;
-  }
-  .mt-\[16px\] {
-    margin-top: 16px;
   }
   .mt-\[20px\] {
     margin-top: 20px;
@@ -95,8 +96,17 @@
   .inline-flex {
     display: inline-flex;
   }
+  .h-5 {
+    height: calc(var(--spacing) * 5);
+  }
   .h-10 {
     height: calc(var(--spacing) * 10);
+  }
+  .w-5 {
+    width: calc(var(--spacing) * 5);
+  }
+  .w-11 {
+    width: calc(var(--spacing) * 11);
   }
   .w-45 {
     width: calc(var(--spacing) * 45);
@@ -194,6 +204,9 @@
   .bg-\[\#f8d7da\] {
     background-color: #f8d7da;
   }
+  .bg-blue-500 {
+    background-color: var(--color-blue-500);
+  }
   .bg-red-500 {
     background-color: var(--color-red-500);
   }
@@ -209,8 +222,8 @@
   .px-\[10px\] {
     padding-inline: 10px;
   }
-  .px-\[20px\] {
-    padding-inline: 20px;
+  .px-\[12px\] {
+    padding-inline: 12px;
   }
   .py-0 {
     padding-block: 0px;

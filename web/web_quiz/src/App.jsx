@@ -178,7 +178,7 @@ function App() {
                         }
                     }}
                     disabled={connError || loading || disabledMap.quizSelect}
-                    className={cn(tw.input, "w-50", "rounded-sm")}
+                    className={cn(tw.input, "w-50 rounded-sm")}
                 >
                     {hasQuizList && (
                         <>

@@ -16,7 +16,7 @@ export const styles = {
 
     title: "text-[20px] font-semibold mb-[16px]",
 
-    label: "text-[15px] font-medium mt-[16px] mb-[8px] text-[#374151]",
+    label: "text-[15px] font-medium mt-[8px] mb-[8px] text-[#374151]",
 
     textarea: cn(
         "w-full box-border py-[8px] px-[10px] text-[14px]",
@@ -45,7 +45,7 @@ export const styles = {
 
     buttonRow: "flex gap-[12px] mt-[20px]",
 
-    button: "py-[8px] px-[20px] text-[14px] rounded-[6px] border-none cursor-pointer",
+    button: "py-[8px] px-[12px] text-[14px] rounded-[6px] border-none cursor-pointer",
 
     primaryButton: "bg-[#2563eb] text-white",
 
