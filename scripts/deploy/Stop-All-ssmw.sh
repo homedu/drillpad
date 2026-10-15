@@ -40,7 +40,7 @@ PATTERNS=(
 "nats reply.*quiz-make.*reply_quiz-make-v2.sh"
 "nats reply.*group-content-save.*reply_group-content-save.sh"
 "nats reply.*answer-record.*reply_answer-record.sh"
-"nats reply.*question-search.*reply_question-search.sh"
+"nats reply.*question-fetch.*reply_question-fetch.sh"
 "nats reply.*question-delete.*reply_question-delete.sh"
 "EbbinghausRec"
 )

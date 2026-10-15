@@ -396,7 +396,7 @@ export function useNatsFetch() {
         setLoading(true);
         try {
             const result = await reqNATS(T_GROUP_CONTENT_SAVE, payload, { timeout: 10000 });
-            if (result === null || !result.status || !result.path) {
+            if (result === null || !result.status || !Object.hasOwn(result, 'path')) {
                 throw new NatsResponseParseError(
                     "响应中缺少 status 或 path 字段",
                     JSON.stringify(result)

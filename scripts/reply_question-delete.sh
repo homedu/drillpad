@@ -58,6 +58,6 @@ else
 
 fi
 
-# topic: question-search
-# nats reply "question-search" --command="./reply_question-search.sh"
-# nats req "question-search" -s nats://192.168.1.159:4222 ./example-args/reply_question-search.json --raw 2>/dev/null
+# topic: question-delete
+# nats reply "question-delete" --command="./reply_question-delete.sh"
+# nats req "question-delete" -s nats://192.168.1.159:4222 ./example-args/reply_question-delete.json --raw 2>/dev/null

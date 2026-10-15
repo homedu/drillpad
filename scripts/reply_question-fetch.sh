@@ -53,6 +53,6 @@ else
 
 fi
 
-# topic: question-search
-# nats reply "question-search" --command="./reply_question-search.sh"
-# nats req "question-search" -s nats://192.168.1.159:4222 ./example-args/reply_question-search.json --raw 2>/dev/null
+# topic: question-fetch
+# nats reply "question-fetch" --command="./reply_question-fetch.sh"
+# nats req "question-fetch" -s nats://192.168.1.159:4222 ./example-args/reply_question-fetch.json --raw 2>/dev/null
