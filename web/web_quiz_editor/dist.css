@@ -54,9 +54,6 @@
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
   }
-  .mt-8 {
-    margin-top: calc(var(--spacing) * 8);
-  }
   .mt-\[8px\] {
     margin-top: 8px;
   }
@@ -138,9 +135,6 @@
   .flex-1 {
     flex: 1;
   }
-  .flex-shrink {
-    flex-shrink: 1;
-  }
   .shrink-0 {
     flex-shrink: 0;
   }
@@ -149,9 +143,6 @@
   }
   .cursor-pointer {
     cursor: pointer;
-  }
-  .resize {
-    resize: both;
   }
   .resize-y {
     resize: vertical;
@@ -334,6 +325,9 @@
   }
   .disabled\:text-gray-400:disabled {
     color: var(--color-gray-400);
+  }
+  .disabled\:opacity-50:disabled {
+    opacity: 50%;
   }
 }
 *, ::before, ::after {

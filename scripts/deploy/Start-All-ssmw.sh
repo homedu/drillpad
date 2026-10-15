@@ -11,31 +11,7 @@ on_exit() {
 }
 trap on_exit EXIT
 
-##########################################################
-
-check_port() {
-    local PORT="$1"
-    if command -v ss >/dev/null 2>&1; then
-        if ss -tuln | awk '{print $5}' | grep -qE "[:.]${PORT}$"; then
-            echo "错误：端口 ${PORT} 已被占用！" >&2
-            return 1
-        fi
-    elif command -v lsof >/dev/null 2>&1; then
-        if lsof -i :"${PORT}" >/dev/null 2>&1; then
-            echo "错误：端口 ${PORT} 已被占用！" >&2
-            return 1
-        fi
-    elif command -v netstat >/dev/null 2>&1; then
-        if netstat -tuln | awk '{print $4}' | grep -qE "[:.]${PORT}$"; then
-            echo "错误：端口 ${PORT} 已被占用！" >&2
-            return 1
-        fi
-    else
-        echo "错误：找不到 ss / lsof / netstat, 无法检测端口占用情况" >&2
-        return 1
-    fi
-    return 0
-}
+source "../utils/check_port.sh"
 
 ##########################################################
 

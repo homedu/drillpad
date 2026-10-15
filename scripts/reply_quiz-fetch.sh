@@ -13,6 +13,7 @@ trap on_exit EXIT
 
 source "./utils/path_assign.sh"
 source "./utils/trap_ex.sh"
+source "./utils/trim.sh"
 
 ##########################################################
 
@@ -26,9 +27,6 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 
 # 记录本次运行中用过的锁文件，退出时统一清理
 declare -A _LOCKS=()
-
-# /var/www/qdp_users must exist AND be set in Caddyfile as "root * /var/www/qdp_users"
-require_dir FETCH_ROOT="/var/www/qdp_users" || { echo $?; exit 1;}
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
@@ -46,13 +44,13 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     # arg
     ensure_file QUIZ_BANK="$DIR_USER/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
 
+    # /var/www/qdp_users must exist AND be set in Caddyfile as "root * /var/www/qdp_users"
+    require_dir FETCH_ROOT="/var/www/qdp_users" || { echo $?; exit 1;}
     # will be appended to /var/www/qdp_users/
     QUIZ_OUT="${USER}/quiz_gen/${QUIZ}.tsv"
-
     ensure_file QUIZ_OUT_ABS="$FETCH_ROOT/$QUIZ_OUT" || { echo $?; exit 1;}
 
     PATH_REC="$DIR_USER/answer_record/${QUIZ}"
-
     # make ENV (get those from /answer_record/, rather than from the request)
     ensure_file REC_CORRECT="$PATH_REC/correct.tsv" || { echo $?; exit 1;}
     ensure_file REC_INCORRECT="$PATH_REC/incorrect.tsv" || { echo $?; exit 1;}

@@ -1,7 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { hasProperty } from "../utils/utils.js";
 import "../utils/util_str.js";
-import { T_QUIZ_MAKE, T_QUIZ_LIST, T_QUESTION_SEARCH, T_QUESTION_DELETE, T_QA_COUNT, T_QUIZ_FETCH, T_ANS_REC } from "./addr.js";
+import {
+    T_QUIZ_MAKE,
+    T_QUIZ_LIST,
+    T_QUESTION_SEARCH,
+    T_QUESTION_DELETE,
+    T_QA_COUNT,
+    T_QUIZ_FETCH,
+    T_ANS_REC,
+    T_GROUP_CONTENT_SAVE
+} from "./addr.js";
 import {
     getNatsConnection,
     reqNATS,
@@ -61,6 +70,14 @@ export class QuizMakeError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "QuizMakeError";
+        this.stage = stage;
+    }
+}
+
+export class GroupContentSaveError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "GroupContentSaveError";
         this.stage = stage;
     }
 }
@@ -178,7 +195,7 @@ export function useNatsFetch() {
         } finally {
             setLoading(false);
         }
-    });
+    }, []);
 
     const search_question = useCallback(async (user, quiz, qid) => {
         const payload = { user, quiz, qid };
@@ -239,7 +256,7 @@ export function useNatsFetch() {
         } finally {
             setLoading(false);
         }
-    });
+    }, []);
 
     const fetch_quiz = useCallback(async (user, quiz, count) => {
         const payload = {
@@ -322,7 +339,7 @@ export function useNatsFetch() {
 
     const make_quiz_v2 = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
         if (!qid.isValidGuid()) {
-            qid = "";
+            qid = "";               // backend will make an id for empty qid 
         }
         if (!Array.isArray(options)) {
             throw new QuizMakeError("选项必须是数组", "validate");
@@ -366,7 +383,48 @@ export function useNatsFetch() {
         }
     }, []);
 
-    return { status, loading, connError, list_quiz, count_qa, search_question, delete_question, fetch_quiz, record_answer, make_quiz_v2 };
+    const save_group_content = useCallback(async (user, quiz, group, content) => {
+        const payload = {
+            user,
+            quiz,
+            group,
+            group_content: content.toLiteral(),
+        };
+
+        console.log("save_group_content payload:", payload);
+
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_GROUP_CONTENT_SAVE, payload, { timeout: 10000 });
+            if (result === null || !result.status || !result.path) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 或 path 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.path;
+        } catch (err) {
+            throw new GroupContentSaveError(
+                `组内容上传失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return {
+        status, loading, connError,
+        list_quiz,
+        count_qa,
+        search_question,
+        delete_question,
+        fetch_quiz,
+        record_answer,
+        make_quiz_v2,
+        save_group_content,
+    };
 }
 
 if (import.meta.hot) {

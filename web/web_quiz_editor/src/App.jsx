@@ -26,7 +26,7 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_qa, search_question, delete_question, make_quiz_v2 } = useNatsFetch();
+    const { loading, connError, list_quiz, count_qa, search_question, delete_question, make_quiz_v2, save_group_content } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -310,16 +310,16 @@ function App() {
 
                 <button
                     onClick={async () => { await question_search(user, selectedQuiz, qid) }}
-                    disabled={!user || !selectedQuiz || !qid.trim().isValidGuid()}
-                    className={cn(tw.button, tw.primaryButton, (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
+                    disabled={!user.trim() || !selectedQuiz.trim() || !qid.trim().isValidGuid()}
+                    className={cn(tw.button, tw.primaryButton, "disabled:opacity-50 disabled:cursor-not-allowed")}
                 >
                     搜索
                 </button>
 
                 <button
                     onClick={async () => { await question_delete(user, selectedQuiz, qid) }}
-                    disabled={!user || !selectedQuiz || !qid.trim().isValidGuid()}
-                    className={cn(tw.button, tw.primaryButton, "bg-red-500", (!user || !selectedQuiz || !qid.trim().isValidGuid()) && "opacity-50 cursor-not-allowed")}
+                    disabled={!user.trim() || !selectedQuiz.trim() || !qid.trim().isValidGuid()}
+                    className={cn(tw.button, tw.primaryButton, "bg-red-500", "disabled:opacity-50 disabled:cursor-not-allowed")}
                 >
                     删除
                 </button>
@@ -366,15 +366,17 @@ function App() {
                 />
                 {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
                 <button onClick={async () => {
-                    const r = await showInputModal({
+                    const group_ref_content = await showInputModal({
                         title: `${group} 引用内容`,
                         defaultValue: groupRef?.html || "",
                     });
-                    if (r !== null) setGroupRef(r);
+                    if (group_ref_content !== null) setGroupRef(group_ref_content);
+                    console.log(group_ref_content);
+                    const r = await save_group_content(user, selectedQuiz, group, group_ref_content);
                     console.log(r);
                 }}
-                    disabled={!group.trim()}
-                    className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11", (!group) && "opacity-50 cursor-not-allowed")}
+                    disabled={!user.trim() || !selectedQuiz.trim() || !group.trim()}
+                    className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11 disabled:opacity-50 disabled:cursor-not-allowed")}
                 >
                     <PenIcon />
                 </button>
