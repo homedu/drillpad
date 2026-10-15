@@ -327,50 +327,22 @@ function App() {
 
             {/*  */}
 
-            <div className="flex items-center gap-3 mt-6">
-                <label className={cn(tw.label, "font-bold")}>题型</label>
-                <select
-                    value={selectedQuestionType}
-                    onChange={(e) => setSelectedQuestionType(e.target.value)}
-                    disabled={connError || loading}
-                    className={cn(tw.input, "w-45 rounded-sm")}
-                >
-                    <>
-                        <option value="" disabled hidden>题型</option>
-                        <option value="MCSA">单选题</option>
-                        <option value="MS">多选题</option>
-                    </>
-                </select>
-            </div>
-
-            <div className="flex items-center gap-6 mt-5">
-
-                <div className="shrink-0 flex items-center ">
-                    <label className={cn(tw.label, "font-bold mr-3")}>类组</label>
-                    <input
-                        type="text"
-                        value={group}
-                        className={cn(tw.input)}
-                        onChange={(e) => setGroup(e.target.value)}
-                        placeholder="题目组类"
-                    />
-                    {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
-                    <button onClick={async () => {
-                        const r = await showInputModal({
-                            title: "组引用内容",
-                            defaultValue: groupRef?.html || "",
-                        });
-                        if (r !== null) setGroupRef(r);
-                        console.log(r);
-                    }}
-                        disabled={!group.trim()}
-                        className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11", (!group) && "opacity-50 cursor-not-allowed")}
+            <div className="flex items-center gap-6 mt-6">
+                <div className="flex items-center gap-3">
+                    <label className={cn(tw.label, "font-bold")}>题型</label>
+                    <select
+                        value={selectedQuestionType}
+                        onChange={(e) => setSelectedQuestionType(e.target.value)}
+                        disabled={connError || loading}
+                        className={cn(tw.input, "w-45 rounded-sm")}
                     >
-
-                        <PenIcon />
-                    </button>
+                        <>
+                            <option value="" disabled hidden>题型</option>
+                            <option value="MCSA">单选题</option>
+                            <option value="MS">多选题</option>
+                        </>
+                    </select>
                 </div>
-
                 <div className="flex flex-1 min-w-0 items-center">
                     <label className={cn(tw.label, "shrink-0 font-bold mr-3 mt-0 mb-0")}>技能知识点</label>
                     <input
@@ -381,6 +353,37 @@ function App() {
                         placeholder="分号(;)分隔多个技能知识点输入"
                     />
                 </div>
+            </div>
+
+            <div className="shrink-0 flex items-center gap-3 mt-5">
+                <label className={cn(tw.label, "font-bold")}>类组</label>
+                <input
+                    type="text"
+                    value={group}
+                    className={cn(tw.input)}
+                    onChange={(e) => setGroup(e.target.value)}
+                    placeholder="题目组类"
+                />
+                {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
+                <button onClick={async () => {
+                    const r = await showInputModal({
+                        title: `${group} 引用内容`,
+                        defaultValue: groupRef?.html || "",
+                    });
+                    if (r !== null) setGroupRef(r);
+                    console.log(r);
+                }}
+                    disabled={!group.trim()}
+                    className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11", (!group) && "opacity-50 cursor-not-allowed")}
+                >
+                    <PenIcon />
+                </button>
+
+                {/* test: show group ref content */}
+                <div
+                    className="border border-[#ccc] p-3 min-h-10"
+                    dangerouslySetInnerHTML={{ __html: groupRef?.html || "" }}
+                />
 
             </div>
 
