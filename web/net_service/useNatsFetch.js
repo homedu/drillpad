@@ -4,12 +4,13 @@ import "../utils/util_str.js";
 import {
     T_QUIZ_MAKE,
     T_QUIZ_LIST,
-    T_QUESTION_SEARCH,
+    T_QUESTION_FETCH,
     T_QUESTION_DELETE,
     T_QA_COUNT,
     T_QUIZ_FETCH,
     T_ANS_REC,
-    T_GROUP_CONTENT_SAVE
+    T_GROUP_CONTENT_SAVE,
+    T_GROUP_CONTENT_FETCH
 } from "./addr.js";
 import {
     getNatsConnection,
@@ -78,6 +79,14 @@ export class GroupContentSaveError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "GroupContentSaveError";
+        this.stage = stage;
+    }
+}
+
+export class GroupContentFetchError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "GroupContentFetchError";
         this.stage = stage;
     }
 }
@@ -197,11 +206,11 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const search_question = useCallback(async (user, quiz, qid) => {
+    const fetch_question = useCallback(async (user, quiz, qid) => {
         const payload = { user, quiz, qid };
         setLoading(true);
         try {
-            const result = await reqNATS(T_QUESTION_SEARCH, payload, { timeout: 10000 });
+            const result = await reqNATS(T_QUESTION_FETCH, payload, { timeout: 10000 });
             return result;
         } catch (err) {
             throw new QuestionSearchError(
@@ -383,6 +392,34 @@ export function useNatsFetch() {
         }
     }, []);
 
+    const fetch_group_content = useCallback(async (user, quiz, group) => {
+        const payload = {
+            user,
+            quiz,
+            group,
+        };
+
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_GROUP_CONTENT_FETCH, payload, { timeout: 10000 });
+            if (result === null || !result.status || !Object.hasOwn(result, 'content')) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 或 content 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.content;
+        } catch (err) {
+            throw new GroupContentFetchError(
+                `组内容获取失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const save_group_content = useCallback(async (user, quiz, group, content) => {
         const payload = {
             user,
@@ -390,8 +427,6 @@ export function useNatsFetch() {
             group,
             group_content: content.toLiteral(),
         };
-
-        console.log("save_group_content payload:", payload);
 
         setLoading(true);
         try {
@@ -418,12 +453,13 @@ export function useNatsFetch() {
         status, loading, connError,
         list_quiz,
         count_qa,
-        search_question,
+        fetch_question,
         delete_question,
         fetch_quiz,
         record_answer,
         make_quiz_v2,
         save_group_content,
+        fetch_group_content
     };
 }
 

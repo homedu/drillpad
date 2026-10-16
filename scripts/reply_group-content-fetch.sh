@@ -45,8 +45,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     }
 
     ensure_file GROUP_CONTENT_FILE="$DIR_USER/quiz_bank/${QUIZ}/group_ref/${GROUP}.html" || { echo $?; exit 1;}
-
-    IFS= read -r -d '' CONTENT < "$GROUP_CONTENT_FILE"
+    CONTENT=$(cat "$GROUP_CONTENT_FILE")
 
     jq -n --arg s "success" --arg c "$CONTENT" '{ status: $s, content: $c }'
 

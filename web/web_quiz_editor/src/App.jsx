@@ -13,7 +13,7 @@ import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
  * 选择题录入表单：
  *  - 1 个题干输入框
  *  - 8 个选项输入框，每个选项后有一个"正确答案"复选框
- *  - 提交按钮：整理数据后调用 submitQuestionToServer()（占位函数，需自行接入后端）
+ *  - 提交按钮：整理数据后调用 submitQuestionToServer()
  *  - 清空按钮：重置所有输入
  */
 
@@ -26,7 +26,15 @@ function App() {
 
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
-    const { loading, connError, list_quiz, count_qa, search_question, delete_question, make_quiz_v2, save_group_content } = useNatsFetch();
+    const { loading, connError,
+        list_quiz,
+        count_qa,
+        fetch_question,
+        delete_question,
+        make_quiz_v2,
+        save_group_content,
+        fetch_group_content
+    } = useNatsFetch();
 
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
@@ -36,7 +44,7 @@ function App() {
     const [qid, setQid] = useState("");
     const [group, setGroup] = useState("");
     const [idxGrp, setIdxGrp] = useState("");
-    const [groupRef, setGroupRef] = useState(null);
+    const [groupRef, setGroupRef] = useState("");
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
     const [skillStr, setSkillStr] = useState("");
@@ -126,7 +134,7 @@ function App() {
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
             setQid(id);
-            await question_search(user, selectedQuiz, id);
+            await question_fetch(user, selectedQuiz, id);
             setInfo("提交成功!")
         } catch (err) {
             setError("提交失败!");
@@ -135,9 +143,9 @@ function App() {
         }
     };
 
-    const question_search = async (user, quiz, qid) => {
+    const question_fetch = async (user, quiz, qid) => {
         try {
-            const result = await search_question(user, quiz, qid.trim());
+            const result = await fetch_question(user, quiz, qid.trim());
             if (result.status === "success") {
 
                 const fields = result.question_line.split("\t");
@@ -309,7 +317,7 @@ function App() {
                 />
 
                 <button
-                    onClick={async () => { await question_search(user, selectedQuiz, qid) }}
+                    onClick={async () => { await question_fetch(user, selectedQuiz, qid) }}
                     disabled={!user.trim() || !selectedQuiz.trim() || !qid.trim().isValidGuid()}
                     className={cn(tw.button, tw.primaryButton, "disabled:opacity-50 disabled:cursor-not-allowed")}
                 >
@@ -366,15 +374,16 @@ function App() {
                 />
                 {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
                 <button onClick={async () => {
+                    const content = await fetch_group_content(user, selectedQuiz, group)
+                    setGroupRef(content);
+
                     const result = await showInputModal({
-                        title: `${group} 引用内容`,
-                        defaultValue: groupRef?.html || "",
+                        title: group,
+                        defaultValue: content,
                     });
                     if (result !== null) {
-                        setGroupRef(result);
-                        console.log(result.html);
-                        const r = await save_group_content(user, selectedQuiz, group, result.html);
-                        console.log(r);
+                        setGroupRef(result.html);
+                        await save_group_content(user, selectedQuiz, group, result.html);
                     }
                 }}
                     disabled={!user.trim() || !selectedQuiz.trim() || !group.trim()}
@@ -384,10 +393,10 @@ function App() {
                 </button>
 
                 {/* test: show group ref content */}
-                <div
+                {/* <div
                     className="border border-[#ccc] p-3 min-h-10"
-                    dangerouslySetInnerHTML={{ __html: groupRef?.html || "" }}
-                />
+                    dangerouslySetInnerHTML={{ __html: groupRef }}
+                /> */}
 
             </div>
 
