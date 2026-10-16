@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# dedup_tsv_by_uuid.sh
+# Dedup.sh
 #
 # 扫描指定目录下的所有 .tsv 文件：
 #   1. 检查每一行的第一个字段是否是标准 UUID 格式
@@ -10,7 +10,7 @@
 #      （其余重复行被丢弃，保留行的位置就是它最后一次出现的位置）
 #
 # 用法:
-#   ./dedup_tsv_by_uuid.sh <目录> [选项]
+#   ./Dedup.sh <目录> [选项]
 #
 # 选项:
 #   -r, --recursive     递归扫描子目录（默认只扫描顶层目录）
@@ -19,9 +19,9 @@
 #   -h, --help          显示帮助
 #
 # 示例:
-#   ./dedup_tsv_by_uuid.sh ./data
-#   ./dedup_tsv_by_uuid.sh ./data -r --inplace
-#   ./dedup_tsv_by_uuid.sh ./data --suffix _clean
+#   ./Dedup.sh ./data
+#   ./Dedup.sh ./data -r --inplace
+#   ./Dedup.sh ./data --suffix _clean
 
 set -euo pipefail
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 按 ID / PID / NID 的链接关系,把相关行排成连续的块
-# 用法: chain_tsv.sh [选项] [文件...]
+# 用法: Chain.sh [选项] [文件...]
 #   -I N     ID  所在列号(默认 1)
 #   -P N     PID 所在列号(默认 2)
 #   -N N     NID 所在列号(默认 3)
@@ -148,5 +148,5 @@ else
     run_awk "$@"
 fi
 
-# ./chain.sh -I 2 -P 5 -N 6 data.tsv     # 分别指定三列
-# ./chain.sh -c 2,5,6 data.tsv           # 同上,一次指定
+# ./Chain.sh -I 2 -P 5 -N 6 data.tsv     # 分别指定三列
+# ./Chain.sh -c 2,5,6 data.tsv           # 同上,一次指定

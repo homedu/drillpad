@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 用法: group_tsv.sh [-c 列号] [-H] [-i] 文件...
+# 用法: Group.sh [-c 列号] [-H] [-i] 文件...
 #   -i  原地修改文件(会逐个处理每个文件)
 
 col=1

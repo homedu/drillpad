@@ -21,7 +21,7 @@ source "./utils/trap_ex.sh"
 #   1) 换行符归一化：CRLF (Windows)、CR (经典 Mac)、混用的情况，一律转成 LF
 #   2) 删除空行
 #
-# 用法: clean_blank_lines.sh <目录> <TRUE|FALSE>
+# 用法: Deblank.sh <目录> <TRUE|FALSE>
 #   TRUE  : 只含空格/TAB 的行也视为空行并删除
 #   FALSE : 只删除纯空行（长度为 0 的行）
 #
