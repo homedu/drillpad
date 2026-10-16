@@ -12,7 +12,7 @@ SERVICES=(
 "quiz-list"
 "qa-count"
 "quiz-fetch"
-"quiz-make|reply_quiz-make-v2.sh"
+"quiz-make|reply_quiz-make.sh"
 "group-content-save"
 "group-content-fetch"
 "answer-record"

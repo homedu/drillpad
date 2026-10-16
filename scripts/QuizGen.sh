@@ -246,6 +246,6 @@ END {
 
 # $QUIZ_BANK | shuf > $QUIZ_OUT
 
-# IDS_INC="2a21cf35-dc00-446f-86f9-c58d9c6abb73 fcc0593a-d720-4df2-981d-eb0a5ea791d5" IDS_EXC="b3d26c0c-3764-4d1c-93af-aeb808b44439" ./QuizGen_v2.sh ../users/qmiao/quiz_bank/AZ-900.tsv ./AZ-900.tsv 5
+# IDS_INC="2a21cf35-dc00-446f-86f9-c58d9c6abb73 fcc0593a-d720-4df2-981d-eb0a5ea791d5" IDS_EXC="b3d26c0c-3764-4d1c-93af-aeb808b44439" ./QuizGen.sh ../users/qmiao/quiz_bank/AZ-900.tsv ./AZ-900.tsv 5
 
-# IDS_INC="2a21cf35-dc00-446f-86f9-c58d9c6abb73 fcc0593a-d720-4df2-981d-eb0a5ea791d5" IDS_EXC="b3d26c0c-3764-4d1c-93af-aeb808b44439" ./QuizGen_v2.sh ../users/qmiao/quiz_bank/AZ-900.tsv ./AZ-900.tsv 9 && ./Group.sh -i -c 6 ./AZ-900.tsv && ./Chain.sh -c 1,7,8 -i ./AZ-900.tsv
+# IDS_INC="2a21cf35-dc00-446f-86f9-c58d9c6abb73 fcc0593a-d720-4df2-981d-eb0a5ea791d5" IDS_EXC="b3d26c0c-3764-4d1c-93af-aeb808b44439" ./QuizGen.sh ../users/qmiao/quiz_bank/AZ-900.tsv ./AZ-900.tsv 9 && ./Group.sh -i -c 6 ./AZ-900.tsv && ./Chain.sh -c 1,7,8 -i ./AZ-900.tsv

@@ -164,5 +164,5 @@ else
 fi
 
 # topic: quiz-make
-# nats reply "quiz-make" --command="./reply_quiz-make-v2.sh" 2>/dev/null
+# nats reply "quiz-make" --command="./reply_quiz-make.sh" 2>/dev/null
 # nats req "quiz-make" --raw < /path/to/request.json 2>/dev/null

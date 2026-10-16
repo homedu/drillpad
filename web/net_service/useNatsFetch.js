@@ -346,7 +346,7 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const make_quiz_v2 = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
+    const make_quiz = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
         if (!qid.isValidGuid()) {
             qid = "";               // backend will make an id for empty qid 
         }
@@ -369,7 +369,7 @@ export function useNatsFetch() {
             skills
         };
 
-        console.log("make_quiz_v2 payload:", payload);
+        console.log("make_quiz payload:", payload);
 
         setLoading(true);
         try {
@@ -457,7 +457,7 @@ export function useNatsFetch() {
         delete_question,
         fetch_quiz,
         record_answer,
-        make_quiz_v2,
+        make_quiz,
         save_group_content,
         fetch_group_content
     };

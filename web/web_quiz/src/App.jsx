@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import QuizViewerV2 from "./components/QuizViewerV2.jsx";
+import QuizViewer from "./components/QuizViewer.jsx";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../utils/utils.js";
 import { useNatsFetch, QuizFetchError, QuizListError } from "../../net_service/useNatsFetch.js";
@@ -230,7 +230,7 @@ function App() {
 
             {/* 通过递增 key 彻底重置 DOM 和 State */}
             {hasQuizList && selectedQuiz && fileContent && (
-                <QuizViewerV2
+                <QuizViewer
                     key={quizKey}
                     user={user}
                     quiz={selectedQuiz}

@@ -31,7 +31,7 @@ function App() {
         count_qa,
         fetch_question,
         delete_question,
-        make_quiz_v2,
+        make_quiz,
         save_group_content,
         fetch_group_content
     } = useNatsFetch();
@@ -130,7 +130,7 @@ function App() {
 
         setSubmitting(true);
         try {
-            const id = await make_quiz_v2(user, selectedQuiz, qid, type, group, question, opts, answers, skills);
+            const id = await make_quiz(user, selectedQuiz, qid, type, group, question, opts, answers, skills);
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
             setQid(id);

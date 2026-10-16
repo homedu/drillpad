@@ -15,7 +15,7 @@ const judge = (q, answer) => {
 };
 
 // 选择题渲染与交互组件
-export default function QuizViewerV2({ user, quiz, fileContent, onSubmit, onReset }) {
+export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset }) {
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
