@@ -13,6 +13,8 @@ trap on_exit EXIT
 
 ##########################################################
 
+./Stop-Reply.sh
+
 # ============================================================================
 # 停止脚本：显式 kill 掉各个 qdp 相关进程（不能只依赖 tmux kill-server / kill-session，
 # 因为 qdp-server 把 SIGHUP 当作"重载配置"信号处理，收到 tmux 关闭 pty 时发出的
@@ -34,14 +36,6 @@ sleep 2
 # 需要精确匹配的进程特征（和启动脚本里 pgrep -f 用的一致）
 PATTERNS=(
 "nats-server -c $CONFIG_PATH"
-"nats reply.*quiz-list.*reply_quiz-list.sh"
-"nats reply.*qa-count.*reply_qa-count.sh"
-"nats reply.*quiz-fetch.*reply_quiz-fetch.sh"
-"nats reply.*quiz-make.*reply_quiz-make-v2.sh"
-"nats reply.*group-content-save.*reply_group-content-save.sh"
-"nats reply.*answer-record.*reply_answer-record.sh"
-"nats reply.*question-fetch.*reply_question-fetch.sh"
-"nats reply.*question-delete.*reply_question-delete.sh"
 "EbbinghausRec"
 )
 
@@ -53,7 +47,7 @@ for pattern in "${PATTERNS[@]}"; do
         echo "  -> 匹配到进程 [$pattern], PID: $PIDS, 发送 SIGTERM..."
         kill $PIDS 2>/dev/null
     else
-        echo "  -> 未发现匹配 [$pattern] 的进程，跳过。"
+        echo "✅ -> 未发现匹配 [$pattern] 的进程，跳过。"
     fi
 done
 
@@ -67,9 +61,9 @@ for pattern in "${PATTERNS[@]}"; do
         echo "  -> [$pattern] 仍在运行 (PID: $PIDS)，强制 kill -9..."
         kill -9 $PIDS 2>/dev/null
     else
-        echo "  -> 未发现匹配 [$pattern] 的进程。"
+        echo "✅ -> 未发现匹配 [$pattern] 的进程。"
     fi
 done
 
 echo "完成。当前残留检查:"
-ps -A | grep -E "nats-server|nats reply|EbbinghausRec" | grep -v grep || echo "  (无残留进程，清理干净)"
+ps -A | grep -E "nats-server|EbbinghausRec" | grep -v grep || echo "🎉 无残留进程，清理干净"
