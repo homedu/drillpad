@@ -150,7 +150,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
                       "Q:", question, "O:", options, "A:", answers, "S:", skills
             }
         }
-        ' "${QUIZ_BANK_FILE}" > "$tmp" && mv "$tmp" "${QUIZ_BANK_FILE}"
+        ' "${QUIZ_BANK_FILE}" > "$tmp" && mv "$tmp" "${QUIZ_BANK_FILE}" && ./Group.sh -i -c 3 "${QUIZ_BANK_FILE}" # 3 is 'group' column
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题

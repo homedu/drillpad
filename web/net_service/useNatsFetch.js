@@ -10,7 +10,8 @@ import {
     T_QUIZ_FETCH,
     T_ANS_REC,
     T_GROUP_CONTENT_SAVE,
-    T_GROUP_CONTENT_FETCH
+    T_GROUP_CONTENT_FETCH,
+    T_GROUPS_CONTENT_FETCH
 } from "./addr.js";
 import {
     getNatsConnection,
@@ -392,16 +393,17 @@ export function useNatsFetch() {
         }
     }, []);
 
-    const fetch_group_content = useCallback(async (user, quiz, group) => {
+    const fetch_group_content = useCallback(async (user, quiz, group, ...other_groups) => {
+        const topic = other_groups.length ? T_GROUPS_CONTENT_FETCH : T_GROUP_CONTENT_FETCH;
         const payload = {
             user,
             quiz,
-            group,
+            group: other_groups.length ? [group, ...other_groups] : group,
         };
 
         setLoading(true);
         try {
-            const result = await reqNATS(T_GROUP_CONTENT_FETCH, payload, { timeout: 10000 });
+            const result = await reqNATS(topic, payload, { timeout: 10000 });
             if (result === null || !result.status || !Object.hasOwn(result, 'content')) {
                 throw new NatsResponseParseError(
                     "响应中缺少 status 或 content 字段",

@@ -24,6 +24,7 @@ SERVICES=(
 "quiz-make|reply_quiz-make.sh"
 "group-content-save"
 "group-content-fetch"
+"groups-content-fetch"
 "answer-record"
 "question-fetch"
 "question-delete"
