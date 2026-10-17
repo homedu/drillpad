@@ -24,11 +24,11 @@ is_pos_int() { [[ $1 =~ ^[1-9][0-9]*$ ]]; }
 
 while getopts "I:P:N:c:S:Hih" opt; do
     case $opt in
-        I) idc=$OPTARG ;;
-        P) pidc=$OPTARG ;;
-        N) nidc=$OPTARG ;;
-        c) IFS=',' read -r idc pidc nidc <<< "$OPTARG" ;;
-        S) suffix=$OPTARG ;;
+        I) idc=${OPTARG} ;;
+        P) pidc=${OPTARG} ;;
+        N) nidc=${OPTARG} ;;
+        c) IFS=',' read -r idc pidc nidc <<< "${OPTARG}" ;;
+        S) suffix=${OPTARG} ;;
         H) header=1 ;;
         i) inplace=1 ;;
         h) usage 0 ;;

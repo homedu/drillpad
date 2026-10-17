@@ -57,7 +57,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     # 数组 -> JSON 数组
     VALUES_JSON=$(jq -n --args '$ARGS.positional' "${VALUES[@]}")
 
-    jq -n --argjson values "$VALUES_JSON" --arg info "${INFO}" \
+    jq -n --argjson values "${VALUES_JSON}" --arg info "${INFO}" \
         '{status: "success", values: $values, info: $info}'
 
 else

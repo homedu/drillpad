@@ -67,7 +67,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     awk -v OFS='\t' -v qid="${QID}" -v type="$TYPE" -v group="${GROUP}" \
         -v question="${QUESTION}" -v options="$OPTIONS" -v answers="${ANSWERS}" -v skills="${SKILLS}" \
-        -v ref_id="$REF_ID" -v prev_id="$PREV_ID" -v next_id="$NEXT_ID" -v prompt_id="$PROMPT_ID" '
+        -v ref_id="${REF_ID}" -v prev_id="${PREV_ID}" -v next_id="${NEXT_ID}" -v prompt_id="${PROMPT_ID}" '
 
         function repeat_tsv(s, n,   i, result) {
             for (i = 1; i <= n; i++) {

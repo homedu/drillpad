@@ -7,7 +7,7 @@ header=0
 inplace=0
 while getopts "c:Hi" opt; do
     case $opt in
-        c) col=$OPTARG ;;
+        c) col=${OPTARG} ;;
         H) header=1 ;;
         i) inplace=1 ;;
         *) echo "用法: $0 [-c 列号] [-H] [-i] [文件...]" >&2; exit 1 ;;
