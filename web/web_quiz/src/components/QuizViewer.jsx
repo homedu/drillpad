@@ -15,7 +15,7 @@ const judge = (q, answer) => {
 };
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset }) {
+export default function QuizViewer({ user, quiz, quizFileContent, onSubmit, onReset }) {
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
@@ -24,8 +24,8 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
-        if (!fileContent) return [];
-        return fileContent
+        if (!quizFileContent) return [];
+        return quizFileContent
             .trim()
             .split("\n")
             .map((line) => line.trim())
@@ -57,13 +57,14 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                     id,
                     question,
                     type: qType,
+                    group: qGroup,
                     options: opts,
                     correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
                 };
             })
             .filter(Boolean);
-    }, [fileContent]);
+    }, [quizFileContent]);
 
     // 2. 统一的作答入口：各题型组件通过 onChange(newAnswer) 调用
     const setAnswer = useCallback(
@@ -115,8 +116,9 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
     }, [questions, userAnswers, user, quiz, record_answer, onSubmit]);
 
     // 5. 双击触发的处理函数
-    const handleDoubleClick = (key, event) => {
+    const handleDoubleClick = (key, group, event) => {
         console.log("question id:", key);
+        console.log("question group:", group);
     };
 
     const handleAI = (key, type, event) => {
@@ -151,8 +153,8 @@ export default function QuizViewer({ user, quiz, fileContent, onSubmit, onReset 
                     <div key={q.id} className={cn(tw.card, "relative")}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
-                        <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, e)}>
-                            <span className="inline-block transform -translate-y-[5px]">
+                        <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>
+                            <span className="inline-block transform -translate-y-1.25">
                                 {index + 1}
                             </span>
                         </div>
