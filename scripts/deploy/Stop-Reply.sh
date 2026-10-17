@@ -4,7 +4,7 @@ SESSION="nats-reply"
 TIMEOUT=5 # 等待优雅退出的最长秒数
 
 echo "--------------------------------------------------"
-echo "正在清理 tmux 会话 '$SESSION' ..."
+echo "正在清理 tmux 会话 '${SESSION}' ..."
 echo "--------------------------------------------------"
 
 # 与启动脚本保持一致：脚本名默认 reply_<窗口名>.sh，不一致时用 "窗口名|脚本名"
@@ -46,13 +46,13 @@ stop_all() {
     local item i pid
 
     # 1. 向每个窗口发送 Ctrl-C，优雅退出
-    if tmux has-session -t "$SESSION" 2>/dev/null; then
+    if tmux has-session -t "${SESSION}" 2>/dev/null; then
         for item in "${SERVICES[@]}"; do
             parse "$item"
-            tmux send-keys -t "$SESSION:$name" C-c 2>/dev/null
+            tmux send-keys -t "${SESSION}:$name" C-c 2>/dev/null
         done
     else
-        echo "⚠️ session [$SESSION] 不存在，仅清理残留进程。"
+        echo "⚠️ session [${SESSION}] 不存在，仅清理残留进程。"
     fi
 
     # 2. 轮询等待，全部退出就提前结束
@@ -63,7 +63,7 @@ stop_all() {
     done
 
     # 3. 关闭 tmux session（窗口里的 shell 一并结束）
-    tmux kill-session -t "$SESSION" 2>/dev/null
+    tmux kill-session -t "${SESSION}" 2>/dev/null
 
     # 4. 仍未退出的进程强制 kill -9
     for item in "${SERVICES[@]}"; do
@@ -94,11 +94,11 @@ check_clean() {
     done
 
     # tmux session 是否已清理
-    if tmux has-session -t "$SESSION" 2>/dev/null; then
-        echo "❌ tmux session [$SESSION] 仍然存在"
+    if tmux has-session -t "${SESSION}" 2>/dev/null; then
+        echo "❌ tmux session [${SESSION}] 仍然存在"
         ((dirty++))
     else
-        echo "✅ tmux session [$SESSION] 已关闭"
+        echo "✅ tmux session [${SESSION}] 已关闭"
     fi
 
     echo "--------------------------------"

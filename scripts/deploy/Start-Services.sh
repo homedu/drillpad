@@ -76,10 +76,10 @@ echo "--------------------------------------------------"
 # 检查 nats-server
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "nats-server -c ${CONFIG_PATH}")
-PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
+PID=$(printf '%s' "${PID}" | tr '\n' ' ' | tr -s ' ')
 
-if [[ -n "$PID" ]]; then
-    echo "✅ [nats-server] 进程检查: nats-server 正在运行! (PID: $PID)"
+if [[ -n "${PID}" ]]; then
+    echo "✅ [nats-server] 进程检查: nats-server 正在运行! (PID: ${PID})"
 
     if command -v ss &> /dev/null; then
         PORT_CHECK=$(ss -tlnp | grep "${NATS_PORT}")
@@ -101,10 +101,10 @@ fi
 # 检查 EbbinghausRec
 # ---------------------------------------------------------------------------
 PID=$(pgrep -f "EbbinghausRec")
-PID=$(printf '%s' "$PID" | tr '\n' ' ' | tr -s ' ')
+PID=$(printf '%s' "${PID}" | tr '\n' ' ' | tr -s ' ')
 
-if [[ -n "$PID" ]]; then
-    echo "✅ [EbbinghausRec] 进程检查: EbbinghausRec.sh 响应服务已成功启动并正在运行! (PID: $PID)"
+if [[ -n "${PID}" ]]; then
+    echo "✅ [EbbinghausRec] 进程检查: EbbinghausRec.sh 响应服务已成功启动并正在运行! (PID: ${PID})"
 else
     echo "❌ [EbbinghausRec] 错误: 未找到 EbbinghausRec 进程，启动可能失败了。"
     echo "   原因分析: 可能是 './EbbinghausRec.sh' 找不到/没有执行权限。"

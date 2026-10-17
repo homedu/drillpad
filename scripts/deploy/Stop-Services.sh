@@ -43,9 +43,9 @@ echo "正在停止 qdp 相关进程..."
 
 for pattern in "${PATTERNS[@]}"; do
     PIDS=$(pgrep -f "$pattern")
-    if [[ -n "$PIDS" ]]; then
-        echo "  -> 匹配到进程 [$pattern], PID: $PIDS, 发送 SIGTERM..."
-        kill $PIDS 2>/dev/null
+    if [[ -n "${PIDS}" ]]; then
+        echo "  -> 匹配到进程 [$pattern], PID: ${PIDS}, 发送 SIGTERM..."
+        kill ${PIDS} 2>/dev/null
     else
         echo "✅ -> 未发现匹配 [$pattern] 的进程，跳过。"
     fi
@@ -57,9 +57,9 @@ sleep 2
 # 二次检查，如果 SIGTERM 没杀掉（比如忽略了 TERM），用 -9 强杀
 for pattern in "${PATTERNS[@]}"; do
     PIDS=$(pgrep -f "$pattern")
-    if [[ -n "$PIDS" ]]; then
-        echo "  -> [$pattern] 仍在运行 (PID: $PIDS)，强制 kill -9..."
-        kill -9 $PIDS 2>/dev/null
+    if [[ -n "${PIDS}" ]]; then
+        echo "  -> [$pattern] 仍在运行 (PID: ${PIDS})，强制 kill -9..."
+        kill -9 ${PIDS} 2>/dev/null
     else
         echo "✅ -> 未发现匹配 [$pattern] 的进程。"
     fi

@@ -18,16 +18,16 @@ source "./utils/trim.sh"
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 
 # 如果 PARAM 是一个存在的文件路径,就读取该文件的内容
-[[ -f "$PARAM" ]] && PARAM=$(cat "$PARAM")
+[[ -f "${PARAM}" ]] && PARAM=$(cat "${PARAM}")
 
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 
-if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
+if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "$PARAM")
-    QUIZ=$(jq -r '.quiz' <<< "$PARAM")
-    GRP_COL_NO=$(jq -r '.group_col_no // "3"' <<< "$PARAM") # 'GROUP' COLUMN NO is 3
+    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    GRP_COL_NO=$(jq -r '.group_col_no // "3"' <<< "${PARAM}") # 'GROUP' COLUMN NO is 3
     ensure_file QUIZ_FILE="../users/${CUR_USER}/quiz_bank/${QUIZ}.tsv"
 
     INFO=""
@@ -42,7 +42,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     )
 
     if [[ ${#VALUES[@]} -eq 0 ]]; then
-        INFO="No data in quiz '$QUIZ' for user '${CUR_USER}'"
+        INFO="No data in quiz '${QUIZ}' for user '${CUR_USER}'"
     else
         INFO="${#VALUES[@]} distinct value(s) in column '${GRP_COL_NO}'"
     fi
@@ -57,11 +57,11 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     # 数组 -> JSON 数组
     VALUES_JSON=$(jq -n --args '$ARGS.positional' "${VALUES[@]}")
 
-    jq -n --argjson values "$VALUES_JSON" --arg info "$INFO" \
+    jq -n --argjson values "$VALUES_JSON" --arg info "${INFO}" \
         '{status: "success", values: $values, info: $info}'
 
 else
 
-    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON with 'user', 'quiz' and 'group_col_no' fields"
+    echo "${PARAM} ${CURRENT_TIME} - DO NOTHING, Accept JSON with 'user', 'quiz' and 'group_col_no' fields"
 
 fi

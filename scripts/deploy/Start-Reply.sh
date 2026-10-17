@@ -42,12 +42,12 @@ start_all() {
     for item in "${SERVICES[@]}"; do
         parse "$item"
         if (( first )); then
-            tmux new-session -d -s "$SESSION" -n "$name"   # 第一个窗口随 session 创建
+            tmux new-session -d -s "${SESSION}" -n "$name"   # 第一个窗口随 session 创建
             first=0
         else
-            tmux new-window -t "$SESSION:" -n "$name"
+            tmux new-window -t "${SESSION}:" -n "$name"
         fi
-        tmux send-keys -t "$SESSION:$name" \
+        tmux send-keys -t "${SESSION}:$name" \
             "nats reply \"$name\" --command=\"../$script\" 2>/dev/null" C-m
     done
 }
@@ -74,8 +74,8 @@ check_all() {
 }
 
 # ---------------------- 主流程 ----------------------
-if tmux has-session -t "$SESSION" 2>/dev/null; then
-    echo "⚠️ session [$SESSION] 已存在，跳过启动，仅检查。"
+if tmux has-session -t "${SESSION}" 2>/dev/null; then
+    echo "⚠️ session [${SESSION}] 已存在，跳过启动，仅检查。"
 else
     start_all
     echo "⏳ 等待 ${WAIT}s ..."

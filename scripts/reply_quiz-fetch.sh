@@ -20,7 +20,7 @@ source "./utils/trim.sh"
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 
 # 如果 PARAM 是一个存在的文件路径，就读取该文件的内容
-[[ -f "$PARAM" ]] && PARAM=$(cat "$PARAM")
+[[ -f "${PARAM}" ]] && PARAM=$(cat "${PARAM}")
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
@@ -29,12 +29,12 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 declare -A _LOCKS=()
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
-if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
+if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "$PARAM")
-    QUIZ=$(jq -r '.quiz' <<< "$PARAM")
-    COUNT=$(jq -r '.count' <<< "$PARAM")
+    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    COUNT=$(jq -r '.count' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
         echo "错误: 用户目录不存在: ${DIR_USER}" >&2
@@ -75,18 +75,18 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         export IDS_EXC
 
         # generate quiz here
-        ./QuizGen.sh "${QUIZ_BANK}" "${QUIZ_OUT_ABS}" "$COUNT"
+        ./QuizGen.sh "${QUIZ_BANK}" "${QUIZ_OUT_ABS}" "${COUNT}"
 
     } 9>"${LOCK_FILE}"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题
-    jq --arg t "${CURRENT_TIME}" --arg p "/${QUIZ_OUT}" '. + {time: $t, path: $p}' <<< "$PARAM"
+    jq --arg t "${CURRENT_TIME}" --arg p "/${QUIZ_OUT}" '. + {time: $t, path: $p}' <<< "${PARAM}"
 
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON with 'count', 'include', 'exclude' fields"
+    echo "${PARAM} ${CURRENT_TIME} - DO NOTHING, Accept JSON with 'count', 'include', 'exclude' fields"
 
 fi
 

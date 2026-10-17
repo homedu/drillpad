@@ -117,7 +117,7 @@ while IFS= read -r -d '' file; do
         # 第一步: 用 awk 过滤出第一字段是合法 UUID 的行（同时去掉可能的 \r）
         # 第二步: 用 tac + awk '!seen[$1]++' + tac 实现"保留最后一次出现"的去重，
         #         同时保持这些保留行在文件中原本的相对顺序（即最后一次出现的位置）。
-        awk -F'\t' -v re="$UUID_RE" '
+        awk -F'\t' -v re="${UUID_RE}" '
             {
                 gsub(/\r$/, "")          # 去除 Windows 换行符残留的 \r
                 if ($1 ~ re) print

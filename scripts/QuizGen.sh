@@ -59,7 +59,7 @@ ensure_file QUIZ_OUT="${QUIZ_OUT}" || { echo $?; exit 1; }
 
 #
 
-awk -v count="$COUNT" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" '
+awk -v count="${COUNT}" -v ids_inc="${IDS_INC[*]}" -v ids_exc="${IDS_EXC[*]}" '
 
 # start from 1, exclude 'end'
 function slice(arr, start, end, sep,      i, slice_str) {

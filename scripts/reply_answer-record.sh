@@ -19,7 +19,7 @@ source "./utils/trap_ex.sh"
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 
 # 如果 PARAM 是一个存在的文件路径，就读取该文件的内容
-[[ -f "$PARAM" ]] && PARAM=$(cat "$PARAM")
+[[ -f "${PARAM}" ]] && PARAM=$(cat "${PARAM}")
 
 # 获取当前时间（格式可根据需要修改，例如 2026-08-27 09:59:00）
 CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
@@ -28,10 +28,10 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 declare -A _LOCKS=()
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
-if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
+if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
-    CUR_USER=$(jq -r '.user' <<< "$PARAM")
-    QUIZ=$(jq -r '.quiz' <<< "$PARAM")
+    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
         echo "错误: 用户目录不存在: ${DIR_USER}" >&2
@@ -56,9 +56,9 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         }
 
         # ENV
-        IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "$PARAM")
-        IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "$PARAM")
-        IDS_BLANK=$(jq -r '.blank | join(" ")' <<< "$PARAM")
+        IDS_CORRECT=$(jq -r '.correct | join(" ")' <<< "${PARAM}")
+        IDS_INCORRECT=$(jq -r '.incorrect | join(" ")' <<< "${PARAM}")
+        IDS_BLANK=$(jq -r '.blank | join(" ")' <<< "${PARAM}")
 
         export IDS_CORRECT
         export IDS_INCORRECT

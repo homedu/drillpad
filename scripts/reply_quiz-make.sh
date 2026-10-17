@@ -24,21 +24,21 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 
 # 如果 PARAM 是一个存在的文件路径，就读取该文件的内容
-[[ -f "$PARAM" ]] && PARAM=$(cat "$PARAM")
+[[ -f "${PARAM}" ]] && PARAM=$(cat "${PARAM}")
 
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
-if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
+if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "$PARAM")
-    QUIZ=$(jq -r '.quiz' <<< "$PARAM")
+    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
 
-    QID=$(jq -r '.question_id // ""' <<< "$PARAM")
-    TYPE=$(jq -r '.question_type // "MCSA"' <<< "$PARAM")
-    GROUP=$(jq -r '.group // ""' <<< "$PARAM")
+    QID=$(jq -r '.question_id // ""' <<< "${PARAM}")
+    TYPE=$(jq -r '.question_type // "MCSA"' <<< "${PARAM}")
+    GROUP=$(jq -r '.group // ""' <<< "${PARAM}")
 
     ACTION="edited"
-    [[ -z "$QID" ]] && {
+    [[ -z "${QID}" ]] && {
         QID=$(uuidgen)
         ACTION="created"
     }
@@ -53,20 +53,20 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     tmp=$(mktemp "${QUIZ_BANK_FILE}.XXXXXX")
     defer_trap 'rm -f "$tmp"' EXIT
 
-    QUESTION=$(jq '.question // ""' <<< "$PARAM") # keep some literal string like '\n'
+    QUESTION=$(jq '.question // ""' <<< "${PARAM}") # keep some literal string like '\n'
     trim_inplace QUESTION "\""                    # trim "" auto-wrapped by jq without '-r'
 
-    OPTIONS=$(jq -r '.options | @tsv' <<< "$PARAM")
-    ANSWERS=$(jq -r '.answers | @tsv' <<< "$PARAM")
-    SKILLS=$(jq -r '.skills | @tsv' <<< "$PARAM")
+    OPTIONS=$(jq -r '.options | @tsv' <<< "${PARAM}")
+    ANSWERS=$(jq -r '.answers | @tsv' <<< "${PARAM}")
+    SKILLS=$(jq -r '.skills | @tsv' <<< "${PARAM}")
 
-    REF_ID=$(jq -r '.ref_id // ""' <<< "$PARAM")
-    PREV_ID=$(jq -r '.prev_id // ""' <<< "$PARAM")
-    NEXT_ID=$(jq -r '.next_id // ""' <<< "$PARAM")
-    PROMPT_ID=$(jq -r '.prompt_id // ""' <<< "$PARAM")
+    REF_ID=$(jq -r '.ref_id // ""' <<< "${PARAM}")
+    PREV_ID=$(jq -r '.prev_id // ""' <<< "${PARAM}")
+    NEXT_ID=$(jq -r '.next_id // ""' <<< "${PARAM}")
+    PROMPT_ID=$(jq -r '.prompt_id // ""' <<< "${PARAM}")
 
-    awk -v OFS='\t' -v qid="$QID" -v type="$TYPE" -v group="$GROUP" \
-        -v question="$QUESTION" -v options="$OPTIONS" -v answers="$ANSWERS" -v skills="$SKILLS" \
+    awk -v OFS='\t' -v qid="${QID}" -v type="$TYPE" -v group="${GROUP}" \
+        -v question="${QUESTION}" -v options="$OPTIONS" -v answers="${ANSWERS}" -v skills="${SKILLS}" \
         -v ref_id="$REF_ID" -v prev_id="$PREV_ID" -v next_id="$NEXT_ID" -v prompt_id="$PROMPT_ID" '
 
         function repeat_tsv(s, n,   i, result) {
@@ -154,12 +154,12 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题
-    jq -n --arg t "${CURRENT_TIME}" --arg s "success: ${ACTION}" --arg id "$QID" '{ time: $t, status: $s, question_id: $id }'
+    jq -n --arg t "${CURRENT_TIME}" --arg s "success: ${ACTION}" --arg id "${QID}" '{ time: $t, status: $s, question_id: $id }'
 
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON Only"
+    echo "${PARAM} ${CURRENT_TIME} - DO NOTHING, Accept JSON Only"
 
 fi
 
