@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -35,5 +35,5 @@ QUESTION_TYPE="${3:-MCSA}"  # 默认 question type 为 MCSA
 ensure_file OUTPUT_QUIZ="${OUTPUT_QUIZ}" || { echo $?; exit 1; }
 
 for ((i=1; i<=QUIZ_COUNT; i++)); do
-    awk -v OFS='\t' -v qt="$QUESTION_TYPE" '{print $0, "quiz", "opt1", "opt2", "opt3", "opt4", "", "", "", "", "ans1", "", "", "", "", "", "", "", "", "", "ref_id", "prompt_id", qt}' <<<$(uuidgen)
-done >> $OUTPUT_QUIZ
+    awk -v OFS='\t' -v qt="${QUESTION_TYPE}" '{print $0, "quiz", "opt1", "opt2", "opt3", "opt4", "", "", "", "", "ans1", "", "", "", "", "", "", "", "", "", "ref_id", "prompt_id", qt}' <<<$(uuidgen)
+done >> ${OUTPUT_QUIZ}

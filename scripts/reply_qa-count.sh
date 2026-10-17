@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -27,12 +27,17 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
-    # USER should be extract from token
-    USER=$(jq -r '.user' <<< "$PARAM")
+    # CUR_USER should be extract from token
+    CUR_USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
-    require_dir DIR_USER="../users/${USER}" || {
-        echo "错误: 用户目录不存在: $DIR_USER" >&2
+    [[ -z "${CUR_USER}" || -z "$QUIZ" ]] && {
+        jq -n '{question_count: 0, correct_count: 0, incorrect_count: 0}'
+        exit 0
+    }
+
+    require_dir DIR_USER="../users/${CUR_USER}" || {
+        echo "错误: 用户目录不存在: ${DIR_USER}" >&2
         exit 1
     }
 
@@ -40,16 +45,16 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
     ensure_file REC_CORRECT="${DIR_USER}/answer_record/${QUIZ}/correct.tsv" || { echo $?; exit 1;}
     ensure_file REC_INCORRECT="${DIR_USER}/answer_record/${QUIZ}/incorrect.tsv" || { echo $?; exit 1;}
 
-    nQ=$(awk 'END {print NR}' < "$QUIZ_FILE")
-    nC=$(awk 'END {print NR}' < "$REC_CORRECT")
-    nI=$(awk 'END {print NR}' < "$REC_INCORRECT")
+    nQ=$(awk 'END {print NR}' "${QUIZ_FILE}")
+    nC=$(awk 'END {print NR}' "${REC_CORRECT}")
+    nI=$(awk 'END {print NR}' "${REC_INCORRECT}")
 
     jq -n --arg nQ "$nQ" --arg nC "$nC" --arg nI "$nI" '{question_count: $nQ, correct_count: $nC, incorrect_count: $nI}'
 
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON with 'user', 'quiz' fields"
+    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON with 'user', 'quiz' fields"
 
 fi
 

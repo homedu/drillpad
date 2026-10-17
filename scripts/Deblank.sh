@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -51,8 +51,8 @@ log() {
 ROOT_DIR="${1:?$(usage)}"
 SWITCH="${2:-FALSE}"; SWITCH="${SWITCH^^}"   # 转大写，兼容 true / True / TRUE
 
-[[ -d "$ROOT_DIR" ]] || {
-    echo "错误: 不是有效目录: $ROOT_DIR" >&2
+[[ -d "${ROOT_DIR}" ]] || {
+    echo "错误: 不是有效目录: ${ROOT_DIR}" >&2
     exit 1
 }
 
@@ -103,7 +103,7 @@ delete_blank_lines() {
     local f="$1"
 
     # 先统计空行数；没有空行就不动文件，避免无谓改写
-    local removed; removed=$(grep -Ec -- "$BLANK_RE" "$f")
+    local removed; removed=$(grep -Ec -- "${BLANK_RE}" "$f")
     (( removed > 0 )) || return 0
 
     local tmp; tmp=$(mktemp "${f}.XXXXXX") || {
@@ -111,7 +111,7 @@ delete_blank_lines() {
         return 1
     }
 
-    grep -Ev -- "$BLANK_RE" "$f" > "$tmp"
+    grep -Ev -- "${BLANK_RE}" "$f" > "$tmp"
     local rc=$?
     # grep -v: 0=有输出行, 1=无输出行(文件全是空行，属正常), >=2=出错
     if (( rc > 1 )); then
@@ -143,7 +143,7 @@ process_file() {
     d=$(dirname "$f")
 
     local LOCK_FILE="$d/rec.lock"; # echo "${LOCK_FILE} --- Deblank" >> debug.txt
-    _LOCKS["$LOCK_FILE"]=1
+    _LOCKS["${LOCK_FILE}"]=1
     {
         flock -w 5 9 || {
             echo "错误：拿不到锁，说明有其他实例在运行！" >&2
@@ -153,7 +153,7 @@ process_file() {
         normalize_eol "$f" || return 1
         delete_blank_lines "$f" || return 1
 
-    } 9>"$LOCK_FILE"
+    } 9>"${LOCK_FILE}"
 }
 
 cleanup() {
@@ -166,7 +166,7 @@ cleanup() {
 # ------------------------------------------------------------------
 # 主流程
 # ------------------------------------------------------------------
-log "目录: $ROOT_DIR, 空白字符行也删除: $SWITCH"
+log "目录: ${ROOT_DIR}, 空白字符行也删除: $SWITCH"
 
 total=0
 normalized=0 # 由 normalize_eol 累加：被转换过换行符的文件数
@@ -176,7 +176,7 @@ failed=0
 while IFS= read -r -d '' f; do
     (( ++total ))
     process_file "$f" || (( ++failed ))
-done < <(find "$ROOT_DIR" -path "*/quiz_bank" -prune -o -type f -iname '*.tsv' -print0 2>/dev/null)
+done < <(find "${ROOT_DIR}" -path "*/quiz_bank" -prune -o -type f -iname '*.tsv' -print0 2>/dev/null)
 
 log "完成: 共扫描 $total 个 TSV 文件, 换行符转换 $normalized 个, 删除空行 $changed 个, 失败 $failed 个"
 (( failed == 0 ))

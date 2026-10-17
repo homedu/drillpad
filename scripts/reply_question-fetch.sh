@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -27,21 +27,21 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
-    # USER should be extract from token
-    USER=$(jq -r '.user' <<< "$PARAM")
+    # CUR_USER should be extract from token
+    CUR_USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
     QID=$(jq -r '.qid' <<< "$PARAM")
-    ensure_file QUIZ_FILE="../users/${USER}/quiz_bank/${QUIZ}.tsv"
+    ensure_file QUIZ_FILE="../users/${CUR_USER}/quiz_bank/${QUIZ}.tsv"
 
-    # echo "用户: $USER, 测验: $QUIZ, 问题ID: $QID, 文件: $QUIZ_FILE"
+    # echo "用户: ${CUR_USER}, 测验: $QUIZ, 问题ID: $QID, 文件: ${QUIZ_FILE}"
 
-    LINE=$(awk -F '\t' -v id="$QID" '$1 == id { print; exit }' "$QUIZ_FILE")
+    LINE=$(awk -F '\t' -v id="$QID" '$1 == id { print; exit }' "${QUIZ_FILE}")
     STATUS="success"
     INFO="question found"
 
     [[ -z "$LINE" ]] && {
         STATUS="failure"
-        INFO="Question not found with id '$QID' in quiz '$QUIZ' for user '$USER'"
+        INFO="Question not found with id '$QID' in quiz '$QUIZ' for user '${CUR_USER}'"
     }
 
     jq -n --arg line "$LINE" --arg status "$STATUS" --arg info "$INFO" '{status: $status, question_line: $line, info: $info}'
@@ -49,7 +49,7 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON with 'user', 'quiz' and 'qid' fields"
+    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON with 'user', 'quiz' and 'qid' fields"
 
 fi
 

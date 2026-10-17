@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -30,25 +30,25 @@ declare -A _LOCKS=()
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
-    USER=$(jq -r '.user' <<< "$PARAM")
+    CUR_USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
-    require_dir DIR_USER="../users/${USER}" || {
-        echo "错误: 用户目录不存在: $DIR_USER" >&2
+    require_dir DIR_USER="../users/${CUR_USER}" || {
+        echo "错误: 用户目录不存在: ${DIR_USER}" >&2
         exit 1
     }
 
     PATH_REC="${DIR_USER}/answer_record/${QUIZ}"
 
     # arg
-    ensure_file REC_CORRECT="$PATH_REC/correct.tsv"
-    ensure_file REC_INCORRECT="$PATH_REC/incorrect.tsv"
-    ensure_file REC_BLANK="$PATH_REC/blank.tsv"
-    ensure_file REC_EBHS="$PATH_REC/ebhs.tsv"
+    ensure_file REC_CORRECT="${PATH_REC}/correct.tsv"
+    ensure_file REC_INCORRECT="${PATH_REC}/incorrect.tsv"
+    ensure_file REC_BLANK="${PATH_REC}/blank.tsv"
+    ensure_file REC_EBHS="${PATH_REC}/ebhs.tsv"
 
     # file lock
-    ensure_file LOCK_FILE="$PATH_REC/rec.lock"; # echo "${LOCK_FILE} --- reply_answer-record" >> debug.txt
-    _LOCKS["$LOCK_FILE"]=1
+    ensure_file LOCK_FILE="${PATH_REC}/rec.lock"; # echo "${LOCK_FILE} --- reply_answer-record" >> debug.txt
+    _LOCKS["${LOCK_FILE}"]=1
     {
         flock -w 5 9 || {
             echo "error: ${REC_CORRECT} cannot be locked"
@@ -65,13 +65,13 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         export IDS_BLANK
 
         # record answer here
-        ./AnswerRec.sh "$REC_CORRECT" "$REC_INCORRECT" "$REC_BLANK" "$REC_EBHS"
+        ./AnswerRec.sh "${REC_CORRECT}" "${REC_INCORRECT}" "${REC_BLANK}" "${REC_EBHS}"
 
-    } 9>"$LOCK_FILE"
+    } 9>"${LOCK_FILE}"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题
-    jq -n --arg t "$CURRENT_TIME" --arg s "success" '{time: $t, status: $s}'
+    jq -n --arg t "${CURRENT_TIME}" --arg s "success" '{time: $t, status: $s}'
 
 else
 

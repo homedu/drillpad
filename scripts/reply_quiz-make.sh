@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -29,8 +29,8 @@ PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
-    # USER should be extract from token
-    USER=$(jq -r '.user' <<< "$PARAM")
+    # CUR_USER should be extract from token
+    CUR_USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
 
     QID=$(jq -r '.question_id // ""' <<< "$PARAM")
@@ -43,12 +43,12 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         ACTION="created"
     }
 
-    require_dir DIR_USER="../users/${USER}" || {
-        echo "error: user does not exist: $DIR_USER"
+    require_dir DIR_USER="../users/${CUR_USER}" || {
+        echo "error: user does not exist: ${DIR_USER}"
         exit 1
     }
 
-    ensure_file QUIZ_BANK_FILE="$DIR_USER/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
+    ensure_file QUIZ_BANK_FILE="${DIR_USER}/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
 
     tmp=$(mktemp "${QUIZ_BANK_FILE}.XXXXXX")
     defer_trap 'rm -f "$tmp"' EXIT
@@ -150,16 +150,16 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
                       "Q:", question, "O:", options, "A:", answers, "S:", skills
             }
         }
-        ' "$QUIZ_BANK_FILE" > "$tmp" && mv "$tmp" "$QUIZ_BANK_FILE"
+        ' "${QUIZ_BANK_FILE}" > "$tmp" && mv "$tmp" "${QUIZ_BANK_FILE}"
 
     # 如果是合法的 JSON，添加最外层字段 "time" 并输出
     # --arg 会安全地将时间变量嵌入，防止注入或转义问题
-    jq -n --arg t "$CURRENT_TIME" --arg s "success: ${ACTION}" --arg id "$QID" '{ time: $t, status: $s, question_id: $id }'
+    jq -n --arg t "${CURRENT_TIME}" --arg s "success: ${ACTION}" --arg id "$QID" '{ time: $t, status: $s, question_id: $id }'
 
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON Only"
+    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON Only"
 
 fi
 

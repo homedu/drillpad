@@ -3,7 +3,7 @@
 set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     echo "on_exit"
     popd > /dev/null
@@ -55,5 +55,5 @@ MY_VAR="  xxx---[MY_CONTENT]---xxx  "
 # 直接传入变量名，指定裁剪 'x' 和 '-'
 trim_inplace MY_VAR "x|-|\[|\]| "
 
-echo "$MY_VAR" 
+echo "${MY_VAR}"
 # 输出: MY_CONTENT

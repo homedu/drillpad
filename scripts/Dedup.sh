@@ -28,7 +28,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -76,7 +76,7 @@ while [[ $# -gt 0 ]]; do
             usage
         ;;
         *)
-            if [[ -z "$ROOT_DIR" ]]; then
+            if [[ -z "${ROOT_DIR}" ]]; then
                 ROOT_DIR="$1"
             else
                 echo "错误: 未知参数 '$1'" >&2
@@ -87,8 +87,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-[[ -z "$ROOT_DIR" ]] && usage
-[[ -d "$ROOT_DIR" ]] || { echo "错误: 目录不存在: $ROOT_DIR" >&2; exit 1; }
+[[ -z "${ROOT_DIR}" ]] && usage
+[[ -d "${ROOT_DIR}" ]] || { echo "错误: 目录不存在: ${ROOT_DIR}" >&2; exit 1; }
 
 # 标准 UUID 正则：8-4-4-4-12 十六进制字符
 UUID_RE='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
@@ -110,7 +110,7 @@ while IFS= read -r -d '' file; do
     d=$(dirname "$file")
 
     LOCK_FILE="$d/rec.lock"; # echo "${LOCK_FILE} --- Dedup" >> debug.txt
-    _LOCKS["$LOCK_FILE"]=1
+    _LOCKS["${LOCK_FILE}"]=1
     {
         tmpfile="$(mktemp "${file}.XXXXXX.tmp")"
 
@@ -141,9 +141,9 @@ while IFS= read -r -d '' file; do
             echo "  -> 已生成新文件: $outfile"
         fi
 
-    } 9>"$LOCK_FILE"
+    } 9>"${LOCK_FILE}"
 
-done < <(find "$ROOT_DIR" -path "*/quiz_bank" -prune -o "${FIND_ARGS[@]}" -print0 2>/dev/null)
+done < <(find "${ROOT_DIR}" -path "*/quiz_bank" -prune -o "${FIND_ARGS[@]}" -print0 2>/dev/null)
 
 cleanup() {
     local l
@@ -152,8 +152,8 @@ cleanup() {
     done
 }
 
-if [[ $FILE_COUNT -eq 0 ]]; then
-    echo "在目录 '$ROOT_DIR' 中未找到任何 .tsv 文件"
+if [[ ${FILE_COUNT} -eq 0 ]]; then
+    echo "在目录 '${ROOT_DIR}' 中未找到任何 .tsv 文件"
 else
-    echo "完成，共处理 $FILE_COUNT 个文件。"
+    echo "完成，共处理 ${FILE_COUNT} 个文件。"
 fi

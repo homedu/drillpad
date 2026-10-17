@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -22,15 +22,15 @@ source "./utils/trap_ex.sh"
 #     exit 1
 # }
 
-USER="${NATS_REQUEST_BODY:-${1:-}}"
-DIR_USER="../users/${USER}"
+CUR_USER="${NATS_REQUEST_BODY:-${1:-}}"
+DIR_USER="../users/${CUR_USER}"
 
-[[ -n "$USER" && -d "${DIR_USER}" ]] || { jq -n '[]'; exit 0; }
+[[ -n "${CUR_USER}" && -d "${DIR_USER}" ]] || { jq -n '[]'; exit 0; }
 
 QUIZ_LIST=$(find "${DIR_USER}/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 
-[[ -n "$QUIZ_LIST" ]] || {	jq -n '[]';	exit 0; }
-awk -F. '{print $1}' <<< "$QUIZ_LIST" | jq -R -s 'split("\n") | map(select(length>0))'
+[[ -n "${QUIZ_LIST}" ]] || {	jq -n '[]';	exit 0; }
+awk -F. '{print $1}' <<< "${QUIZ_LIST}" | jq -R -s 'split("\n") | map(select(length>0))'
 
 # topic: quiz-list
 # nats reply "quiz-list" --command="./reply_quiz-list.sh" 2>/dev/null

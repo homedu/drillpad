@@ -5,7 +5,7 @@ set -uo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -25,8 +25,8 @@ SESSION_NAME="qdp-services"
 CONFIG_PATH="../../config/nats-server.conf"
 
 echo "--------------------------------------------------"
-echo "正在清理 tmux 会话 '$SESSION_NAME' ..."
-tmux kill-session -t "$SESSION_NAME" 2>/dev/null
+echo "正在清理 tmux 会话 '${SESSION_NAME}' ..."
+tmux kill-session -t "${SESSION_NAME}" 2>/dev/null
 tmux kill-server 2>/dev/null
 echo "--------------------------------------------------"
 
@@ -35,7 +35,7 @@ sleep 2
 
 # 需要精确匹配的进程特征（和启动脚本里 pgrep -f 用的一致）
 PATTERNS=(
-"nats-server -c $CONFIG_PATH"
+"nats-server -c ${CONFIG_PATH}"
 "EbbinghausRec"
 )
 

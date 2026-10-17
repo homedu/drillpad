@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -29,8 +29,8 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
 
-    # USER should be extract from token
-    USER=$(jq -r '.user' <<< "$PARAM")
+    # CUR_USER should be extract from token
+    CUR_USER=$(jq -r '.user' <<< "$PARAM")
     QUIZ=$(jq -r '.quiz' <<< "$PARAM")
     GROUP=$(jq -r '.group' <<< "$PARAM")
 
@@ -39,19 +39,19 @@ if jq -e . <<< "$PARAM" >/dev/null 2>&1; then
         exit 0
     }
 
-    require_dir DIR_USER="../users/${USER}" || {
-        echo "error: user does not exist: $DIR_USER"
+    require_dir DIR_USER="../users/${CUR_USER}" || {
+        echo "error: user does not exist: ${DIR_USER}"
         exit 1
     }
 
-    ensure_file GROUP_CONTENT_FILE="$DIR_USER/quiz_bank/${QUIZ}/group_ref/${GROUP}.html" || { echo $?; exit 1;}
-    CONTENT=$(cat "$GROUP_CONTENT_FILE")
+    ensure_file GROUP_CONTENT_FILE="${DIR_USER}/quiz_bank/${QUIZ}/group_ref/${GROUP}.html" || { echo $?; exit 1;}
+    CONTENT=$(cat "${GROUP_CONTENT_FILE}")
 
     jq -n --arg s "success" --arg c "$CONTENT" '{ status: $s, content: $c }'
 
 else
 
     # 如果不是 JSON，作为普通字符串输出该参数加上当前时间
-    echo "$PARAM $CURRENT_TIME - DO NOTHING, Accept JSON Only"
+    echo "$PARAM ${CURRENT_TIME} - DO NOTHING, Accept JSON Only"
 
 fi

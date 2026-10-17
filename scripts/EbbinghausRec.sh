@@ -8,7 +8,7 @@ set -uo pipefail # 'set -e' forces bash exit immediately, cannot run remainder c
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     cleanup
     popd > /dev/null
@@ -65,8 +65,8 @@ ROOT_DIR="${1:?用法: $0 <目录> [间隔秒数]}"
 INTERVAL="${2:-60}"  # 默认每 60 秒扫描一次
 TARGET_NAME="correct.tsv"
 
-[[ -d "$ROOT_DIR" ]] || {
-    echo "错误: 不是有效目录: $ROOT_DIR" >&2
+[[ -d "${ROOT_DIR}" ]] || {
+    echo "错误: 不是有效目录: ${ROOT_DIR}" >&2
     exit 1
 }
 
@@ -86,7 +86,7 @@ scan_file() {
     # 用 { ...; } 9>lockfile 的形式持锁：块结束时 fd 9 自动关闭，
     # 且打开锁文件失败（如无权限）时只会让本文件失败，不会让整个脚本退出
     local LOCK_FILE="$d/rec.lock"; # echo "${LOCK_FILE} --- Ebbinghaus" >> debug.txt
-    _LOCKS["$LOCK_FILE"]=1
+    _LOCKS["${LOCK_FILE}"]=1
     {
         flock -w 5 9 || {
             log "获取文件锁超时，跳过: $rec_file"
@@ -97,7 +97,7 @@ scan_file() {
         local ebhs_file="$d/ebhs.tsv"
         local tmp_file="${rec_file}.tmp.$$"
 
-        awk -F'\t' -v OFS='\t' -v now="$now_epoch" -v ebhs_file="$ebhs_file" '
+        awk -F'\t' -v OFS='\t' -v now="$now_epoch" -v ebhs_file="${ebhs_file}" '
             # 把 "day/hour/min/sec/week" 这类单位换算成秒
             function unit_to_sec(u) {
                 u = tolower(u)
@@ -176,7 +176,7 @@ scan_file() {
             return 1
         fi
 
-    } 9>"$LOCK_FILE"
+    } 9>"${LOCK_FILE}"
 }
 
 # ------------------------------------------------------------------
@@ -190,9 +190,9 @@ scan_all() {
         (( _running )) || break
         scan_file "$f"
         (( count++ ))
-    done < <(find "$ROOT_DIR" -type f -name "$TARGET_NAME" -print0 2>/dev/null)
+    done < <(find "${ROOT_DIR}" -type f -name "${TARGET_NAME}" -print0 2>/dev/null)
 
-    log "本轮扫描完成，共处理 $count 个 $TARGET_NAME"
+    log "本轮扫描完成，共处理 $count 个 ${TARGET_NAME}"
 }
 
 cleanup() {
@@ -206,8 +206,8 @@ cleanup() {
 # ------------------------------------------------------------------
 # 主循环
 # ------------------------------------------------------------------
-log "开始监控目录: $ROOT_DIR (递归查找 $TARGET_NAME)"
-log "过期行写入: 各 $TARGET_NAME 同目录下的 ebhs.tsv"
+log "开始监控目录: ${ROOT_DIR} (递归查找 ${TARGET_NAME})"
+log "过期行写入: 各 ${TARGET_NAME} 同目录下的 ebhs.tsv"
 log "扫描间隔: ${INTERVAL}s, 等待 tmux 关闭通知 (SIGHUP) 以退出"
 
 while (( _running )); do

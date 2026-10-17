@@ -5,7 +5,7 @@ set -euo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -34,28 +34,28 @@ ensure_file REC_BLANK="${3:-${REC_CORRECT%/*}/blank.tsv}" || { echo $?; exit 1;}
 ensure_file REC_EBHS="${4:-${REC_CORRECT%/*}/ebhs.tsv}" || { echo $?; exit 1;}
 
 # env
-declare -a IDS_CORRECT=($IDS_CORRECT)
-declare -a IDS_INCORRECT=($IDS_INCORRECT)
-declare -a IDS_BLANK=($IDS_BLANK)
+declare -a IDS_CORRECT=(${IDS_CORRECT})
+declare -a IDS_INCORRECT=(${IDS_INCORRECT})
+declare -a IDS_BLANK=(${IDS_BLANK})
 
 ts=$(date '+%Y-%m-%d %H:%M:%S')
 
 # # echo "--- IDS_CORRECT ---"
 # for item in "${IDS_CORRECT[@]}"; do
 # # [question id] [last timestamp] (if same id, ignore recording)
-# echo "$item" >> $REC_CORRECT
+# echo "$item" >> ${REC_CORRECT}
 # done
 
 # # echo "--- IDS_INCORRECT ---"
 # for item in "${IDS_INCORRECT[@]}"; do
 # # [question id]	[repeated count]	[last timestamp] (if same id, update repeated count & last timestamp)
-# echo "$item" >> $REC_INCORRECT
+# echo "$item" >> ${REC_INCORRECT}
 # done
 
 # # echo "--- IDS_BLANK ---"
 # for item in "${IDS_BLANK[@]}"; do
 # # [question id] (if same id, ignore recording)
-# echo "$item" >> $REC_BLANK
+# echo "$item" >> ${REC_BLANK}
 # done
 
 #
@@ -65,7 +65,7 @@ ts=$(date '+%Y-%m-%d %H:%M:%S')
 # 把待处理数组转成多行文本，交给 awk 一次性处理
 ids_str=$(printf '%s\n' "${IDS_CORRECT[@]}")
 
-awk -v ts="$ts" -v ids_str="$ids_str" -v ebhs="$REC_EBHS" '
+awk -v ts="$ts" -v ids_str="$ids_str" -v ebhs="${REC_EBHS}" '
     BEGIN {
         FS = OFS = "\t"
         n = split(ids_str, arr, "\n")
@@ -95,7 +95,7 @@ awk -v ts="$ts" -v ids_str="$ids_str" -v ebhs="$REC_EBHS" '
             print uuid, ts, day_val
         }
     }
-' "$REC_CORRECT" > "${REC_CORRECT}.tmp" && mv "${REC_CORRECT}.tmp" "$REC_CORRECT"
+' "${REC_CORRECT}" > "${REC_CORRECT}.tmp" && mv "${REC_CORRECT}.tmp" "${REC_CORRECT}"
 
 #
 ########################################################################
@@ -138,7 +138,7 @@ awk -v ts="$ts" -v incr_str="$incr_list" '
             }
         }
     }
-' "$REC_INCORRECT" > "${REC_INCORRECT}.tmp" && mv "${REC_INCORRECT}.tmp" "$REC_INCORRECT"
+' "${REC_INCORRECT}" > "${REC_INCORRECT}.tmp" && mv "${REC_INCORRECT}.tmp" "${REC_INCORRECT}"
 
 #
 ########################################################################
@@ -167,7 +167,7 @@ awk -v ids_str="$ids_str" '
         # 剩下 want 里还留着的，就是原文件里没有的，需要追加
         for (uuid in want) print uuid
     }
-' "$REC_BLANK" > "${REC_BLANK}.tmp" && mv "${REC_BLANK}.tmp" "$REC_BLANK"
+' "${REC_BLANK}" > "${REC_BLANK}.tmp" && mv "${REC_BLANK}.tmp" "${REC_BLANK}"
 
 #
 ########################################################################

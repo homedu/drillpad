@@ -5,7 +5,7 @@ set -eo pipefail
 ##########################################################
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pushd $SCRIPT_DIR > /dev/null
+pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
     popd > /dev/null
 }
@@ -26,8 +26,8 @@ QUIZ_BANK="${1:?usage: $0 <quiz-bank.tsv> <quiz-out.tsv> [count]; ENV [IDS_INC] 
 QUIZ_OUT="${2:?usage: $0 <quiz-bank.tsv> <quiz-out.tsv> [count]; ENV [IDS_INC] [IDS_EXC]}"
 COUNT="${3:-10}"  # 默认生成 10 道题
 
-declare -a IDS_INC=($IDS_INC)
-declare -a IDS_EXC=($IDS_EXC)
+declare -a IDS_INC=(${IDS_INC})
+declare -a IDS_EXC=(${IDS_EXC})
 
 # 2. 验证并打印数组内容
 # echo "--- IDS_INC ---"
@@ -242,9 +242,9 @@ END {
         }
     }
 
-}' $QUIZ_BANK > $QUIZ_OUT
+}' ${QUIZ_BANK} > ${QUIZ_OUT}
 
-# $QUIZ_BANK | shuf > $QUIZ_OUT
+# ${QUIZ_BANK} | shuf > ${QUIZ_OUT}
 
 # IDS_INC="2a21cf35-dc00-446f-86f9-c58d9c6abb73 fcc0593a-d720-4df2-981d-eb0a5ea791d5" IDS_EXC="b3d26c0c-3764-4d1c-93af-aeb808b44439" ./QuizGen.sh ../users/qmiao/quiz_bank/AZ-900.tsv ./AZ-900.tsv 5
 
