@@ -39,7 +39,7 @@ function App() {
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
-    const [selectedQuestionType, setSelectedQuestionType] = useState(''); // "MCSA" 或 "MS"
+    const [selectedQuestionType, setSelectedQuestionType] = useState(''); // 'MCSA' 或 'MS'
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
     const [group, setGroup] = useState("");
@@ -107,7 +107,7 @@ function App() {
         if (count < 2) return "请至少填写两个选项";
         if (count > OPTION_COUNT) return `最多只能填写 ${OPTION_COUNT} 个选项`;
 
-        const correctCount = options.filter((opt) => opt.isCorrect).length;
+        const correctCount = selectedQuestionType === 'FILL' ? count : options.filter((opt) => opt.isCorrect).length;
         if (correctCount === 0) return "请至少勾选一个正确答案";
 
         const hasGap = options.some((opt, i) => opt.text.trim() && options.slice(0, i).some((o) => !o.text.trim()));
@@ -124,8 +124,8 @@ function App() {
         }
 
         const opts = options.filter((opt) => opt.text.trim()).map((opt) => opt.text);
-        const answers = options.filter((opt) => opt.isCorrect).map((opt) => opt.text);
-        const type = answers.length > 1 ? "MS" : "MCSA";
+        const answers = options.filter((opt) => selectedQuestionType === 'FILL' ? opt.text.trim() : opt.isCorrect).map((opt) => opt.text);
+        const type = selectedQuestionType;
         const skills = skillStr.trim().replace(/^;+|;+$/g, '').split(";").filter(s => s.trim()).map(s => s.trim());
 
         setSubmitting(true);
@@ -345,9 +345,10 @@ function App() {
                         className={cn(tw.input, "w-45 rounded-sm")}
                     >
                         <>
-                            <option value="" disabled hidden>题型</option>
-                            <option value="MCSA">单选题</option>
-                            <option value="MS">多选题</option>
+                            <option value='' disabled hidden>题型</option>
+                            <option value='MCSA'>单选题</option>
+                            <option value='MS'>多选题</option>
+                            <option value='FILL'>填空题</option>
                         </>
                     </select>
                 </div>
@@ -409,7 +410,9 @@ function App() {
                 rows={3}
             />
 
-            <label className={cn(tw.label, "block font-bold")}>选项（勾选表示该项为正确答案）</label>
+            <label className={cn(tw.label, "block font-bold")}>
+                {selectedQuestionType === 'FILL' ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
+            </label>
 
             <div className={tw.optionsList}>
                 {options.map((opt, index) => {
@@ -431,7 +434,7 @@ function App() {
                                 <input
                                     type={selectedQuestionType === 'MCSA' ? 'radio' : 'checkbox'}
                                     name="correct-option"
-                                    checked={opt.isCorrect}
+                                    checked={selectedQuestionType === 'FILL' ? true : opt.isCorrect}
                                     disabled={!opt.text.trim()}
                                     onChange={() => handleOptionCheck(index)}
                                 />
