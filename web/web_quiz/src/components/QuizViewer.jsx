@@ -5,6 +5,7 @@ import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFet
 import { AiHelpIcon, NoteIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
+import { showFloatingWindow } from "../../../utils/FloatingWindow";
 
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
@@ -15,7 +16,7 @@ const judge = (q, answer) => {
 };
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ user, quiz, quizFileContent, onSubmit, onReset }) {
+export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, onSubmit, onReset }) {
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
@@ -58,6 +59,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, onSubmit, onRe
                     question,
                     type: qType,
                     group: qGroup,
+                    groupContent: mGroupContent.get(qGroup) ?? "",
                     options: opts,
                     correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
@@ -175,10 +177,26 @@ export default function QuizViewer({ user, quiz, quizFileContent, onSubmit, onRe
                             </div>
                         )}
 
+                        {/* 题组 */}
+                        <div>
+                            <h3 className={cn(tw.question, "whitespace-pre-line")} onDoubleClick={(e) => { const win = showFloatingWindow(q.groupContent, { title: q.group }) }} >
+                                {q.group}
+                            </h3>
+                        </div>
+
+                        {/* 题组内容 */}
+                        {/* {q.groupContent.trim() && (
+                            <div
+                                className="border border-[#ccc] p-3 min-h-10"
+                                dangerouslySetInnerHTML={{ __html: q.groupContent }}
+                            />
+                        )} */}
+
                         {/* 题干 */}
                         <div>
                             <h3 className={cn(tw.question, "whitespace-pre-line")}>
                                 {q.question}
+                                {/* 多选提示label */}
                                 {handler && q.type !== "MCSA" && (
                                     <span className="ms-2 text-sm text-zinc-500">（{handler.label}）</span>
                                 )}

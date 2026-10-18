@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { cn } from "../../utils/utils.js"
 import "../../utils/util_str.js";
-import { showInputModal } from "../../utils/showInputModal.jsx";
+import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { styles as tw } from "./styles.js";
 import { PenIcon } from "./icons.js";
 import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";

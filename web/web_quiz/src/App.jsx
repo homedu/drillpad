@@ -234,7 +234,8 @@ function App() {
                     key={quizKey}
                     user={user}
                     quiz={selectedQuiz}
-                    fileContent={fileContent}
+                    quizFileContent={fileContent}
+                    mGroupContent={new Map([['GROUP', '<b><i>lsaldjw&nbsp; &nbsp;</i><u>sfw</u></b>']])}
                     onSubmit={handleOnSubmit}
                     onReset={handleResetQuiz}
                 />

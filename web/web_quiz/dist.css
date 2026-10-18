@@ -34,6 +34,9 @@
   .absolute {
     position: absolute;
   }
+  .fixed {
+    position: fixed;
+  }
   .relative {
     position: relative;
   }
@@ -112,6 +115,9 @@
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
+  .min-h-10 {
+    min-height: calc(var(--spacing) * 10);
+  }
   .w-10 {
     width: calc(var(--spacing) * 10);
   }
@@ -133,6 +139,10 @@
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
   }
+  .-translate-y-1 {
+    --tw-translate-y: calc(var(--spacing) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
   .-translate-y-1\.25 {
     --tw-translate-y: calc(var(--spacing) * -1.25);
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -148,6 +158,9 @@
   }
   .cursor-pointer {
     cursor: pointer;
+  }
+  .resize {
+    resize: both;
   }
   .flex-col {
     flex-direction: column;
@@ -213,6 +226,9 @@
   }
   .border-\[\#0070f3\] {
     border-color: #0070f3;
+  }
+  .border-\[\#ccc\] {
+    border-color: #ccc;
   }
   .border-\[\#d1d5da\] {
     border-color: #d1d5da;
