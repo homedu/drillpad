@@ -15,6 +15,7 @@
  *   width   初始宽度（默认 420）
  *   height  初始高度（默认 300）
  *   onClose 窗口关闭后的回调
+ *   fontSize 初始字号 "small" | "medium"(默认) | "large"；窗口底部工具栏可随时切换
  *   format  "auto"(默认，自动识别) | "html" | "text"
  *           auto：字符串中含有有效 HTML 标签则按 HTML 渲染，否则按纯文本显示
  *
@@ -33,8 +34,17 @@ import React, {
 import { createRoot } from "react-dom/client";
 
 const MIN_W = 180;
-const MIN_H = 110;
+const MIN_H = 130;
 const HEADER_H = 36;
+const FOOTER_H = 36;
+
+// 字号档位：px 用于纯文本；zoom 用于 HTML（可连同内联 px 字号一起整体缩放）
+const FONT_LEVELS = [
+    { key: "small", label: "S", px: 14, zoom: 14 / 18 },
+    { key: "medium", label: "M", px: 18, zoom: 1 },
+    { key: "large", label: "L", px: 22, zoom: 22 / 18 },
+];
+const mFontSize = new Map([["S", 10], ["M", 12], ["L", 14]]);
 const EDGE = 6;
 const CORNER = 14;
 
@@ -98,7 +108,7 @@ function sanitizeHtml(str) {
 }
 
 /** 在 Shadow DOM 中渲染 HTML，样式与页面互不影响 */
-function ShadowHtml({ html }) {
+function ShadowHtml({ html, zoom = 1 }) {
     const ref = useRef(null);
     useLayoutEffect(() => {
         const host = ref.current;
@@ -109,12 +119,13 @@ function ShadowHtml({ html }) {
             "table{max-width:100%}pre{white-space:pre-wrap}</style>" +
             html;
     }, [html]);
-    return <div ref={ref} />;
+    return <div ref={ref} style={{ zoom }} />;
 }
 
 export function FloatingWindow({
     text = "",
     format = "auto",
+    fontSize = "medium",
     title = "",
     width = 420,
     height = 300,
@@ -131,6 +142,10 @@ export function FloatingWindow({
     });
 
     const op = useRef(null); // 当前拖动/缩放操作的状态
+    const [level, setLevel] = useState(
+        FONT_LEVELS.some((l) => l.key === fontSize) ? fontSize : "medium"
+    );
+    const fontLevel = FONT_LEVELS.find((l) => l.key === level);
 
     // 内容类型判断（text 不变时不重复解析）
     const [isHtml, htmlContent] = React.useMemo(() => {
@@ -295,13 +310,58 @@ export function FloatingWindow({
                     ...(isHtml
                         ? {}
                         : {
+                            fontSize: fontLevel.px,
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",
                             overflowWrap: "anywhere",
                         }),
                 }}
             >
-                {isHtml ? <ShadowHtml html={htmlContent} /> : text}
+                {isHtml ? <ShadowHtml html={htmlContent} zoom={fontLevel.zoom} /> : text}
+            </div>
+
+            {/* 底部工具栏：字号切换（小 / 中 / 大） */}
+            <div
+                style={{
+                    flex: "0 0 auto",
+                    height: FOOTER_H,
+                    boxSizing: "border-box",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: 4,
+                    padding: "0 18px 0 12px", // 右侧留白，避免与右下角缩放手柄重叠
+                    background: "#f3f5f8",
+                    borderTop: "1px solid #dde1e7",
+                    userSelect: "none",
+                }}
+            >
+                {FONT_LEVELS.map((l) => {
+                    const active = l.key === level;
+                    return (
+                        <button
+                            key={l.key}
+                            type="button"
+                            title={l.label + "字体"}
+                            aria-pressed={active}
+                            onClick={() => setLevel(l.key)}
+                            style={{
+                                minWidth: 28,
+                                height: 24,
+                                padding: "0 8px",
+                                border: "1px solid " + (active ? "#2f6fed" : "#c9ced6"),
+                                borderRadius: 4,
+                                background: active ? "#2f6fed" : "#fff",
+                                color: active ? "#fff" : "#1f2328",
+                                fontSize: mFontSize.get(l.label),
+                                lineHeight: "22px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {l.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* 缩放手柄（四边 + 四角） */}
@@ -327,7 +387,7 @@ export function FloatingWindow({
 /**
  * 函数式调用：显示一个浮窗。
  * @param {string} text 要显示的文本
- * @param {{title?:string,width?:number,height?:number,format?:"auto"|"html"|"text",onClose?:Function}} [options]
+ * @param {{title?:string,width?:number,height?:number,format?:"auto"|"html"|"text",fontSize?:"small"|"medium"|"large",onClose?:Function}} [options]
  * @returns {{close:()=>void, update:(text:string)=>void}}
  */
 export function showFloatingWindow(text, options = {}) {
@@ -369,6 +429,7 @@ export function showFloatingWindow(text, options = {}) {
             <FloatingWindow
                 text={currentText}
                 format={options.format}
+                fontSize={options.fontSize}
                 title={options.title}
                 width={options.width}
                 height={options.height}

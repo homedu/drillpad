@@ -48,6 +48,9 @@ function App() {
     // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
     // and exclude empty-value object to be map element
     const arrToMap = (arr) => {
+        if (!Array.isArray(arr)) {
+            return new Map([[arr]])
+        }
         return new Map(arr
             .filter(obj => Object.values(obj).every(val => val !== undefined && val !== null && val !== ""))
             .map(obj => Object.entries(obj).flat()));
