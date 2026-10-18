@@ -179,8 +179,14 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
                         {/* 题组 */}
                         <div>
-                            <h3 className={cn(tw.question, "whitespace-pre-line")} onDoubleClick={(e) => { const win = showFloatingWindow(q.groupContent, { title: q.group }) }} >
+                            <h3 className={cn(tw.question, "whitespace-pre-line")}>
                                 {q.group}
+                                {q.groupContent.trim() && (
+                                    <span
+                                        className="ms-2 text-sm text-zinc-500 cursor-pointer"
+                                        onClick={(e) => { showFloatingWindow(q.groupContent, { title: q.group }) }} >...
+                                    </span>
+                                )}
                             </h3>
                         </div>
 

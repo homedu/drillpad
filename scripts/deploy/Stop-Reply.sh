@@ -16,6 +16,7 @@ SERVICES=(
 "group-content-save"
 "group-content-fetch"
 "groups-content-fetch"
+"group-list"
 "answer-record"
 "question-fetch"
 "question-delete"

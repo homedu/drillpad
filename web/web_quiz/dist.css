@@ -34,9 +34,6 @@
   .absolute {
     position: absolute;
   }
-  .fixed {
-    position: fixed;
-  }
   .relative {
     position: relative;
   }
@@ -139,10 +136,6 @@
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
   }
-  .-translate-y-1 {
-    --tw-translate-y: calc(var(--spacing) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
   .-translate-y-1\.25 {
     --tw-translate-y: calc(var(--spacing) * -1.25);
     translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -158,9 +151,6 @@
   }
   .cursor-pointer {
     cursor: pointer;
-  }
-  .resize {
-    resize: both;
   }
   .flex-col {
     flex-direction: column;

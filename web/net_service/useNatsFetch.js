@@ -11,7 +11,8 @@ import {
     T_ANS_REC,
     T_GROUP_CONTENT_SAVE,
     T_GROUP_CONTENT_FETCH,
-    T_GROUPS_CONTENT_FETCH
+    T_GROUPS_CONTENT_FETCH,
+    T_GROUP_LIST
 } from "./addr.js";
 import {
     getNatsConnection,
@@ -88,6 +89,14 @@ export class GroupContentFetchError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "GroupContentFetchError";
+        this.stage = stage;
+    }
+}
+
+export class GroupListError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "GroupListError";
         this.stage = stage;
     }
 }
@@ -395,12 +404,15 @@ export function useNatsFetch() {
 
     const fetch_group_content = useCallback(async (user, quiz, group, ...other_groups) => {
         const topic = other_groups.length ? T_GROUPS_CONTENT_FETCH : T_GROUP_CONTENT_FETCH;
-        const payload = {
+        const payload = other_groups.length ? {
             user,
             quiz,
-            group: other_groups.length ? [group, ...other_groups] : group,
-        };
-
+            groups: [group, ...other_groups],
+        } : {
+            user,
+            quiz,
+            group
+        }
         setLoading(true);
         try {
             const result = await reqNATS(topic, payload, { timeout: 10000 });
@@ -410,7 +422,7 @@ export function useNatsFetch() {
                     JSON.stringify(result)
                 );
             }
-            return result.content;
+            return result.content; // both topics have .content
         } catch (err) {
             throw new GroupContentFetchError(
                 `组内容获取失败: ${describeError(err)}`,
@@ -429,7 +441,6 @@ export function useNatsFetch() {
             group,
             group_content: content.toLiteral(),
         };
-
         setLoading(true);
         try {
             const result = await reqNATS(T_GROUP_CONTENT_SAVE, payload, { timeout: 10000 });
@@ -451,6 +462,32 @@ export function useNatsFetch() {
         }
     }, []);
 
+    const list_group = useCallback(async (user, quiz) => {
+        const payload = {
+            user,
+            quiz
+        }
+        setLoading(true);
+        try {
+            const result = await reqNATS(T_GROUP_LIST, payload, { timeout: 10000 });
+            if (result === null || !result.status || !Object.hasOwn(result, 'groups')) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 或 groups 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.groups;
+        } catch (err) {
+            throw new GroupListError(
+                `获取组列表失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
     return {
         status, loading, connError,
         list_quiz,
@@ -461,7 +498,8 @@ export function useNatsFetch() {
         record_answer,
         make_quiz,
         save_group_content,
-        fetch_group_content
+        fetch_group_content,
+        list_group
     };
 }
 

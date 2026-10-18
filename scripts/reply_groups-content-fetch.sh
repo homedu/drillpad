@@ -39,7 +39,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # groups 为空数组(或未传),返回空数组
     if [[ "$(jq 'length' <<< "${GROUP_LIST}")" -eq 0 ]]; then
-        jq -n '{ status: "success", contents: [] }'
+        jq -n '{ status: "success", content: [] }'
         exit 0
     fi
 
@@ -58,7 +58,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
         RESULT=$(jq -c --arg g "${GROUP}" --arg c "${CONTENT}" '. + [{ ($g): $c }]' <<< "${RESULT}")
     done < <(jq -r '.[]' <<< "${GROUP_LIST}")
 
-    jq -n --argjson r "${RESULT}" '{ status: "success", contents: $r }'
+    jq -n --argjson r "${RESULT}" '{ status: "success", content: $r }'
 
 else
 

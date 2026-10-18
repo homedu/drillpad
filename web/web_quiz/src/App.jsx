@@ -9,9 +9,16 @@ import "../../utils/util_str.js";
 window.React = React;
 
 function App() {
-    const { status, loading, connError, fetch_quiz, list_quiz, count_qa } = useNatsFetch();
+    const { status, loading, connError,
+        fetch_quiz,
+        list_quiz,
+        count_qa,
+        fetch_group_content,
+        list_group
+    } = useNatsFetch();
 
     const [fileContent, setFileContent] = useState("");
+    const [mapGroupContent, setMapGroupContent] = useState(null);
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
@@ -25,7 +32,7 @@ function App() {
     const [count, setCount] = useState(10);
 
     const [disabledMap, setDisabledMap] = useState({
-        userInput: false,  // 用户名输入框
+        userInput: false,      // 用户名输入框
         quizSelect: false,     // 题目下拉框
         countInput: false,     // 题目数量输入框
         submitBtn: false       // 提交按钮
@@ -37,6 +44,14 @@ function App() {
     const isUserQuizReady = isUserValid && hasQuizList && hasSelectedQuiz;
     const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
     const canFetch = !connError && !loading && isUserQuizReady && isCountValid;
+
+    // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
+    // and exclude empty-value object to be map element
+    const arrToMap = (arr) => {
+        return new Map(arr
+            .filter(obj => Object.values(obj).every(val => val !== undefined && val !== null && val !== ""))
+            .map(obj => Object.entries(obj).flat()));
+    };
 
     const handleCountChange = (e) => {
         const value = e.target.value;
@@ -56,8 +71,10 @@ function App() {
 
         setError("");
         try {
-            // 关键修复：原代码这里没有 try/catch，fetch_quiz 抛出的异常
-            // 会变成未处理的 Promise rejection，用户完全看不到任何错误提示
+            const groups = await list_group(user, selectedQuiz);
+            const groups_content = await fetch_group_content(user, selectedQuiz, groups[0], ...groups.slice(1));
+            setMapGroupContent(arrToMap(groups_content));
+
             const text = await fetch_quiz(
                 user,
                 selectedQuiz,
@@ -76,7 +93,7 @@ function App() {
                 submitBtn: !!text,
             }))
 
-            setInfo(!text ? ` No quiz items for <${selectedQuiz}> need to do now` : "")
+            setInfo(!text ? ` No questions need to do for <${selectedQuiz}> now` : "")
 
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
@@ -235,7 +252,7 @@ function App() {
                     user={user}
                     quiz={selectedQuiz}
                     quizFileContent={fileContent}
-                    mGroupContent={new Map([['GROUP', '<b><i>lsaldjw&nbsp; &nbsp;</i><u>sfw</u></b>']])}
+                    mGroupContent={mapGroupContent}
                     onSubmit={handleOnSubmit}
                     onReset={handleResetQuiz}
                 />
