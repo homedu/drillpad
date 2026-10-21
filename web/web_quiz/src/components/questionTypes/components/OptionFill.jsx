@@ -37,13 +37,13 @@ export function Fill({
     onFocus,
 }) {
     return (
-        <label className={tw.option({ submitted, isOptionSelected: filled, isThisOptionCorrect: isCorrect })}>
+        <label className={tw.fill({ submitted, isOptionSelected: filled, isThisOptionCorrect: isCorrect })}>
             <strong className="me-2">{opt.label}.</strong>
             <input
                 type="text"
                 name={`question-${questionId}-${opt.label}`}
                 disabled={submitted}
-                className="me-2.5"
+                className="m-0 w-1/2 h-full min-h-0 box-border px-1 py-0 leading-normal"
                 onChange={(e) => onChange({ "label": opt.label, "text": e.target.value })}
                 onFocus={(e) => onFocus(e.target.name)}
             />

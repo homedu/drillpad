@@ -20,6 +20,18 @@ export const styles = {
         submitted && isOptionSelected && !isThisOptionCorrect && "border-[#dc3545] bg-[#f8d7da]",
     ),
 
+    fill: ({ submitted, isOptionSelected, isThisOptionCorrect }) => cn(
+        "py-[10px] px-[14px] rounded-[6px]",
+        "border border-solid",
+        "flex items-center",
+        "transition-all duration-200 ease-[ease]",
+        "border-[#d1d5da] bg-[#f6f8fa]",
+        submitted ? "cursor-default" : "cursor-pointer",
+        !submitted && isOptionSelected && "border-[#0070f3] bg-[#e6f0ff]",
+        submitted && isThisOptionCorrect && "border-[#28a745] bg-[#dcffe4]",
+        submitted && isOptionSelected && !isThisOptionCorrect && "border-[#dc3545] bg-[#f8d7da]",
+    ),
+
     submitBtn: "py-[10px] px-[24px] bg-[#28a745] text-white border-none rounded-[6px] text-[15px] font-bold cursor-pointer",
 
     resetBtn: "py-[10px] px-[24px] bg-[#0070f3] text-white border-none rounded-[6px] text-[15px] font-bold cursor-pointer",

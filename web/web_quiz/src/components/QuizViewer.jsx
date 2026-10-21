@@ -3,7 +3,7 @@ import { styles as tw } from "./styles.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
 import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
-import { AiHelpIcon, NoteIcon } from "./icons.js";
+import { AiHelpIcon, NoteIcon, BookmarkIcon, RatingIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
 import { showFloatingWindow } from "../../../utils/FloatingWindow";
@@ -136,6 +136,14 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         console.log("question id:", key, "; question type", type);
     };
 
+    const handleBookmark = (key, type, event) => {
+        console.log("question id:", key, "; question type", type);
+    };
+
+    const handleRating = (key, type, event) => {
+        console.log("question id:", key, "; question type", type);
+    };
+
     if (!questions.length) {
         return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
     }
@@ -160,6 +168,12 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}
                         {submitted && (
                             <div className={tw.cardButtonGrp}>
+                                <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, e)}>
+                                    <BookmarkIcon />
+                                </button>
+                                <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, e)}>
+                                    <RatingIcon />
+                                </button>
                                 <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
                                     <NoteIcon />
                                 </button>
