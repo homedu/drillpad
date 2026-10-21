@@ -28,21 +28,22 @@ usage() {
 : ${REC_EBHS:-${REC_CORRECT%/*}/ebhs.tsv}
 
 # 用 mktemp 在目标文件所在目录下生成唯一临时文件名。
-# 原脚本用固定名字 blank.tsv.tmp / correct.tsv.tmp / incorrect.tsv.tmp / ebhs.tsv.tmp：
+# 原脚本用固定名字 correct.tsv.tmp / incorrect.tsv.tmp / blank.tsv.tmp / ebhs.tsv.tmp
 # - 如果这个脚本被并发调用（比如两个任务同时跑），会互相覆盖临时文件，产生竞态条件；
 # - 如果当前工作目录不是文件所在目录，mv 可能失败或者跨文件系统导致非原子操作。
 # mktemp 保证文件名唯一，且放在同目录下保证 mv 是原子操作（同文件系统内 rename）。
-TMP_BLANK=$(mktemp "$(dirname "${REC_BLANK}")/blank.XXXXXX")
 TMP_CORRECT=$(mktemp "$(dirname "${REC_CORRECT}")/correct.XXXXXX")
 TMP_INCORRECT=$(mktemp "$(dirname "${REC_INCORRECT}")/incorrect.XXXXXX")
+TMP_BLANK=$(mktemp "$(dirname "${REC_BLANK}")/blank.XXXXXX")
 TMP_EBHS=$(mktemp "$(dirname "${REC_EBHS}")/ebhs.XXXXXX")
 
 # 注册退出清理：无论脚本正常结束还是中途因 set -e 报错退出，
 # 都尝试删除还残留的临时文件，避免磁盘上堆积垃圾文件。
 # （正常流程里临时文件会被 mv 掉，届时 rm -f 找不到文件也不会报错。）
 cleanup() {
-    rm -f "${TMP_BLANK}" "${TMP_CORRECT}" "${TMP_INCORRECT}" "${TMP_EBHS}"
+    rm -f "${TMP_CORRECT}" "${TMP_INCORRECT}" "${TMP_BLANK}" "${TMP_EBHS}"
 }
+defer_trap cleanup EXIT
 
 # 前置校验：检查 correct.tsv / incorrect.tsv 内部是否有重复 ID。
 # 之前讨论过，如果同一个 ID 在同一个文件里出现多次，awk 关联数组会静默用后面的行覆盖前面的，
@@ -159,14 +160,14 @@ TMP_INCORRECT=$(mktemp "$(dirname "${REC_INCORRECT}")/incorrect.XXXXXX")
 : > "${TMP_INCORRECT}"
 
 awk -F'\t' -v OFS='\t' '
-FNR==NR {
+FILENAME == "'"${REC_CORRECT}"'" {
     # 处理 correct.tsv(第一个文件)
     corr_line[$1]   = $0
     corr_order[++n] = $1
     corr_ts[$1]     = $2
     next
 }
-{
+FILENAME == "'"${REC_INCORRECT}"'" {
     # 处理 incorrect.tsv(第二个文件)
     id  = $1
     ts  = $2
