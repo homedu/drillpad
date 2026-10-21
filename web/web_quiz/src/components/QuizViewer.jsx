@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../../utils/utils.js";
+import "../../../utils/util_str.js";
 import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
 import { AiHelpIcon, NoteIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
@@ -22,6 +23,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const [submitted, setSubmitted] = useState(false);
     const { record_answer } = useNatsFetch();
     const [aiPrompt, setAiPrompt] = useState("");
+    const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -34,7 +36,6 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
                 const [id, qType, qGroup, qIdxGrp, iQuestion, iOption, iAnswer, iSkill, ref_id, prev_id, next_id, prompt_id] = fields;
-
                 const question = fields[+iQuestion].fromLiteral();
                 const options = fields.slice(+iOption, +iAnswer - 1).filter(o => o.trim());
                 const answers = fields.slice(+iAnswer, +iSkill - 1).filter(a => a.trim());
@@ -44,14 +45,14 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     text: opt
                 }));
 
-                if (qType === "MCSA" && answers.length > 1) {
-                    throw Error(`question - ${id} is MCSA, but has multiple answers`);
+                if (qType === 'MCSA' && answers.length > 1) {
+                    throw Error(`Question - ${id} is Multiple Choice Single Answer, but got Multiple Answers from Quiz Bank`);
                 }
 
                 const ansMap = new Map([
-                    ["MCSA", answers[0]],   // multiple choice, single answer
-                    ["MS", answers],        // multiple select
-                    ["FILL", answers]       // fill
+                    ['MCSA', answers[0]],   // multiple choice, single answer
+                    ['MS', answers],        // multiple select, array answer
+                    ['FILL', answers]       // fill, array answer
                 ]);
 
                 return {
@@ -69,21 +70,17 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     }, [quizFileContent]);
 
     // 2. 统一的作答入口：各题型组件通过 onChange(newAnswer) 调用
-    const setAnswer = useCallback(
-        (questionId, value) => {
-            if (submitted) return;
-            setUserAnswers((prev) => ({ ...prev, [questionId]: value }));
-        },
-        [submitted]
-    );
+    const setAnswer = useCallback((questionId, value) => {
+        // console.log("setAnswer value:", value);
+        if (submitted) return;
+        setUserAnswers((prev) => ({ ...prev, [questionId]: value }));
+    }, [submitted]);
 
     // 3. 计算得分
     const score = useMemo(() => {
+        // console.log("userAnswers:", userAnswers);
         if (!submitted) return 0;
-        return questions.reduce(
-            (acc, q) => (judge(q, userAnswers[q.id]) === "correct" ? acc + 1 : acc),
-            0
-        );
+        return questions.reduce((acc, q) => (judge(q, userAnswers[q.id]) === "correct" ? acc + 1 : acc), 0);
     }, [submitted, questions, userAnswers]);
 
     // 4. 提交答案
@@ -145,11 +142,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
     return (
         <div className="mt-6">
-
             {questions.map((q, index) => {
                 const handler = questionTypes[q.type];
-                const selected = userAnswers[q.id];
-                const status = submitted ? judge(q, selected) : null;
+                const answered = userAnswers[q.id];
+                const status = submitted ? judge(q, answered) : null;
 
                 return (
                     <div key={q.id} className={cn(tw.card, "relative")}>
@@ -180,12 +176,18 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         {/* 题组 */}
                         <div>
                             <h3 className={cn(tw.question, "whitespace-pre-line")}>
-                                {q.group}
+                                {q.group.trim() && (
+                                    <span className="me-2" > {q.group} </span>
+                                )}
                                 {q.groupContent.trim() && (
                                     <span
-                                        className="ms-2 text-sm text-zinc-500 cursor-pointer"
+                                        className="me-3 text-sm text-zinc-500 cursor-pointer"
                                         onClick={(e) => { showFloatingWindow(q.groupContent, { title: q.group }) }} >...
                                     </span>
+                                )}
+                                {/* 提示label 单选/多选/填空 */}
+                                {handler && (
+                                    <span className="text-sm text-zinc-500">{handler.label}</span>
                                 )}
                             </h3>
                         </div>
@@ -201,11 +203,12 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         {/* 题干 */}
                         <div>
                             <h3 className={cn(tw.question, "whitespace-pre-line")}>
-                                {q.question}
-                                {/* 多选提示label */}
-                                {handler && q.type !== "MCSA" && (
-                                    <span className="ms-2 text-sm text-zinc-500">（{handler.label}）</span>
-                                )}
+                                {/* 优先显示装饰过的问题 */}
+                                {
+                                    questionMod?.[index] ?
+                                        (<div dangerouslySetInnerHTML={{ __html: `${questionMod[index]}`.trim() }} />) :
+                                        (<div> {q.question} </div>)
+                                }
                             </h3>
                         </div>
 
@@ -213,7 +216,17 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         <div className={tw.optionsContainer}>
                             {
                                 handler ?
-                                    (<handler.Input q={q} answer={selected} submitted={submitted} onChange={(next) => setAnswer(q.id, next)} />) :
+                                    (<handler.Input
+                                        q={q}
+                                        answer={answered}
+                                        submitted={submitted}
+                                        onChangeToSetAnswer={(a) => setAnswer(q.id, a)}
+                                        // 'onFocus' is only for Fill-Type
+                                        onFocus={(n) => {
+                                            const qMod = q.question.replaceNth("____", n, "___🖊___")
+                                            setQuestionMod(prev => ({ ...prev, [index]: qMod }))
+                                        }}
+                                    />) :
                                     (<p className="text-sm text-zinc-500">⚠️ 不支持的题型：{q.type}</p>)
                             }
                         </div>

@@ -34,7 +34,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
 
     QID=$(jq -r '.question_id // ""' <<< "${PARAM}")
-    TYPE=$(jq -r '.question_type // "MCSA"' <<< "${PARAM}")
+    TYPE=$(jq -r '.question_type // "UNKNOWN"' <<< "${PARAM}")
     GROUP=$(jq -r '.group // ""' <<< "${PARAM}")
 
     ACTION="edited"

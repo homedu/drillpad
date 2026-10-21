@@ -39,7 +39,8 @@ function App() {
     const [user, setUser] = useState("");
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
-    const [selectedQuestionType, setSelectedQuestionType] = useState(''); // 'MCSA' 或 'MS'
+    const [selectedQuestionType, setSelectedQuestionType] = useState('MCSA'); // 'MCSA', 'MS', 'FILL'
+    const [QType, setQType] = useState({ MCSA: true, MS: false, FILL: false, OPT: true });
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
     const [group, setGroup] = useState("");
@@ -47,6 +48,7 @@ function App() {
     const [groupRef, setGroupRef] = useState("");
     const [question, setQuestion] = useState("");
     const [options, setOptions] = useState(createEmptyOptions());
+    const [fillCount, setFillCount] = useState(0);
     const [skillStr, setSkillStr] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
@@ -78,7 +80,7 @@ function App() {
         setOptions((prev) =>
             prev.map((opt, i) => {
                 // radio 模式下，当前选项无法被取消勾选；下面逻辑无法执行
-                if (selectedQuestionType === 'MCSA') {
+                if (QType.MCSA) {
                     return i === index ? { ...opt, isCorrect: !opt.isCorrect } : { ...opt, isCorrect: false };
                 }
                 return i === index ? { ...opt, isCorrect: !opt.isCorrect } : opt;
@@ -107,7 +109,8 @@ function App() {
         if (count < 2) return "请至少填写两个选项";
         if (count > OPTION_COUNT) return `最多只能填写 ${OPTION_COUNT} 个选项`;
 
-        const correctCount = selectedQuestionType === 'FILL' ? count : options.filter((opt) => opt.isCorrect).length;
+        // 填空题都为正确答案
+        const correctCount = QType.FILL ? count : options.filter((opt) => opt.isCorrect).length;
         if (correctCount === 0) return "请至少勾选一个正确答案";
 
         const hasGap = options.some((opt, i) => opt.text.trim() && options.slice(0, i).some((o) => !o.text.trim()));
@@ -124,7 +127,7 @@ function App() {
         }
 
         const opts = options.filter((opt) => opt.text.trim()).map((opt) => opt.text);
-        const answers = options.filter((opt) => selectedQuestionType === 'FILL' ? opt.text.trim() : opt.isCorrect).map((opt) => opt.text);
+        const answers = options.filter((opt) => QType.FILL ? opt.text.trim() : opt.isCorrect).map((opt) => opt.text);
         const type = selectedQuestionType;
         const skills = skillStr.trim().replace(/^;+|;+$/g, '').split(";").filter(s => s.trim()).map(s => s.trim());
 
@@ -225,12 +228,19 @@ function App() {
     }, [selectedQuiz]);
 
     useEffect(() => {
-        if (selectedQuestionType === 'MCSA') {
+        setQType({
+            MCSA: selectedQuestionType === 'MCSA',
+            MS: selectedQuestionType === 'MS',
+            FILL: selectedQuestionType === 'FILL',
+            OPT: selectedQuestionType === 'MCSA' || selectedQuestionType === 'MS'
+        })
+
+        // 变为单选题，只保留第一个正确答案
+        if (QType.MCSA) {
             setOptions((prev) => {
                 const correctCount = prev.filter((o) => o.isCorrect).length;
                 if (correctCount <= 1) return prev;
 
-                // 只保留第一个正确答案
                 let found = false;
                 return prev.map((o) => {
                     if (o.isCorrect && !found) {
@@ -242,6 +252,16 @@ function App() {
             });
         }
     }, [selectedQuestionType]);
+
+    useEffect(() => {
+        if (QType.FILL) {
+            const matches = question.match(/_{4,}/g);
+            const n = matches ? matches.length : 0;
+            setFillCount(n);
+        } else {
+            setFillCount(0);
+        }
+    }, [question]);
 
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
@@ -377,7 +397,6 @@ function App() {
                 <button onClick={async () => {
                     const content = await fetch_group_content(user, selectedQuiz, group)
                     setGroupRef(content);
-
                     const result = await showInputModal({
                         title: group,
                         defaultValue: content,
@@ -411,14 +430,13 @@ function App() {
             />
 
             <label className={cn(tw.label, "block font-bold")}>
-                {selectedQuestionType === 'FILL' ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
+                {QType.FILL ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
             </label>
 
             <div className={tw.optionsList}>
                 {options.map((opt, index) => {
-                    // 前面所有选项都已填写，当前行才可编辑
-                    const canEdit = options.slice(0, index).every((o) => o.text.trim());
-
+                    // 选择题：前面所有选项都已填写，当前行才可编辑；填空题：根据下划线判断 （ [].every() is true ）
+                    const canEdit = QType.OPT ? options.slice(0, index).every((o) => o.text.trim()) : index < fillCount;
                     return (
                         <div key={index} className={tw.optionRow}>
                             <span className={tw.optionIndex}>{String.fromCharCode(65 + index)}</span>
@@ -428,13 +446,15 @@ function App() {
                                 value={opt.text}
                                 disabled={!canEdit}
                                 onChange={(e) => handleOptionTextChange(index, e.target.value)}
-                                placeholder={canEdit ? `选项 ${index + 1} 内容` : `先填写选项 ${String.fromCharCode(64 + index)}`}
+                                placeholder={canEdit ?
+                                    (QType.OPT ? `选项 ${index + 1} 内容` : `第 ${index + 1} 空格处答案内容`) :
+                                    (QType.OPT ? `先填写选项 ${String.fromCharCode(64 + index)}` : "匹配题目中的待填空'____'")}
                             />
                             <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "先填写选项内容"}>
                                 <input
-                                    type={selectedQuestionType === 'MCSA' ? 'radio' : 'checkbox'}
+                                    type={QType.MCSA ? 'radio' : 'checkbox'}
                                     name="correct-option"
-                                    checked={selectedQuestionType === 'FILL' ? true : opt.isCorrect}
+                                    checked={QType.FILL ? true : opt.isCorrect}
                                     disabled={!opt.text.trim()}
                                     onChange={() => handleOptionCheck(index)}
                                 />

@@ -162,6 +162,7 @@ function App() {
             <div className="flex items-center">
 
                 <input
+                    id="user-input"
                     ref={refInputUser}
                     value={user}
                     onChange={(e) => { setUser(e.target.value) }}
@@ -185,6 +186,7 @@ function App() {
                 />
 
                 <select
+                    id="quiz-select"
                     key={user}
                     ref={refSelectQuiz}
                     value={selectedQuiz}

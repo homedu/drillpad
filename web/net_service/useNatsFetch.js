@@ -256,7 +256,7 @@ export function useNatsFetch() {
         setLoading(true);
         try {
             const result = await reqNATS(T_QA_COUNT, payload, { timeout: 10000 });
-            if (count_type == "raw") {
+            if (count_type === "raw") {
                 return result;
             }
             if (!hasProperty(result, count_type)) {

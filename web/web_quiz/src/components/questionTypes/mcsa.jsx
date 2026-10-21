@@ -1,4 +1,4 @@
-import ChoiceOption from "./ChoiceOption.jsx";
+import { Option } from "./components/OptionFill.jsx";
 
 export const MCSA = {
     label: "单选",
@@ -18,9 +18,9 @@ export const MCSA = {
 
     formatCorrect: (q) => q.correctAnswer,
 
-    Input: ({ q, answer, onChange, submitted }) => {
+    Input: ({ q, answer, onChangeToSetAnswer, submitted }) => {
         return q.options.map((opt) => (
-            <ChoiceOption
+            <Option
                 key={opt.label}
                 inputType="radio"
                 questionId={q.id}
@@ -28,7 +28,7 @@ export const MCSA = {
                 checked={answer?.label === opt.label}
                 isCorrect={!!q.correctAnswer && opt.text.trim() === q.correctAnswer.trim()}
                 submitted={submitted}
-                onChange={() => onChange(opt)}
+                onChange={() => onChangeToSetAnswer(opt)}
             />
         ));
     },

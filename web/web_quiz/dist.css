@@ -55,14 +55,14 @@
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
   }
-  .ms-2 {
-    margin-inline-start: calc(var(--spacing) * 2);
-  }
   .me-2 {
     margin-inline-end: calc(var(--spacing) * 2);
   }
   .me-2\.5 {
     margin-inline-end: calc(var(--spacing) * 2.5);
+  }
+  .me-3 {
+    margin-inline-end: calc(var(--spacing) * 3);
   }
   .mt-0 {
     margin-top: 0px;

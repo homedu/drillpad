@@ -38,3 +38,19 @@ if (!String.prototype.fromLiteral) {
         });
     };
 }
+
+if (!String.prototype.replaceNth) {
+    String.prototype.replaceNth = function (target, index, replacement) {
+        const str = this.toString();
+        let count = 0; // 计数器，记录当前是第几次匹配（从0开始）
+        const regex = new RegExp(target, 'g'); // 使用 RegExp 创建全局正则，动态匹配传入的字符
+        return str.replace(regex, (match) => {
+            if (count === index) {
+                count++;
+                return replacement; // 匹配到指定次数，换成新字符
+            }
+            count++;
+            return match; // 不是我们要的目标，原样返回不作修改
+        });
+    }
+}

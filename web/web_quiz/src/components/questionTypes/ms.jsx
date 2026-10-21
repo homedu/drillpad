@@ -1,4 +1,4 @@
-import ChoiceOption from "./ChoiceOption.jsx";
+import { Option } from "./components/OptionFill.jsx";
 
 const normalize = (arr) => arr.map((a) => a.trim());
 
@@ -23,18 +23,18 @@ export const MS = {
 
     formatCorrect: (q) => q.correctAnswer.join("；"),
 
-    Input: ({ q, answer, onChange, submitted }) => {
+    Input: ({ q, answer, onChangeToSetAnswer, submitted }) => {
         const current = Array.isArray(answer) ? answer : [];
         const correctTexts = Array.isArray(q.correctAnswer) ? normalize(q.correctAnswer) : [];
 
         // 已选则取消，未选则加入
         const toggle = (opt) => {
             const exists = current.some((o) => o.label === opt.label);
-            onChange(exists ? current.filter((o) => o.label !== opt.label) : [...current, opt]);
+            onChangeToSetAnswer(exists ? current.filter((o) => o.label !== opt.label) : [...current, opt]);
         };
 
         return q.options.map((opt) => (
-            <ChoiceOption
+            <Option
                 key={opt.label}
                 inputType="checkbox"
                 questionId={q.id}
