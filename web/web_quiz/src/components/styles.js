@@ -39,7 +39,9 @@ export const styles = {
     cardNum: cn("absolute right-full -top-[1px] min-w-6 px-1 py-3",
         "text-center text-sm font-semibold border-[#e1e4e8]",
         "text-black bg-[#e1e4e8] rounded-l-md select-none",
-        "[clip-path:polygon(0_0%,100%_0,100%_100%,0_60%)]"),
+        "[clip-path:polygon(0_0%,100%_0,100%_100%,0_60%)]",
+        "[transform:translateZ(-1px)]"
+    ),
 
     cardButtonGrp: "absolute top-0 left-full ml-6 flex flex-col items-center gap-3",
 

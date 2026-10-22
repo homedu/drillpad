@@ -182,7 +182,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                 const isBookmarked = !!(bookmarked?.[q.id]);
 
                 return (
-                    <div key={q.id} className={cn(tw.card, "relative focus:outline-none focus:ring-1 focus:ring-blue-400")} tabIndex={-1} data-bookmark={isBookmarked}>
+                    <div key={q.id}
+                        className={cn(tw.card, "relative [transform-style:preserve-3d] focus:outline-none focus:ring-1 focus:ring-blue-400")}
+                        tabIndex={-1}
+                        data-bookmark={isBookmarked}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
                         <div className={cn(tw.cardNum)} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>

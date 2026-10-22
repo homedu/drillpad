@@ -129,9 +129,6 @@
   .min-h-10 {
     min-height: calc(var(--spacing) * 10);
   }
-  .w-1 {
-    width: var(--spacing);
-  }
   .w-1\/2 {
     width: calc(1 / 2 * 100%);
   }
@@ -156,13 +153,12 @@
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
   }
-  .-translate-y-1 {
-    --tw-translate-y: calc(var(--spacing) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
   .-translate-y-1\.25 {
     --tw-translate-y: calc(var(--spacing) * -1.25);
     translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .\[transform\:translateZ\(-1px\)\] {
+    transform: translateZ(-1px);
   }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
@@ -450,6 +446,9 @@
   .\[clip-path\:polygon\(0_0\%\,100\%_0\,100\%_100\%\,0_60\%\)\] {
     clip-path: polygon(0 0%,100% 0,100% 100%,0 60%);
   }
+  .\[transform-style\:preserve-3d\] {
+    transform-style: preserve-3d;
+  }
   @media (hover: hover) {
     .hover\:border-gray-500:hover {
       border-color: var(--color-gray-500);
@@ -464,9 +463,6 @@
   }
   .focus\:ring-blue-400:focus {
     --tw-ring-color: var(--color-blue-400);
-  }
-  .focus\:ring-gray-400:focus {
-    --tw-ring-color: var(--color-gray-400);
   }
   .focus\:outline-none:focus {
     --tw-outline-style: none;
