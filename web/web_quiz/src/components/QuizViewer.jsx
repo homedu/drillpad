@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
@@ -25,6 +25,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState({});
+    const curIdxRef = useRef(-1);
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -150,15 +151,34 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
     }
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'j' || event.key === 'J') {
+                const activeBookmarks = document.querySelectorAll('div[data-bookmark="true"]');
+                if (activeBookmarks.length === 0) return;
+                curIdxRef.current = (curIdxRef.current + 1) % activeBookmarks.length;
+                const targetElement = activeBookmarks[curIdxRef.current];
+                targetElement.scrollIntoView({
+                    behavior: 'auto', // 如果父容器加了 Tailwind 的 `scroll-smooth`，这里设为 'auto' 即可
+                    block: 'nearest'
+                });
+                console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => { window.removeEventListener('keydown', handleKeyDown); }; // 🟢 返回一个清理函数（Cleanup）
+    }, [bookmarked]);
+
     return (
         <div className="mt-6">
             {questions.map((q, index) => {
                 const handler = questionTypes[q.type];
                 const answered = userAnswers[q.id];
                 const status = submitted ? judge(q, answered) : null;
+                const isBookmarked = !!(bookmarked?.[q.id]);
 
                 return (
-                    <div key={q.id} className={cn(tw.card, "relative")}>
+                    <div key={q.id} className={cn(tw.card, "relative")} data-bookmark={isBookmarked ? "true" : "false"}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
                         <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>
