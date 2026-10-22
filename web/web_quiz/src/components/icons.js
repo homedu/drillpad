@@ -48,22 +48,26 @@ export const NoteIcon = () => (
     </svg>
 );
 
-export const BookmarkIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-        <title>书签 Bookmark</title>
-        <desc>极简风格的蓝色书签图标，带有星标、层叠效果与装饰性闪光</desc>
-        <path d="M91 39h110a15 15 0 0 1 15 15v157l-70-43-70 43V54a15 15 0 0 1 15-15z" fill="#EAF0F8" />
-        <path d="M67 27h110a15 15 0 0 1 15 15v177l-70-45-70 45V42a15 15 0 0 1 15-15z" fill="#FFFFFF" stroke="#172B4D" strokeWidth="6" strokeLinejoin="round" />
-        <path d="M67 42a15 15 0 0 1 15-15h80a15 15 0 0 1 15 15v139l-55-35-55 35z" fill="#2F80ED" />
-        <path d="M67 42a15 15 0 0 1 15-15h80a15 15 0 0 1 15 15v139l-55-35-55 35z" fill="none" stroke="#172B4D" strokeWidth="6" strokeLinejoin="round" />
-        <path d="M122 65l8 16 18 3-13 13 3 18-16-9-16 9 3-18-13-13 18-3z" fill="#FFFFFF" stroke="#172B4D" strokeWidth="4" strokeLinejoin="round" />
-        <path d="M122 71l6 12 13 2-10 10 2 13-11-6-11 6 2-13-10-10 13-2z" fill="#FFFFFF" />
-        <path d="M205 42v12M199 48h12" fill="none" stroke="#F2B84B" strokeWidth="5" strokeLinecap="round" />
-        <path d="M45 190v10M40 195h10" fill="none" stroke="#F2B84B" strokeWidth="4" strokeLinecap="round" />
-        <circle cx="201" cy="76" r="3" fill="#2F80ED" />
-        <circle cx="49" cy="166" r="3" fill="#2F80ED" />
-    </svg>
-);
+export const BookmarkIcon = ({ qid, bookmarked }) => {
+    bookmarked[qid] = bookmarked?.[qid] ?? false
+    const markedColor = bookmarked[qid] ? "#2F80ED" : "#FFFFFF"
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+            <title>书签 Bookmark</title>
+            <desc>极简风格的蓝色书签图标，带有星标、层叠效果与装饰性闪光</desc>
+            <path d="M91 39h110a15 15 0 0 1 15 15v157l-70-43-70 43V54a15 15 0 0 1 15-15z" fill="#EAF0F8" />
+            <path d="M67 27h110a15 15 0 0 1 15 15v177l-70-45-70 45V42a15 15 0 0 1 15-15z" fill="#FFFFFF" stroke="#172B4D" strokeWidth="6" strokeLinejoin="round" />
+            <path d="M67 42a15 15 0 0 1 15-15h80a15 15 0 0 1 15 15v139l-55-35-55 35z" fill={markedColor} />
+            <path d="M67 42a15 15 0 0 1 15-15h80a15 15 0 0 1 15 15v139l-55-35-55 35z" fill="none" stroke="#172B4D" strokeWidth="6" strokeLinejoin="round" />
+            <path d="M122 65l8 16 18 3-13 13 3 18-16-9-16 9 3-18-13-13 18-3z" fill="#FFFFFF" stroke="#172B4D" strokeWidth="4" strokeLinejoin="round" />
+            <path d="M122 71l6 12 13 2-10 10 2 13-11-6-11 6 2-13-10-10 13-2z" fill="#FFFFFF" />
+            <path d="M205 42v12M199 48h12" fill="none" stroke="#F2B84B" strokeWidth="5" strokeLinecap="round" />
+            <path d="M45 190v10M40 195h10" fill="none" stroke="#F2B84B" strokeWidth="4" strokeLinecap="round" />
+            <circle cx="201" cy="76" r="3" fill="#2F80ED" />
+            <circle cx="49" cy="166" r="3" fill="#2F80ED" />
+        </svg>
+    )
+};
 
 export const RatingIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">

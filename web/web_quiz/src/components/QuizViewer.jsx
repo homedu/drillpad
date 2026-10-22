@@ -24,6 +24,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const { record_answer } = useNatsFetch();
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
+    const [bookmarked, setBookmarked] = useState({});
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -132,16 +133,17 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         setAiPrompt(prompt);
     };
 
-    const handleNote = (key, type, event) => {
-        console.log("question id:", key, "; question type", type);
+    const handleNote = (qid, type, event) => {
+        console.log("question id:", qid, "; question type", type);
     };
 
-    const handleBookmark = (key, type, event) => {
-        console.log("question id:", key, "; question type", type);
+    const handleBookmark = (qid, type, event) => {
+        console.log("question id:", qid, "; question type", type);
+        setBookmarked((prev) => ({ ...prev, [qid]: !prev[qid] }))
     };
 
-    const handleRating = (key, type, event) => {
-        console.log("question id:", key, "; question type", type);
+    const handleRating = (qid, type, event) => {
+        console.log("question id:", qid, "; question type", type);
     };
 
     if (!questions.length) {
@@ -166,26 +168,28 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         </div>
 
                         {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}
-                        {submitted && (
-                            <div className={tw.cardButtonGrp}>
-                                <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, e)}>
-                                    <BookmarkIcon />
-                                </button>
-                                <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, e)}>
-                                    <RatingIcon />
-                                </button>
-                                <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
-                                    <NoteIcon />
-                                </button>
-                                <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, e)}>
-                                    <input type="hidden" name="q" value={aiPrompt} />
-                                    <input type="hidden" name="udm" value="50" />
-                                    <input type="hidden" name="btnK" value="Google Search" />
-                                    <input type="hidden" name="hl" value="zh-CN" />
-                                    <button type="submit" className={tw.cardButton}> <AiHelpIcon /> </button>
-                                </form>
-                            </div>
-                        )}
+                        <div className={tw.cardButtonGrp}>
+                            <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, e)}>
+                                <BookmarkIcon qid={q.id} bookmarked={bookmarked} />
+                            </button>
+                            {submitted && (
+                                <div>
+                                    <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, e)}>
+                                        <RatingIcon />
+                                    </button>
+                                    <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
+                                        <NoteIcon />
+                                    </button>
+                                    <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, e)}>
+                                        <input type="hidden" name="q" value={aiPrompt} />
+                                        <input type="hidden" name="udm" value="50" />
+                                        <input type="hidden" name="btnK" value="Google Search" />
+                                        <input type="hidden" name="hl" value="zh-CN" />
+                                        <button type="submit" className={tw.cardButton}> <AiHelpIcon /> </button>
+                                    </form>
+                                </div>
+                            )}
+                        </div>
 
                         {/* 题组 */}
                         <div>
