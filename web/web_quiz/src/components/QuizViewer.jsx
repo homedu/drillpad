@@ -153,16 +153,20 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
     useEffect(() => {
         const handleKeyDown = (event) => {
-            if (event.key === 'j' || event.key === 'J') {
+            if (event.ctrlKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+                event.preventDefault(); // 避免浏览器/页面的默认滚动行为
                 const activeBookmarks = document.querySelectorAll('div[data-bookmark="true"]');
-                if (activeBookmarks.length === 0) return;
-                curIdxRef.current = (curIdxRef.current + 1) % activeBookmarks.length;
+                const n = activeBookmarks.length;
+                if (n === 0) return;
+
+                curIdxRef.current = event.key === 'ArrowDown' ?
+                    (curIdxRef.current + 1) % n :
+                    (curIdxRef.current <= 0 ? n - 1 : curIdxRef.current - 1)
+
                 const targetElement = activeBookmarks[curIdxRef.current];
-                targetElement.scrollIntoView({
-                    behavior: 'auto', // 如果父容器加了 Tailwind 的 `scroll-smooth`，这里设为 'auto' 即可
-                    block: 'nearest'
-                });
-                console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
+                targetElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                targetElement.focus({ preventScroll: true });
+                // console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -170,7 +174,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     }, [bookmarked]);
 
     return (
-        <div className="mt-6">
+        <div className="mt-6 scroll-smooth">
             {questions.map((q, index) => {
                 const handler = questionTypes[q.type];
                 const answered = userAnswers[q.id];
@@ -178,10 +182,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                 const isBookmarked = !!(bookmarked?.[q.id]);
 
                 return (
-                    <div key={q.id} className={cn(tw.card, "relative")} data-bookmark={isBookmarked ? "true" : "false"}>
+                    <div key={q.id} className={cn(tw.card, "relative focus:outline-none focus:ring-1 focus:ring-blue-400")} tabIndex={-1} data-bookmark={isBookmarked}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
-                        <div className={tw.cardNum} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>
+                        <div className={cn(tw.cardNum)} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>
                             <span className="inline-block transform -translate-y-1.25">
                                 {index + 1}
                             </span>

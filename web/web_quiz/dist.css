@@ -8,6 +8,7 @@
     --color-red-600: oklch(57.7% 0.245 27.325);
     --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-600: oklch(62.7% 0.194 149.214);
+    --color-blue-400: oklch(70.7% 0.165 254.624);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-400: oklch(70.7% 0.022 261.325);
     --color-gray-500: oklch(55.1% 0.027 264.364);
@@ -128,6 +129,9 @@
   .min-h-10 {
     min-height: calc(var(--spacing) * 10);
   }
+  .w-1 {
+    width: var(--spacing);
+  }
   .w-1\/2 {
     width: calc(1 / 2 * 100%);
   }
@@ -151,6 +155,10 @@
   }
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
+  }
+  .-translate-y-1 {
+    --tw-translate-y: calc(var(--spacing) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .-translate-y-1\.25 {
     --tw-translate-y: calc(var(--spacing) * -1.25);
@@ -449,6 +457,16 @@
     .hover\:bg-gray-50:hover {
       background-color: var(--color-gray-50);
     }
+  }
+  .focus\:ring-1:focus {
+    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .focus\:ring-blue-400:focus {
+    --tw-ring-color: var(--color-blue-400);
+  }
+  .focus\:ring-gray-400:focus {
+    --tw-ring-color: var(--color-gray-400);
   }
   .focus\:outline-none:focus {
     --tw-outline-style: none;
