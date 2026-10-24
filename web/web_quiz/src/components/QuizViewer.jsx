@@ -2,11 +2,12 @@ import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
-import { useNatsFetch, AnswerRecordError } from "../../../net_service/useNatsFetch.js";
+import { useNatsFetch, AnswerRecordError, QuestionRateError } from "../../../net_service/useNatsFetch.js";
 import { AiHelpIcon, NoteIcon, BookmarkIcon, RatingIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
 import { showFloatingWindow } from "../../../utils/FloatingWindow";
+import { showRatingModal } from "../../../utils/ShowRatingModal";
 
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
@@ -21,7 +22,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
-    const { record_answer } = useNatsFetch();
+    const { record_answer, rate_question } = useNatsFetch();
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState({});
@@ -143,8 +144,18 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         setBookmarked((prev) => ({ ...prev, [qid]: !prev[qid] }))
     };
 
-    const handleRating = (qid, type, event) => {
+    const handleRating = async (qid, type, index, event) => {
         console.log("question id:", qid, "; question type", type);
+        const rating = (await showRatingModal({ title: `题目(${index})重要度` })) ?? 0;
+        console.log(`${index} 重要度：`, rating); // 0 ~ 5 的整数
+        if (rating === 0) return
+        try {
+            const result = await rate_question(user, quiz, qid, rating);
+            console.log(JSON.stringify(result));
+        } catch (err) {
+            const message = err instanceof QuestionRateError ? err.message : `未知错误: ${err?.message ?? err}`;
+            console.error(message);
+        }
     };
 
     if (!questions.length) {
@@ -201,7 +212,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                             </button>
                             {submitted && (
                                 <div>
-                                    <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, e)}>
+                                    <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, index + 1, e)}>
                                         <RatingIcon />
                                     </button>
                                     <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>

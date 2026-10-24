@@ -12,6 +12,12 @@ on_exit() {
 trap on_exit EXIT
 
 source "../utils/check_port.sh"
+source "../utils/trap_ex.sh"
+
+##########################################################
+
+export __ALLOWED_BY_START_SERVICES__="true"
+defer_trap 'unset __ALLOWED_BY_START_SERVICES__' EXIT
 
 ##########################################################
 

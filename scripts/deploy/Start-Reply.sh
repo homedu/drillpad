@@ -4,6 +4,13 @@ set -uo pipefail
 
 ##########################################################
 
+if [[ "${__ALLOWED_BY_START_SERVICES__:-false}" != "true" ]]; then
+    echo "❌ 错误: 该脚本禁止直接在命令行独立运行！"
+    exit 1
+fi
+
+##########################################################
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 pushd ${SCRIPT_DIR} > /dev/null
 on_exit() {
@@ -13,22 +20,37 @@ trap on_exit EXIT
 
 ##########################################################
 
+TOPIC_CFG="../../config/topic.json"
+if [[ -f "$TOPIC_CFG" ]]; then
+    if ! command -v jq &> /dev/null; then
+        echo "错误: 未找到 'jq' 命令"
+        exit 1
+    fi
+    export $(jq -r 'to_entries | .[] | "\(.key)=\(.value)"' "$TOPIC_CFG" | tr -d '\r' | xargs)
+else
+    echo "错误: 未找到配置文件 $TOPIC_CFG"
+    exit 1
+fi
+
+##########################################################
+
 SESSION="nats-reply"
 WAIT=2 # 启动后等待秒数
 
 # 新增服务只需加一行；脚本名默认 reply_<窗口名>.sh，不一致时用 "窗口名|脚本名" 指定
 SERVICES=(
-"quiz-list"
-"qa-count"
-"quiz-fetch"
-"quiz-make|reply_quiz-make.sh"
-"group-content-save"
-"group-content-fetch"
-"groups-content-fetch"
-"group-list"
-"answer-record"
-"question-fetch"
-"question-delete"
+"${T_QUIZ_FETCH}"
+"${T_QUIZ_LIST}"
+"${T_ANS_REC}"
+"${T_QA_COUNT}"
+"${T_QUIZ_MAKE}|reply_quiz-make.sh"
+"${T_QUESTION_FETCH}"
+"${T_QUESTION_DELETE}"
+"${T_QUESTION_RATE}"
+"${T_GROUP_CONTENT_SAVE}"
+"${T_GROUP_CONTENT_FETCH}"
+"${T_GROUPS_CONTENT_FETCH}"
+"${T_GROUP_LIST}"
 )
 
 # 拆分一项为 name / script

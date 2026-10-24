@@ -1,19 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { hasProperty } from "../utils/utils.js";
 import "../utils/util_str.js";
-import {
-    T_QUIZ_MAKE,
-    T_QUIZ_LIST,
-    T_QUESTION_FETCH,
-    T_QUESTION_DELETE,
-    T_QA_COUNT,
-    T_QUIZ_FETCH,
-    T_ANS_REC,
-    T_GROUP_CONTENT_SAVE,
-    T_GROUP_CONTENT_FETCH,
-    T_GROUPS_CONTENT_FETCH,
-    T_GROUP_LIST
-} from "./addr.js";
+import TOPIC from "../../config/topic.json";
 import {
     getNatsConnection,
     reqNATS,
@@ -57,6 +45,14 @@ export class QuestionSearchError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);
         this.name = "QuestionSearchError";
+        this.stage = stage;
+    }
+}
+
+export class QuestionRateError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionRateError";
         this.stage = stage;
     }
 }
@@ -197,7 +193,7 @@ export function useNatsFetch() {
         const payload = user;
         setLoading(true);
         try {
-            const result = await reqNATS(T_QUIZ_LIST, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_QUIZ_LIST, payload, { timeout: 10000 });
             if (!Array.isArray(result)) {
                 throw new NatsResponseParseError(
                     "返回非数组,格式错误",
@@ -220,7 +216,7 @@ export function useNatsFetch() {
         const payload = { user, quiz, qid };
         setLoading(true);
         try {
-            const result = await reqNATS(T_QUESTION_FETCH, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_QUESTION_FETCH, payload, { timeout: 10000 });
             return result;
         } catch (err) {
             throw new QuestionSearchError(
@@ -237,7 +233,7 @@ export function useNatsFetch() {
         const payload = { user, quiz, qid };
         setLoading(true);
         try {
-            const result = await reqNATS(T_QUESTION_DELETE, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_QUESTION_DELETE, payload, { timeout: 10000 });
             return result;
         } catch (err) {
             throw new QuestionDeleteError(
@@ -250,12 +246,29 @@ export function useNatsFetch() {
         }
     }, []);
 
+    const rate_question = useCallback(async (user, quiz, qid, rating) => {
+        const payload = { user, quiz, qid, rating };
+        setLoading(true);
+        try {
+            const result = await reqNATS(TOPIC.T_QUESTION_RATE, payload, { timeout: 10000 });
+            return result;
+        } catch (err) {
+            throw new QuestionRateError(
+                `题目重要度标注失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
     // count_type: "question_count" | "correct_count" | "incorrect_count" | "raw"
     const count_qa = useCallback(async (user, quiz, count_type = "raw") => {
         const payload = { user, quiz };
         setLoading(true);
         try {
-            const result = await reqNATS(T_QA_COUNT, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_QA_COUNT, payload, { timeout: 10000 });
             if (count_type === "raw") {
                 return result;
             }
@@ -289,7 +302,7 @@ export function useNatsFetch() {
         // 1) 通过 NATS 请求获取文件路径
         setLoading(true);
         try {
-            const result = await reqNATS(T_QUIZ_FETCH, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_QUIZ_FETCH, payload, { timeout: 10000 });
             if (result === null || !result.path) {
                 // 请求成功但响应内容不符合预期，也算作一种"响应格式错误"
                 throw new NatsResponseParseError(
@@ -336,7 +349,7 @@ export function useNatsFetch() {
 
         setLoading(true);
         try {
-            const result = await reqNATS(T_ANS_REC, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_ANS_REC, payload, { timeout: 10000 });
             if (result === null || !result.status) {
                 // 请求成功但响应内容不符合预期，也算作一种"响应格式错误"
                 throw new NatsResponseParseError(
@@ -358,7 +371,7 @@ export function useNatsFetch() {
 
     const make_quiz = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
         if (!qid.isValidGuid()) {
-            qid = "";               // backend will make an id for empty qid 
+            qid = "";               // backend will make an id for empty qid
         }
         if (!Array.isArray(options)) {
             throw new QuizMakeError("选项必须是数组", "validate");
@@ -383,7 +396,7 @@ export function useNatsFetch() {
 
         setLoading(true);
         try {
-            const result = await reqNATS(T_QUIZ_MAKE, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_QUIZ_MAKE, payload, { timeout: 10000 });
             if (result === null || !result.status) {
                 throw new NatsResponseParseError(
                     "响应中缺少 status 字段",
@@ -403,7 +416,7 @@ export function useNatsFetch() {
     }, []);
 
     const fetch_group_content = useCallback(async (user, quiz, group, ...other_groups) => {
-        const topic = other_groups.length ? T_GROUPS_CONTENT_FETCH : T_GROUP_CONTENT_FETCH;
+        const topic = other_groups.length ? TOPIC.T_GROUPS_CONTENT_FETCH : TOPIC.T_GROUP_CONTENT_FETCH;
         const payload = other_groups.length ? {
             user,
             quiz,
@@ -443,7 +456,7 @@ export function useNatsFetch() {
         };
         setLoading(true);
         try {
-            const result = await reqNATS(T_GROUP_CONTENT_SAVE, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_GROUP_CONTENT_SAVE, payload, { timeout: 10000 });
             if (result === null || !result.status || !Object.hasOwn(result, 'path')) {
                 throw new NatsResponseParseError(
                     "响应中缺少 status 或 path 字段",
@@ -469,7 +482,7 @@ export function useNatsFetch() {
         }
         setLoading(true);
         try {
-            const result = await reqNATS(T_GROUP_LIST, payload, { timeout: 10000 });
+            const result = await reqNATS(TOPIC.T_GROUP_LIST, payload, { timeout: 10000 });
             if (result === null || !result.status || !Object.hasOwn(result, 'groups')) {
                 throw new NatsResponseParseError(
                     "响应中缺少 status 或 groups 字段",
@@ -494,6 +507,7 @@ export function useNatsFetch() {
         count_qa,
         fetch_question,
         delete_question,
+        rate_question,
         fetch_quiz,
         record_answer,
         make_quiz,

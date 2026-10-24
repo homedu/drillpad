@@ -11,6 +11,13 @@ on_exit() {
 }
 trap on_exit EXIT
 
+source "../utils/trap_ex.sh"
+
+##########################################################
+
+export __ALLOWED_BY_STOP_SERVICES__="true"
+defer_trap 'unset __ALLOWED_BY_STOP_SERVICES__' EXIT
+
 ##########################################################
 
 ./Stop-Reply.sh
