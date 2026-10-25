@@ -2,7 +2,8 @@ import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
-import { useNatsFetch, AnswerRecordError, QuestionRateError } from "../../../net_service/useNatsFetch.js";
+import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
+import { AnswerRecordError, QuestionRateError, QuestionRateFetchError } from "../../../net_service/QDPErr.js";
 import { AiHelpIcon, NoteIcon, BookmarkIcon, RatingIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
@@ -22,7 +23,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
-    const { record_answer, rate_question } = useNatsFetch();
+    const { record_answer, rate_question, fetch_rate_question } = useNatsFetch();
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState({});
@@ -106,7 +107,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         try {
             // 等待后台保存完成
             const result = await record_answer(user, quiz, correct, incorrect, blank);
-            console.log(JSON.stringify(result));
+            console.log(result);
 
             // record_answer 成功完成后，再通知父组件进行后续刷新
             await onSubmit();
@@ -145,13 +146,24 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     };
 
     const handleRating = async (qid, type, index, event) => {
-        console.log("question id:", qid, "; question type", type);
-        const rating = (await showRatingModal({ title: `题目(${index})重要度` })) ?? 0;
-        console.log(`${index} 重要度：`, rating); // 0 ~ 5 的整数
+        // console.log("question id:", qid, "; question type", type);
+
+        let defaultRating = 0;
+        try {
+            const result = await fetch_rate_question(user, quiz, qid);
+            console.log(result)
+            defaultRating = result?.rating ?? 0;
+        } catch (err) {
+            const message = err instanceof QuestionRateFetchError ? err.message : `未知错误: ${err?.message ?? err}`;
+            console.error(message);
+            return;
+        }
+
+        const rating = (await showRatingModal({ title: `题目(${index})重要度`, defaultValue: defaultRating })) ?? 0;
         if (rating === 0) return
         try {
             const result = await rate_question(user, quiz, qid, rating);
-            console.log(JSON.stringify(result));
+            console.log(result);
         } catch (err) {
             const message = err instanceof QuestionRateError ? err.message : `未知错误: ${err?.message ?? err}`;
             console.error(message);
@@ -194,7 +206,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
                 return (
                     <div key={q.id}
-                        className={cn(tw.card, "relative [transform-style:preserve-3d] focus:outline-none focus:ring-1 focus:ring-blue-400")}
+                        className={cn(tw.card, "relative transform-3d focus:outline-none focus:ring-1 focus:ring-blue-400")}
                         tabIndex={-1}
                         data-bookmark={isBookmarked}>
 

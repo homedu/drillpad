@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { hasProperty } from "../utils/utils.js";
 import "../utils/util_str.js";
 import TOPIC from "../../config/topic.json";
+import * as QDPErr from "./QDPErr.js";
 import {
     getNatsConnection,
     reqNATS,
@@ -24,97 +25,6 @@ import {
 } from "./fetchClient";
 
 // /////////////////////////////////////////////////////////////////////////////
-
-export class QuizListError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuizListError";
-        this.stage = stage;
-    }
-}
-
-export class QACountError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QACountError";
-        this.stage = stage;
-    }
-}
-
-export class QuestionSearchError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuestionSearchError";
-        this.stage = stage;
-    }
-}
-
-export class QuestionRateError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuestionRateError";
-        this.stage = stage;
-    }
-}
-
-export class QuestionDeleteError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuestionDeleteError";
-        this.stage = stage;
-    }
-}
-
-export class QuizMakeError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuizMakeError";
-        this.stage = stage;
-    }
-}
-
-export class GroupContentSaveError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "GroupContentSaveError";
-        this.stage = stage;
-    }
-}
-
-export class GroupContentFetchError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "GroupContentFetchError";
-        this.stage = stage;
-    }
-}
-
-export class GroupListError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "GroupListError";
-        this.stage = stage;
-    }
-}
-
-export class QuizFetchError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "QuizFetchError";
-        this.stage = stage;
-    }
-}
-
-export class AnswerRecordError extends Error {
-    constructor(message, stage, options = {}) {
-        super(message, options);
-        this.name = "AnswerRecordError";
-        this.stage = stage;
-    }
-}
-
-// /////////////////////////////////////////////////////////////////////////////
-
 
 // 把两个 client 抛出的分类错误翻译成人可读的中文提示，用于 message / UI 展示
 function describeError(err) {
@@ -202,7 +112,7 @@ export function useNatsFetch() {
             };
             return result
         } catch (err) {
-            throw new QuizListError(
+            throw new QDPErr.QuizListError(
                 `获取题目列表失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -219,7 +129,7 @@ export function useNatsFetch() {
             const result = await reqNATS(TOPIC.T_QUESTION_FETCH, payload, { timeout: 10000 });
             return result;
         } catch (err) {
-            throw new QuestionSearchError(
+            throw new QDPErr.QuestionSearchError(
                 `搜索题目失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -236,7 +146,7 @@ export function useNatsFetch() {
             const result = await reqNATS(TOPIC.T_QUESTION_DELETE, payload, { timeout: 10000 });
             return result;
         } catch (err) {
-            throw new QuestionDeleteError(
+            throw new QDPErr.QuestionDeleteError(
                 `删除题目失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -253,8 +163,25 @@ export function useNatsFetch() {
             const result = await reqNATS(TOPIC.T_QUESTION_RATE, payload, { timeout: 10000 });
             return result;
         } catch (err) {
-            throw new QuestionRateError(
+            throw new QDPErr.QuestionRateError(
                 `题目重要度标注失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
+    const fetch_rate_question = useCallback(async (user, quiz, qid) => {
+        const payload = { user, quiz, qid };
+        setLoading(true);
+        try {
+            const result = await reqNATS(TOPIC.T_QUESTION_RATE_FETCH, payload, { timeout: 10000 });
+            return result;
+        } catch (err) {
+            throw new QDPErr.QuestionRateFetchError(
+                `获取题目重要度失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
             );
@@ -280,7 +207,7 @@ export function useNatsFetch() {
             };
             return result[count_type];
         } catch (err) {
-            throw new QACountError(
+            throw new QDPErr.QACountError(
                 `获取考题记录失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -312,7 +239,7 @@ export function useNatsFetch() {
             }
             path = result.path;
         } catch (err) {
-            throw new QuizFetchError(
+            throw new QDPErr.QuizFetchError(
                 `获取题目路径失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -326,7 +253,7 @@ export function useNatsFetch() {
         try {
             return await fetchFile(path);
         } catch (err) {
-            throw new QuizFetchError(
+            throw new QDPErr.QuizFetchError(
                 `拉取题目文件失败: ${describeError(err)}`,
                 "fetch",
                 { cause: err }
@@ -359,7 +286,7 @@ export function useNatsFetch() {
             }
             return result;
         } catch (err) {
-            throw new AnswerRecordError(
+            throw new QDPErr.AnswerRecordError(
                 `记录答题结果失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -405,7 +332,7 @@ export function useNatsFetch() {
             }
             return result.question_id;
         } catch (err) {
-            throw new QuizMakeError(
+            throw new QDPErr.QuizMakeError(
                 `上传题目失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -437,7 +364,7 @@ export function useNatsFetch() {
             }
             return result.content; // both topics have .content
         } catch (err) {
-            throw new GroupContentFetchError(
+            throw new QDPErr.GroupContentFetchError(
                 `组内容获取失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -465,7 +392,7 @@ export function useNatsFetch() {
             }
             return result.path;
         } catch (err) {
-            throw new GroupContentSaveError(
+            throw new QDPErr.GroupContentSaveError(
                 `组内容上传失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -491,7 +418,7 @@ export function useNatsFetch() {
             }
             return result.groups;
         } catch (err) {
-            throw new GroupListError(
+            throw new QDPErr.GroupListError(
                 `获取组列表失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
@@ -508,6 +435,7 @@ export function useNatsFetch() {
         fetch_question,
         delete_question,
         rate_question,
+        fetch_rate_question,
         fetch_quiz,
         record_answer,
         make_quiz,

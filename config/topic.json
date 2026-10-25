@@ -1,14 +1,15 @@
 {
-    "T_QUIZ_FETCH":"quiz-fetch",
-    "T_QUIZ_LIST":"quiz-list",
-    "T_ANS_REC":"answer-record",
-    "T_QA_COUNT":"qa-count",
-    "T_QUIZ_MAKE":"quiz-make",
-    "T_QUESTION_FETCH":"question-fetch",
-    "T_QUESTION_DELETE":"question-delete",
-    "T_QUESTION_RATE":"question-rate",
-    "T_GROUP_CONTENT_SAVE":"group-content-save",
-    "T_GROUP_CONTENT_FETCH":"group-content-fetch",
-    "T_GROUPS_CONTENT_FETCH":"groups-content-fetch",
-    "T_GROUP_LIST":"group-list"
+    "T_QUIZ_FETCH": "quiz-fetch",
+    "T_QUIZ_LIST": "quiz-list",
+    "T_ANS_REC": "answer-record",
+    "T_QA_COUNT": "qa-count",
+    "T_QUIZ_MAKE": "quiz-make",
+    "T_QUESTION_FETCH": "question-fetch",
+    "T_QUESTION_DELETE": "question-delete",
+    "T_QUESTION_RATE": "question-rate",
+    "T_QUESTION_RATE_FETCH": "question-rate-fetch",
+    "T_GROUP_CONTENT_SAVE": "group-content-save",
+    "T_GROUP_CONTENT_FETCH": "group-content-fetch",
+    "T_GROUPS_CONTENT_FETCH": "groups-content-fetch",
+    "T_GROUP_LIST": "group-list"
 }

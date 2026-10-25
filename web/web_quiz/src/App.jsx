@@ -131,7 +131,7 @@ function App() {
         setQuestionCount(qaCount.question_count);
         setCorrectCount(qaCount.correct_count);
         setIncorrectCount(qaCount.incorrect_count);
-        // console.log(`showQACount: ${JSON.stringify(qaCount)}`);
+        // console.log(`showQACount: ${qaCount}`);
     }
 
     // 根据用户名找出来QUIZ列表后，用户名便不可更改了

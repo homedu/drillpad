@@ -242,7 +242,7 @@ END {
         }
     }
 
-}' ${QUIZ_BANK} > ${QUIZ_OUT}
+}' ${QUIZ_BANK} > ${QUIZ_OUT} && ./Group.sh -i -c 3 "${QUIZ_OUT}" # 3 is 'group' column
 
 # ${QUIZ_BANK} | shuf > ${QUIZ_OUT}
 
