@@ -26,7 +26,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const { record_answer, rate_question, fetch_rate_question } = useNatsFetch();
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
-    const [bookmarked, setBookmarked] = useState({});
+    const [bookmarked, setBookmarked] = useState([]);
     const curIdxRef = useRef(-1);
 
     // 1. 解析 TSV 格式数据
@@ -140,14 +140,12 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         console.log("question id:", qid, "; question type", type);
     };
 
-    const handleBookmark = (qid, type, event) => {
-        console.log("question id:", qid, "; question type", type);
-        setBookmarked((prev) => ({ ...prev, [qid]: !prev[qid] }))
+    const handleBookmark = (qid, type, index, event) => {
+        setBookmarked(prev => (prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]).sort((a, b) => a - b));
+        curIdxRef.current = index; // here is NOT marked position index, it is all questions index
     };
 
     const handleRating = async (qid, type, index, event) => {
-        // console.log("question id:", qid, "; question type", type);
-
         let defaultRating = 0;
         try {
             const result = await fetch_rate_question(user, quiz, qid);
@@ -159,7 +157,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             return;
         }
 
-        const rating = (await showRatingModal({ title: `题目(${index})重要度`, defaultValue: defaultRating })) ?? 0;
+        const rating = (await showRatingModal({ title: `题目(${index + 1})重要度`, defaultValue: defaultRating })) ?? 0;
         if (rating === 0) return
         try {
             const result = await rate_question(user, quiz, qid, rating);
@@ -174,26 +172,44 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
     }
 
+    const bookmarkJump = () => {
+        const activeBookmarks = document.querySelectorAll('div[data-bookmark="true"]');
+        const n = activeBookmarks.length;
+        if (n === 0) return;
+        const targetElement = activeBookmarks[curIdxRef.current];
+        targetElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+        targetElement.focus({ preventScroll: true });
+        console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
+    }
+
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.ctrlKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
                 event.preventDefault(); // 避免浏览器/页面的默认滚动行为
-                const activeBookmarks = document.querySelectorAll('div[data-bookmark="true"]');
-                const n = activeBookmarks.length;
+
+                const n = bookmarked.length
                 if (n === 0) return;
-
                 curIdxRef.current = event.key === 'ArrowDown' ?
-                    (curIdxRef.current + 1) % n :
+                    ((curIdxRef.current + 1) % n) :
                     (curIdxRef.current <= 0 ? n - 1 : curIdxRef.current - 1)
-
-                const targetElement = activeBookmarks[curIdxRef.current];
-                targetElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-                targetElement.focus({ preventScroll: true });
-                // console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
+                if (curIdxRef.current >= n) {
+                    curIdxRef.current = n - 1
+                }
+                // console.log("bookmarked@", curIdxRef.current, bookmarked[curIdxRef.current]);
+                bookmarkJump();
             }
         };
+
+        const [p, e] = bookmarked.entries().find(([i, e]) => e === curIdxRef.current) || [-1, undefined];
+        curIdxRef.current = p; // now it is marked position index
+        // console.log("bookmarked@", curIdxRef.current, bookmarked[curIdxRef.current]);
+        if (p != -1) {
+            bookmarkJump();
+        }
+
         window.addEventListener('keydown', handleKeyDown);
         return () => { window.removeEventListener('keydown', handleKeyDown); }; // 🟢 返回一个清理函数（Cleanup）
+
     }, [bookmarked]);
 
     return (
@@ -202,7 +218,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                 const handler = questionTypes[q.type];
                 const answered = userAnswers[q.id];
                 const status = submitted ? judge(q, answered) : null;
-                const isBookmarked = !!(bookmarked?.[q.id]);
+                const isBookmarked = bookmarked.includes(index);
 
                 return (
                     <div key={q.id}
@@ -219,12 +235,12 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
                         {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}
                         <div className={tw.cardButtonGrp}>
-                            <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, e)}>
-                                <BookmarkIcon qid={q.id} bookmarked={bookmarked} />
+                            <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, index, e)}>
+                                <BookmarkIcon index={index} bookmarked={bookmarked} />
                             </button>
                             {submitted && (
                                 <div>
-                                    <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, index + 1, e)}>
+                                    <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, index, e)}>
                                         <RatingIcon />
                                     </button>
                                     <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
