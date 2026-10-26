@@ -28,6 +28,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState([]);
     const curIdxRef = useRef(-1);
+    const curIdxCandRef = useRef([]);
+    const togglingBookmarkIndexRef = useRef(-1);
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -141,9 +143,30 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     };
 
     const handleBookmark = (qid, type, index, event) => {
+        togglingBookmarkIndexRef.current = index;
         setBookmarked(prev => (prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]).sort((a, b) => a - b));
-        curIdxRef.current = index; // here is NOT marked position index, it is all questions index
     };
+
+    const handleCardClick = (index, event) => {
+        // bookmarked 稳定之后，再调用此函数计算curIdxRef
+        const prevBookmarked = bookmarked;
+        let pMarked = prevBookmarked.findIndex(item => item === index);
+        if (pMarked != -1) {
+            curIdxRef.current = pMarked
+            console.log("curIdxRef", curIdxRef.current);
+        } else {
+            pMarked = prevBookmarked.findIndex(item => item > index);
+            if (pMarked === -1) {
+                pMarked = prevBookmarked.length
+            }
+            if (prevBookmarked.length >= 2) {
+                const p = pMarked - 1 < 0 ? prevBookmarked.length - 1 : pMarked - 1;
+                pMarked %= prevBookmarked.length
+                curIdxCandRef.current = [p, pMarked];
+                console.log("curIdxCandRef", curIdxCandRef.current);
+            }
+        }
+    }
 
     const handleRating = async (qid, type, index, event) => {
         let defaultRating = 0;
@@ -186,12 +209,21 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         const handleKeyDown = (event) => {
             if (event.ctrlKey && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
                 event.preventDefault(); // 避免浏览器/页面的默认滚动行为
-
                 const n = bookmarked.length
                 if (n === 0) return;
-                curIdxRef.current = event.key === 'ArrowDown' ?
-                    ((curIdxRef.current + 1) % n) :
-                    (curIdxRef.current <= 0 ? n - 1 : curIdxRef.current - 1)
+                if (event.key === 'ArrowDown') {
+                    if (curIdxCandRef.current.length) {
+                        curIdxRef.current = curIdxCandRef.current[0]
+                        curIdxCandRef.current = []
+                    }
+                    curIdxRef.current = (curIdxRef.current + 1) % n
+                } else if (event.key === 'ArrowUp') {
+                    if (curIdxCandRef.current.length) {
+                        curIdxRef.current = curIdxCandRef.current[1]
+                        curIdxCandRef.current = []
+                    }
+                    curIdxRef.current = curIdxRef.current <= 0 ? n - 1 : curIdxRef.current - 1
+                }
                 if (curIdxRef.current >= n) {
                     curIdxRef.current = n - 1
                 }
@@ -200,12 +232,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             }
         };
 
-        const [p, e] = bookmarked.entries().find(([i, e]) => e === curIdxRef.current) || [-1, undefined];
-        curIdxRef.current = p; // now it is marked position index
-        // console.log("bookmarked@", curIdxRef.current, bookmarked[curIdxRef.current]);
-        if (p != -1) {
-            bookmarkJump();
-        }
+        // bookmarked 此时已稳定更新
+        handleCardClick(togglingBookmarkIndexRef.current);
 
         window.addEventListener('keydown', handleKeyDown);
         return () => { window.removeEventListener('keydown', handleKeyDown); }; // 🟢 返回一个清理函数（Cleanup）
@@ -224,7 +252,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     <div key={q.id}
                         className={cn(tw.card, "relative transform-3d focus:outline-none focus:ring-1 focus:ring-blue-400")}
                         tabIndex={-1}
-                        data-bookmark={isBookmarked}>
+                        data-bookmark={isBookmarked}
+                        onClick={(e) => handleCardClick(index, e)}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
                         <div className={cn(tw.cardNum)} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>
@@ -235,7 +264,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
                         {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}
                         <div className={tw.cardButtonGrp}>
-                            <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, index, e)}>
+                            <button type="button" className={tw.cardButton} onClick={(e) => { e.stopPropagation(); handleBookmark(q.id, q.type, index, e) }}>
                                 <BookmarkIcon index={index} bookmarked={bookmarked} />
                             </button>
                             {submitted && (
