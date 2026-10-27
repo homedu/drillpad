@@ -23,7 +23,7 @@ export const MS = {
 
     formatCorrect: (q) => q.correctAnswer.join("；"),
 
-    Input: ({ q, answer, onChangeToSetAnswer, submitted }) => {
+    Input: ({ q, answer, onChangeToSetAnswer, onFocus, submitted }) => {
         const current = Array.isArray(answer) ? answer : [];
         const correctTexts = Array.isArray(q.correctAnswer) ? normalize(q.correctAnswer) : [];
 
@@ -33,7 +33,7 @@ export const MS = {
             onChangeToSetAnswer(exists ? current.filter((o) => o.label !== opt.label) : [...current, opt]);
         };
 
-        return q.options.map((opt) => (
+        return q.options.map((opt, idx) => (
             <Option
                 key={opt.label}
                 inputType="checkbox"
@@ -43,6 +43,7 @@ export const MS = {
                 isCorrect={correctTexts.includes(opt.text.trim())}
                 submitted={submitted}
                 onChange={() => toggle(opt)}
+                onFocus={(target_name) => { onFocus(idx) }}
             />
         ));
     },

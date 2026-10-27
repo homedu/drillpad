@@ -9,6 +9,7 @@ export function Option({
     isCorrect,        // 该选项是否为正确选项（用于提交后高亮）
     submitted,
     onChange,
+    onFocus,
 }) {
     return (
         <label className={tw.option({ submitted, isOptionSelected: checked, isThisOptionCorrect: isCorrect })}>
@@ -18,8 +19,9 @@ export function Option({
                 value={opt.label}
                 checked={!!checked}
                 disabled={submitted}
-                onChange={onChange}
                 className="me-2.5"
+                onChange={onChange}
+                onFocus={(e) => { e.stopPropagation(); onFocus(e.target.name) }}
             />
             <strong className="me-2">{opt.label}.</strong>
             <span>{opt.text}</span>
@@ -45,7 +47,7 @@ export function Fill({
                 disabled={submitted}
                 className="m-0 w-1/2 h-full min-h-0 box-border px-1 py-0 leading-normal"
                 onChange={(e) => onChange({ "label": opt.label, "text": e.target.value })}
-                onFocus={(e) => onFocus(e.target.name)}
+                onFocus={(e) => { e.stopPropagation(); onFocus(e.target.name) }}
             />
         </label>
     );

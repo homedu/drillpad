@@ -30,6 +30,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const curIdxRef = useRef(-1);
     const curIdxCandRef = useRef([]);
     const togglingBookmarkIndexRef = useRef(-1);
+    const cardsRef = useRef({});
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -145,6 +146,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const handleBookmark = (qid, type, index, event) => {
         togglingBookmarkIndexRef.current = index;
         setBookmarked(prev => (prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]).sort((a, b) => a - b));
+        cardsRef.current?.[qid]?.focus();
     };
 
     const handleCardClick = (index, event) => {
@@ -250,6 +252,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
                 return (
                     <div key={q.id}
+                        ref={(el) => { if (el) { cardsRef.current[q.id] = el } else { delete cardsRef.current[q.id] } }}
                         className={cn(tw.card, "relative transform-3d focus:outline-none focus:ring-1 focus:ring-blue-400")}
                         tabIndex={-1}
                         data-bookmark={isBookmarked}
@@ -334,10 +337,12 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                         answer={answered}
                                         submitted={submitted}
                                         onChangeToSetAnswer={(a) => setAnswer(q.id, a)}
-                                        // 'onFocus' is only for Fill-Type
                                         onFocus={(n) => {
+                                            // HERE is only for Fill-Type
                                             const qMod = q.question.replaceNth("____", n, "___🖊___")
                                             setQuestionMod(prev => ({ ...prev, [index]: qMod }))
+                                            // For all Types
+                                            cardsRef.current?.[q.id]?.focus();
                                         }}
                                     />) :
                                     (<p className="text-sm text-zinc-500">⚠️ 不支持的题型：{q.type}</p>)

@@ -18,8 +18,8 @@ export const MCSA = {
 
     formatCorrect: (q) => q.correctAnswer,
 
-    Input: ({ q, answer, onChangeToSetAnswer, submitted }) => {
-        return q.options.map((opt) => (
+    Input: ({ q, answer, onChangeToSetAnswer, onFocus, submitted }) => {
+        return q.options.map((opt, idx) => (
             <Option
                 key={opt.label}
                 inputType="radio"
@@ -29,6 +29,7 @@ export const MCSA = {
                 isCorrect={!!q.correctAnswer && opt.text.trim() === q.correctAnswer.trim()}
                 submitted={submitted}
                 onChange={() => onChangeToSetAnswer(opt)}
+                onFocus={(target_name) => { onFocus(idx) }}
             />
         ));
     },
