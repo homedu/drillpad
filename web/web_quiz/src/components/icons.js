@@ -68,19 +68,60 @@ export const BookmarkIcon = ({ index, bookmarked }) => {
     )
 };
 
-export const RatingIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-        <title>星级评分 Rating</title>
-        <desc>极简风格的三星评分图标，三颗醒目的金色星星搭配深蓝色描边与蓝色、金色装饰元素</desc>
-        <g transform="translate(0 38)">
-            {/* 左侧星星 */}
-            <path d="M65 55 L78 82 L108 86 L86 107 L91 137 L65 123 L39 137 L44 107 L22 86 L52 82 Z" fill="#F2B84B" stroke="#172B4D" strokeWidth="5" strokeLinejoin="round" />
-            {/* 中间主星 */}
-            <path d="M128 29 L145 65 L185 71 L156 99 L163 139 L128 120 L93 139 L100 99 L71 71 L111 65 Z" fill="#F2B84B" stroke="#172B4D" strokeWidth="6" strokeLinejoin="round" />
-            {/* 右侧星星 */}
-            <path d="M191 55 L204 82 L234 86 L212 107 L217 137 L191 123 L165 137 L170 107 L148 86 L178 82 Z" fill="#F2B84B" stroke="#172B4D" strokeWidth="5" strokeLinejoin="round" />
-            {/* 星星高光 */}
-            <path d="M54 91l8-2M117 77l9-2M180 91l8-2" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-        </g>
-    </svg>
-);
+export const RatingIcon = ({ value = 0 }) => {
+    const rating = Math.min(5, Math.max(0, Math.round(value)));
+    const isActive = rating > 0;
+    const scale = rating <= 1 ? 1 : 1 + (rating - 1) * 0.1;   // 可调：0.12
+    const fontSize = rating === 0 ? 0 : 45;                   // 可调：数字字号
+
+    // 星星包围盒（含 translate(0 38) 与描边余量）
+    const VB = { x: 50, y: 47, w: 156, h: 156 };              // 可调：收紧 viewBox 放大星星
+
+    // 以星星中心缩放
+    const cx = 128;
+    const cy = 99 + 38; // 
+
+    const priorityColors = {
+        2: '#1E6FF9', // 蓝 —— 与黄互补，对比强
+        3: '#0EAF6E', // 绿 —— 冷暖对比，清晰
+        4: '#7A3FF2', // 紫 —— 色相远，醒目
+        5: '#EE2F2F', // 红 —— 最重、最警示，且与黄对比强
+    };
+
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox={`${VB.x} ${VB.y} ${VB.w} ${VB.h}`}
+            width={VB.w * scale}
+            height={VB.h * scale}
+        >
+            <title>星级评分 Rating</title>
+            <desc>星评分图标，当前评分 {rating}</desc>
+            <g transform={`translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})`}>
+                <g transform="translate(0 38)">
+                    <path
+                        d="M128 29 L145 65 L185 71 L156 99 L163 139 L128 120 L93 139 L100 99 L71 71 L111 65 Z"
+                        fill={isActive ? '#F2B84B' : '#C1C7D0'}
+                        stroke="#172B4D"
+                        strokeWidth="1"
+                        strokeLinejoin="round"
+                    />
+                    {(isActive && rating != 1) && (
+                        <text
+                            x={128}
+                            y={92 + fontSize * 0.35}
+                            textAnchor="middle"
+                            fontSize={fontSize}
+                            fill={priorityColors[rating]}
+                            fontFamily="'Avenir Next', 'Futura', 'Century Gothic', 'Helvetica Neue', sans-serif"
+                            fontStyle="italic"
+                            style={{ userSelect: 'none' }}
+                        >
+                            {rating}
+                        </text>
+                    )}
+                </g>
+            </g>
+        </svg>
+    );
+};

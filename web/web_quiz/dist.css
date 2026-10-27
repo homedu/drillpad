@@ -407,6 +407,9 @@
   .text-zinc-500 {
     color: var(--color-zinc-500);
   }
+  .italic {
+    font-style: italic;
+  }
   .opacity-60 {
     opacity: 60%;
   }

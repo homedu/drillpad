@@ -173,11 +173,12 @@ export function useNatsFetch() {
         }
     }, [])
 
-    const fetch_rate_question = useCallback(async (user, quiz, qid) => {
-        const payload = { user, quiz, qid };
+    const fetch_rate_question = useCallback(async (user, quiz, qid = 0) => {
+        const topic = qid == 0 ? TOPIC.T_QUESTIONS_RATE_FETCH : TOPIC.T_QUESTION_RATE_FETCH;
+        const payload = qid == 0 ? { user, quiz } : { user, quiz, qid };
         setLoading(true);
         try {
-            const result = await reqNATS(TOPIC.T_QUESTION_RATE_FETCH, payload, { timeout: 10000 });
+            const result = await reqNATS(topic, payload, { timeout: 10000 });
             return result;
         } catch (err) {
             throw new QDPErr.QuestionRateFetchError(

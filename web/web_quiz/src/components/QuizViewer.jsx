@@ -31,6 +31,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const curIdxCandRef = useRef([]);
     const togglingBookmarkIndexRef = useRef(-1);
     const cardsRef = useRef({});
+    const [ratings, setRatings] = useState({});
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -187,6 +188,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         try {
             const result = await rate_question(user, quiz, qid, rating);
             console.log(result);
+            setRatings((prev) => ({ ...prev, [qid]: rating }))
         } catch (err) {
             const message = err instanceof QuestionRateError ? err.message : `未知错误: ${err?.message ?? err}`;
             console.error(message);
@@ -196,6 +198,22 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     if (!questions.length) {
         return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
     }
+
+    useEffect(async () => {
+        const init = async () => {
+            try {
+                const result = await fetch_rate_question(user, quiz);
+                console.log(result)
+                setRatings(result);
+            } catch (err) {
+                const message = err instanceof QuestionRateFetchError ? err.message : `未知错误: ${err?.message ?? err}`;
+                console.error(message);
+                return;
+            }
+        }
+        await init();
+        return () => { }
+    }, []);
 
     const bookmarkJump = () => {
         const activeBookmarks = document.querySelectorAll('div[data-bookmark="true"]');
@@ -270,11 +288,11 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                             <button type="button" className={tw.cardButton} onClick={(e) => { e.stopPropagation(); handleBookmark(q.id, q.type, index, e) }}>
                                 <BookmarkIcon index={index} bookmarked={bookmarked} />
                             </button>
+                            <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, index, e)}>
+                                <RatingIcon value={ratings?.[q.id]} />
+                            </button>
                             {submitted && (
                                 <div>
-                                    <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, index, e)}>
-                                        <RatingIcon />
-                                    </button>
                                     <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
                                         <NoteIcon />
                                     </button>
@@ -292,19 +310,21 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         {/* 题组 */}
                         <div>
                             <h3 className={cn(tw.question, "whitespace-pre-line")}>
-                                {q.group.trim() && (
-                                    <span className="me-2" > {q.group} </span>
-                                )}
-                                {q.groupContent.trim() && (
-                                    <span
-                                        className="me-3 text-sm text-zinc-500 cursor-pointer"
-                                        onClick={(e) => { showFloatingWindow(q.groupContent, { title: q.group }) }} >...
-                                    </span>
-                                )}
-                                {/* 提示label 单选/多选/填空 */}
-                                {handler && (
-                                    <span className="text-sm text-zinc-500">{handler.label}</span>
-                                )}
+                                <div className="flex items-center">
+                                    {q.group.trim() && (
+                                        <span className="me-2" > {q.group} </span>
+                                    )}
+                                    {q.groupContent.trim() && (
+                                        <span
+                                            className="me-3 text-sm text-zinc-500 cursor-pointer"
+                                            onClick={(e) => { showFloatingWindow(q.groupContent, { title: q.group }) }} >...
+                                        </span>
+                                    )}
+                                    {/* 提示label 单选/多选/填空 */}
+                                    {handler && (
+                                        <span className="text-sm text-zinc-500 ml-auto me-2">{handler.label}</span>
+                                    )}
+                                </div>
                             </h3>
                         </div>
 
