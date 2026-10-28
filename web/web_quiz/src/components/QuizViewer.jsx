@@ -199,7 +199,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
     }
 
-    useEffect(async () => {
+    useEffect(() => {
         const init = async () => {
             try {
                 const result = await fetch_rate_question(user, quiz);
@@ -211,7 +211,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                 return;
             }
         }
-        await init();
+        init();
         return () => { }
     }, []);
 

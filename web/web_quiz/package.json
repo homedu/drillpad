@@ -14,7 +14,7 @@
         "dev": "concurrently \"bun dev:css\" \"bun dev:server\"",
         "dev:server": "bun --hot --port 3000 index.html",
         "dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
-        "build:html": "bun build index.html --outdir ./dist",
+        "build:html": "bun build index.html --outdir ./dist --define QDP_IP='\"192.168.1.159\"'",
         "build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify",
         "build": "bun build:css && bun build:html"
     }
