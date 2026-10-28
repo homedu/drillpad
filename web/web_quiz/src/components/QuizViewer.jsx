@@ -8,7 +8,7 @@ import { AiHelpIcon, NoteIcon, BookmarkIcon, RatingIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
 import { showFloatingWindow } from "../../../utils/FloatingWindow";
-import { showRatingModal } from "../../../utils/ShowRatingModal";
+import { showRatingModal } from "../../../utils/ShowRatingModal0";
 
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
@@ -186,8 +186,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             return;
         }
 
-        const rating = (await showRatingModal({ title: `题目(${index + 1})重要度`, defaultValue: defaultRating })) ?? 0;
-        if (rating === 0) return
+        const rating = (await showRatingModal({ title: `题目(${index + 1})重要度`, defaultValue: defaultRating })) ?? -1;
+        if (rating === -1) return
         try {
             const result = await rate_question(user, quiz, qid, rating);
             console.log(result);

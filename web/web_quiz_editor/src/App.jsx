@@ -136,9 +136,9 @@ function App() {
         try {
             const id = await make_quiz(user, selectedQuiz, qid, type, group, question, opts, answers, skills);
             resetForm();
-            setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
+            setQuestionCount(await count_qa(user, selectedQuiz, "question_count")); // update new question count
             setQid("");
-            await question_fetch(user, selectedQuiz, id);
+            await question_fetch(user, selectedQuiz, id, { question: true, option: true });
             setInfo(`提交成功! 题目ID: ${id}`)
         } catch (err) {
             setError("提交失败!");
@@ -147,7 +147,7 @@ function App() {
         }
     };
 
-    const question_fetch = async (user, quiz, qid) => {
+    const question_fetch = async (user, quiz, qid, hiddenFields) => {
         try {
             const result = await fetch_question(user, quiz, qid.trim());
             if (result.status === "success") {
@@ -176,12 +176,12 @@ function App() {
                 setSelectedQuestionType(qType);
                 setGroup(qGroup);
                 setIdxGrp(qGroupIdx);
-                setQuestion(qText);
-                setOptions(createEmptyOptions().map((opt, index) => ({
-                    text: qOptions[index] || "",
-                    isCorrect: qOptions[index] ? qAnswers.includes(qOptions[index]) : false,
-                })));
                 setSkillStr(qSkills.join("; "))
+                setQuestion(hiddenFields?.question ? "" : qText);
+                setOptions(createEmptyOptions().map((opt, index) => ({
+                    text: hiddenFields?.option ? "" : (qOptions[index] || ""),
+                    isCorrect: hiddenFields?.option ? false : (qOptions[index] ? qAnswers.includes(qOptions[index]) : false),
+                })));
 
                 setInfo("题目搜索成功");
                 setError("");
