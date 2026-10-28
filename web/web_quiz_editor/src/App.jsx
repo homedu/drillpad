@@ -137,9 +137,9 @@ function App() {
             const id = await make_quiz(user, selectedQuiz, qid, type, group, question, opts, answers, skills);
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count"));
-            setQid(id);
+            setQid("");
             await question_fetch(user, selectedQuiz, id);
-            setInfo("提交成功!")
+            setInfo(`提交成功! 题目ID: ${id}`)
         } catch (err) {
             setError("提交失败!");
         } finally {
