@@ -14,13 +14,16 @@ add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 ` export SSHPASS='password***'`
 
 `sshpass -e rsync -av --inplace ./scripts root@192.168.1.159:/home/qmiao/qm1_share/drillpad`
+`sshpass -e rsync -av --inplace ./config root@192.168.1.159:/home/qmiao/qm1_share/drillpad`
+
+### fetch back users data from server ###
 `sshpass -e rsync -av --inplace root@192.168.1.159:/home/qmiao/qm1_share/drillpad/users ./`
 
 ### in /web_quiz, copy /dist to remote ###
-`sshpass -e rsync -av --inplace ./dist root@192.168.1.159:/var/www/qdp_dist`
+`sshpass -e rsync -av --inplace --delete ./dist root@192.168.1.159:/var/www/qdp_dist`
 
 ### in /web_quiz_editor, copy /dist to remote ###
-`sshpass -e rsync -av --inplace ./dist root@192.168.1.159:/var/www/qdp_editor_dist`
+`sshpass -e rsync -av --inplace --delete ./dist root@192.168.1.159:/var/www/qdp_editor_dist`
 
 ## clean up ##
 

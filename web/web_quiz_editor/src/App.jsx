@@ -5,7 +5,8 @@ import "../../utils/util_str.js";
 import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { styles as tw } from "./styles.js";
 import { PenIcon } from "./icons.js";
-import { useNatsFetch, QuizListError } from "../../net_service/useNatsFetch.js";
+import { useNatsFetch } from "../../net_service/useNatsFetch.js";
+import { QuizListError } from "../../net_service/QDPErr.js";
 
 /**
  * QuestionUploadForm

@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../utils/utils.js";
-import { useNatsFetch, QuizFetchError, QuizListError } from "../../net_service/useNatsFetch.js";
+import { useNatsFetch } from "../../net_service/useNatsFetch.js";
+import { QuizFetchError, QuizListError } from "../../net_service/QDPErr.js";
 import "../../utils/util_str.js";
 
 window.React = React;
