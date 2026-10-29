@@ -10,7 +10,8 @@ import { createRoot } from "react-dom/client";
  *   if (value !== null) {
  *     // 用户点了提交 / 按了 Enter，value 是输入的字符串
  *   }
- *   // 点取消 / 按 Esc / 点遮罩 → 返回 null
+ *   // 点取消 / 按 Esc → 返回 null
+ *   // 点击弹窗外部（遮罩）不会关闭弹窗，也不会点到下层页面
  *
  * 可选参数：title, label, placeholder, defaultValue, submitText, cancelText
  * 需要 React 18+（使用 react-dom/client）。
@@ -129,13 +130,17 @@ function ModalView({
     const submit = () => onSubmit(value);
 
     return (
-        <div style={S.backdrop} onMouseDown={onCancel}>
+        // 遮罩：点击弹窗外部不关闭。直接点在遮罩上时阻止默认行为，
+        // 这样输入框不会因为点了外面而失去焦点。
+        <div
+            style={S.backdrop}
+            onMouseDown={(e) => { if (e.target === e.currentTarget) e.preventDefault(); }}
+        >
             <div
                 role="dialog"
                 aria-modal="true"
                 aria-label={title}
                 style={S.dialog}
-                onMouseDown={(e) => e.stopPropagation()}
             >
                 <h2 style={S.title}>{title}</h2>
 

@@ -8,7 +8,7 @@ import { AiHelpIcon, NoteIcon, BookmarkIcon, RatingIcon } from "./icons.js";
 import { getPrompt } from "../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
 import { showFloatingWindow } from "../../../utils/FloatingWindow";
-import { showRatingModal } from "../../../utils/ShowRatingModal0";
+import { showRatingModal } from "../../../utils/ShowRatingModal";
 
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
