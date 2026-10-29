@@ -297,6 +297,35 @@ export function useNatsFetch() {
         }
     }, []);
 
+    const new_quiz = useCallback(async (user, quiz) => {
+        const payload = {
+            user,
+            quiz,
+        }
+
+        console.log("new_quiz payload:", payload);
+
+        setLoading(true);
+        try {
+            const result = await reqNATS(TOPIC.T_QUIZ_NEW, payload, { timeout: 10000 });
+            if (result === null || !result.status) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.status;
+        } catch (err) {
+            throw new QDPErr.QuizNewError(
+                `新建题库失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
     const make_quiz = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
         if (!qid.isValidGuid()) {
             qid = "";               // backend will make an id for empty qid
@@ -440,6 +469,7 @@ export function useNatsFetch() {
         fetch_quiz,
         record_answer,
         make_quiz,
+        new_quiz,
         save_group_content,
         fetch_group_content,
         list_group

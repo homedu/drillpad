@@ -54,6 +54,14 @@ export class QuizMakeError extends Error {
     }
 }
 
+export class QuizNewError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuizNewError";
+        this.stage = stage;
+    }
+}
+
 export class GroupContentSaveError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);

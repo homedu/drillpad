@@ -34,6 +34,7 @@ function App() {
         fetch_question,
         delete_question,
         make_quiz,
+        new_quiz,
         save_group_content,
         fetch_group_content
     } = useNatsFetch();
@@ -57,6 +58,7 @@ function App() {
     const [disabledMap, setDisabledMap] = useState({
         userInput: false,  // 用户名输入框
         quizSelect: false, // 题目下拉框
+        quizNew: false,    // 新建题目
     });
 
     const hasQuizList = quizList?.length > 0;
@@ -230,6 +232,12 @@ function App() {
     }, [selectedQuiz]);
 
     useEffect(() => {
+        if (user.trim()) {
+            setInfo(`已录入 ${questionCount} 道题目`)
+        }
+    }, [questionCount])
+
+    useEffect(() => {
         setQType({
             MCSA: selectedQuestionType === 'MCSA',
             MS: selectedQuestionType === 'MS',
@@ -301,41 +309,47 @@ function App() {
                     disabled={connError || loading || disabledMap.userInput}
                 />
 
-                <select
-                    key={user}
-                    ref={refSelectQuiz}
-                    value={selectedQuiz}
-                    onChange={(e) => setSelectedQuiz(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (typeof e.currentTarget.showPicker === 'function') {
-                                e.currentTarget.showPicker();
+                <div className={cn("ml-auto")}>
+                    <select
+                        key={user}
+                        ref={refSelectQuiz}
+                        value={selectedQuiz}
+                        onChange={(e) => setSelectedQuiz(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (typeof e.currentTarget.showPicker === 'function') {
+                                    e.currentTarget.showPicker();
+                                }
                             }
-                        }
-                    }}
-                    disabled={connError || loading}
-                    className={cn(tw.input, "w-50 rounded-sm")}
-                >
-                    {hasQuizList && (
-                        <>
-                            <option value="" disabled hidden>考题类别</option>
-                            {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
-                        </>
-                    )}
-                </select>
+                        }}
+                        disabled={connError || loading}
+                        className={cn(tw.input, "w-70 rounded-sm")}
+                    >
+                        {hasQuizList && (
+                            <>
+                                <option value="" disabled hidden>考题类别</option>
+                                {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
+                            </>
+                        )}
+                    </select>
 
-                <button
-                    className={cn(tw.button, tw.primaryButton, "disabled:opacity-50 disabled:cursor-not-allowed")}
-                    onClick={async () => {
-                        const v = await showSimpleInputModal({ title: "修改名称", label: "" });
-                        console.log(v)
-                    }}
-                >
-                    新建
-                </button>
-
-                {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已录入 {questionCount} 道题目 </label>}
+                    <button
+                        className={cn(tw.button, tw.primaryButton, "ms-1 disabled:opacity-50 disabled:cursor-not-allowed")}
+                        onClick={async () => {
+                            const qz = await showSimpleInputModal({ title: "新建题库名", label: "" });
+                            if (qz === null || qz === undefined) return
+                            console.log(qz)
+                            await new_quiz(user, qz)
+                            setQuizList(await list_quiz(user))
+                            setSelectedQuiz(qz)
+                            refSelectQuiz.current?.focus();
+                        }}
+                        disabled={!user.trim()}
+                    >
+                        新建
+                    </button>
+                </div>
 
             </div>
 

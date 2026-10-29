@@ -4,6 +4,7 @@
     "T_ANS_REC": "answer-record",
     "T_QA_COUNT": "qa-count",
     "T_QUIZ_MAKE": "quiz-make",
+    "T_QUIZ_NEW": "quiz-new",
     "T_QUESTION_FETCH": "question-fetch",
     "T_QUESTION_DELETE": "question-delete",
     "T_QUESTION_RATE": "question-rate",

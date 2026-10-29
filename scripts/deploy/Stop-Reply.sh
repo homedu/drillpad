@@ -48,6 +48,7 @@ SERVICES=(
 "${T_ANS_REC}"
 "${T_QA_COUNT}"
 "${T_QUIZ_MAKE}|reply_quiz-make.sh"
+"${T_QUIZ_NEW}"
 "${T_QUESTION_FETCH}"
 "${T_QUESTION_DELETE}"
 "${T_QUESTION_RATE}"
