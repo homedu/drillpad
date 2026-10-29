@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
  *
  * 在任意事件 / 函数里直接调用，不需要提前在组件树里摆放标签：
  *
- *   const value = await showInputModal({ title: "修改名称", label: "新名称" });
+ *   const value = await showSimpleInputModal({ title: "修改名称", label: "新名称" });
  *   if (value !== null) {
  *     // 用户点了提交 / 按了 Enter，value 是输入的字符串
  *   }
@@ -15,7 +15,7 @@ import { createRoot } from "react-dom/client";
  * 可选参数：title, label, placeholder, defaultValue, submitText, cancelText
  * 需要 React 18+（使用 react-dom/client）。
  */
-export function showInputModal(options = {}) {
+export function showSimpleInputModal(options = {}) {
     return new Promise((resolve) => {
         const container = document.createElement("div");
         document.body.appendChild(container);
@@ -198,7 +198,7 @@ export default function Demo() {
     const [result, setResult] = useState("");
 
     const handleClick = async () => {
-        const v = await showInputModal({ title: "修改名称", label: "新名称" });
+        const v = await showSimpleInputModal({ title: "修改名称", label: "新名称" });
         if (v !== null) setResult(v);
     };
 

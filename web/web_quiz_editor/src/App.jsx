@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { cn } from "../../utils/utils.js"
 import "../../utils/util_str.js";
 import { showInputModal } from "../../utils/ShowInputModal.jsx";
+import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
 import { styles as tw } from "./styles.js";
 import { PenIcon } from "./icons.js";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
@@ -270,11 +271,11 @@ function App() {
     return (
         <div className={tw.container}>
 
-            {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
+            {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，功能不可用：{connError.message} </p>)}
             {info && !error && <p className={cn(tw.infoBox)}> 💬 {info}</p>}
             {error && <p className={cn(tw.errBox)}> ❌ {error}</p>}
 
-            <h2 className={tw.title}>选择题录入</h2>
+            <h2 className={tw.title}>题目录入</h2>
 
             <div className="flex items-center">
 
@@ -323,6 +324,16 @@ function App() {
                         </>
                     )}
                 </select>
+
+                <button
+                    className={cn(tw.button, tw.primaryButton, "disabled:opacity-50 disabled:cursor-not-allowed")}
+                    onClick={async () => {
+                        const v = await showSimpleInputModal({ title: "修改名称", label: "" });
+                        console.log(v)
+                    }}
+                >
+                    新建
+                </button>
 
                 {questionCount > 0 && <label className={cn(tw.label, "ml-auto")}> 已录入 {questionCount} 道题目 </label>}
 
