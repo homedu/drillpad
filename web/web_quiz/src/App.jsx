@@ -48,9 +48,9 @@ function App() {
 
     // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
     // and exclude empty-value object to be map element
-    const arrToMap = (arr) => {
+    const arrToMap = (arr, keyForNotArr = "NEED-A-KEY-FOR-NONE-ARRAY") => {
         if (!Array.isArray(arr)) {
-            return new Map([[arr]])
+            return new Map([[keyForNotArr, arr]])
         }
         return new Map(arr
             .filter(obj => Object.values(obj).every(val => val !== undefined && val !== null && val !== ""))
@@ -77,7 +77,8 @@ function App() {
         try {
             const groups = await list_group(user, selectedQuiz);
             const groups_content = await fetch_group_content(user, selectedQuiz, groups[0], ...groups.slice(1));
-            setMapGroupContent(arrToMap(groups_content));
+            const m = arrToMap(groups_content, groups[0]);
+            setMapGroupContent(m);
 
             const text = await fetch_quiz(
                 user,
