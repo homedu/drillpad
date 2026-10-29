@@ -337,9 +337,10 @@ function App() {
                     <button
                         className={cn(tw.button, tw.primaryButton, "ms-1 disabled:opacity-50 disabled:cursor-not-allowed")}
                         onClick={async () => {
-                            const qz = await showSimpleInputModal({ title: "新建题库名", label: "" });
-                            if (qz === null || qz === undefined) return
+                            let qz = await showSimpleInputModal({ title: "新建题库名", label: "" });
+                            if (!qz) return
                             console.log(qz)
+                            qz = qz.replace(/[\s-]+/g, '-');
                             await new_quiz(user, qz)
                             setQuizList(await list_quiz(user))
                             setSelectedQuiz(qz)
@@ -416,7 +417,8 @@ function App() {
                     type="text"
                     value={group}
                     className={cn(tw.input)}
-                    onChange={(e) => setGroup(e.target.value)}
+                    onChange={(e) => setGroup(e.target.value.replace(/[\s-]+/g, '-'))}
+                    onBlur={(e) => setGroup(e.target.value.replace(/^-+|-+$/g, ''))}
                     placeholder="题目组类"
                 />
                 {/* {!!idxGrp && <label className={cn(tw.label)}> 组内序号: {idxGrp}</label>} */}
