@@ -329,7 +329,7 @@ function App() {
                     >
                         {hasQuizList && (
                             <>
-                                <option value="" disabled hidden>考题类别</option>
+                                <option value="" disabled hidden>题库</option>
                                 {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
                             </>
                         )}

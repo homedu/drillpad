@@ -260,6 +260,11 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
     }, [bookmarked]);
 
+    const RichDiv = ({ value }) => {
+        if (value == null) return null;
+        return value.isHTML?.() ? <div dangerouslySetInnerHTML={{ __html: value }} /> : <div>{value}</div>;
+    }
+
     return (
         <div className="mt-6 scroll-smooth">
             {questions.map((q, index) => {
@@ -340,11 +345,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         <div>
                             <h3 className={cn(tw.question, "whitespace-pre-line")}>
                                 {/* 优先显示装饰过的问题 */}
-                                {
-                                    questionMod?.[index] ?
-                                        (<div dangerouslySetInnerHTML={{ __html: `${questionMod[index]}`.trim() }} />) :
-                                        (<div> {q.question} </div>)
-                                }
+                                <RichDiv value={questionMod?.[index] ?? q.question} />
                             </h3>
                         </div>
 

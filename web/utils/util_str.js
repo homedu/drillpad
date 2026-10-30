@@ -54,3 +54,20 @@ if (!String.prototype.replaceNth) {
         });
     }
 }
+
+// only for front-end
+if (!String.prototype.isHTML) {
+    String.prototype.isHTML = function () {
+        const str = this.toString();
+        const doc = document.createElement('div');
+        doc.innerHTML = str;
+        // 遍历子节点，判断是否存在 nodeType === 1 (即 Element 元素节点)
+        const children = doc.childNodes;
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].nodeType === 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
