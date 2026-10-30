@@ -4,6 +4,7 @@ import { cn } from "../../utils/utils.js"
 import "../../utils/util_str.js";
 import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
+import RichTextEditor from "../../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles.js";
 import { PenIcon } from "./icons.js";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
@@ -449,7 +450,7 @@ function App() {
             </div>
 
             <label className={cn(tw.label, "block font-bold mt-6")}>题目</label>
-            <textarea
+            <RichTextEditor
                 className={tw.textarea}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}

@@ -63,9 +63,6 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     ['FILL', answers]       // fill, array answer
                 ]);
 
-                console.log(qGroup)
-                console.log(mGroupContent)
-
                 return {
                     id,
                     question,
