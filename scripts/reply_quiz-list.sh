@@ -27,9 +27,10 @@ DIR_USER="../users/${CUR_USER}"
 
 [[ -n "${CUR_USER}" && -d "${DIR_USER}" ]] || { jq -n '[]'; exit 0; }
 
-QUIZ_LIST=$(find "${DIR_USER}/quiz_bank/" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
+ensure_dir QB="${DIR_USER}/quiz_bank/"
+QUIZ_LIST=$(find "${QB}" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
 
-[[ -n "${QUIZ_LIST}" ]] || {	jq -n '[]';	exit 0; }
+[[ -n "${QUIZ_LIST}" ]] || { jq -n '[]'; exit 0; }
 awk -F. '{print $1}' <<< "${QUIZ_LIST}" | jq -R -s 'split("\n") | map(select(length>0))'
 
 # topic: quiz-list

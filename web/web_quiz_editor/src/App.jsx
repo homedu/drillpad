@@ -63,13 +63,13 @@ function App() {
 
     const hasQuizList = quizList?.length > 0;
 
-    const handleOptionTextChange = (index, text) => {
+    const handleOptionTextChange = (index, text, toTrim = false) => {
         const isEmpty = !text.trim();
         setOptions((prev) =>
             prev.map((opt, i) => {
                 if (i === index) {
                     // 当前项：文本为空时同步取消"正确"
-                    return { ...opt, text, isCorrect: isEmpty ? false : opt.isCorrect };
+                    return { ...opt, text: toTrim ? text.trim() : text, isCorrect: isEmpty ? false : opt.isCorrect };
                 }
                 if (isEmpty && i > index) {
                     // 当前项被清空：后面的选项全部清空
@@ -453,6 +453,7 @@ function App() {
                 className={tw.textarea}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
+                onBlur={(e) => setQuestion(e.target.value.trim())}
                 placeholder="输入题目内容"
                 rows={3}
             />
@@ -474,6 +475,7 @@ function App() {
                                 value={opt.text}
                                 disabled={!canEdit}
                                 onChange={(e) => handleOptionTextChange(index, e.target.value)}
+                                onBlur={(e) => handleOptionTextChange(index, e.target.value, true)}
                                 placeholder={canEdit ?
                                     (QType.OPT ? `选项 ${index + 1} 内容` : `第 ${index + 1} 空格处答案内容`) :
                                     (QType.OPT ? `先填写选项 ${String.fromCharCode(64 + index)}` : "匹配题目中的待填空'____'")}
