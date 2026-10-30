@@ -134,7 +134,6 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         if (question == undefined || question == null) {
             throw Error(`cannot find question - ${key}`);
         }
-
         const prompt = getPrompt(quiz, type, question.humanReadableQuestion);
         console.log(prompt);
         setAiPrompt(prompt);
@@ -216,7 +215,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     }, []);
 
     const bookmarkJump = () => {
-        const activeBookmarks = document.querySelectorAll('div[data-bookmark="true"]');
+        const activeBookmarks = document.querySelectorAll('button[data-bookmark="true"]');
         const n = activeBookmarks.length;
         if (n === 0) return;
         const targetElement = activeBookmarks[curIdxRef.current];
@@ -276,9 +275,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                 return (
                     <div key={q.id}
                         ref={(el) => { if (el) { cardsRef.current[q.id] = el } else { delete cardsRef.current[q.id] } }}
-                        className={cn(tw.card, "relative transform-3d focus:outline-none focus:ring-1 focus:ring-blue-400")}
-                        tabIndex={-1}
-                        data-bookmark={isBookmarked}
+                        className={cn(tw.card, "relative transform-3d")}
                         onClick={(e) => handleCardClick(index, e)}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
@@ -290,7 +287,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
                         {/* 右侧功能键：绝对定位到卡片右边框外面，从上往下排 */}
                         <div className={tw.cardButtonGrp}>
-                            <button type="button" className={tw.cardButton} onClick={(e) => { e.stopPropagation(); handleBookmark(q.id, q.type, index, e) }}>
+                            <button type="button" className={tw.cardButton} onClick={(e) => handleBookmark(q.id, q.type, index, e)} data-bookmark={isBookmarked}>
                                 <BookmarkIcon index={index} bookmarked={bookmarked} />
                             </button>
                             <button type="button" className={tw.cardButton} onClick={(e) => handleRating(q.id, q.type, index, e)}>
@@ -342,11 +339,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         )} */}
 
                         {/* 题干 */}
-                        <div>
-                            <h3 className={cn(tw.question, "whitespace-pre-line")}>
-                                {/* 优先显示装饰过的问题 */}
-                                <RichDiv value={questionMod?.[index] ?? q.question} />
-                            </h3>
+                        <div className={cn(tw.question, "whitespace-pre-line")} >
+                            <RichDiv value={questionMod?.[index] ?? q.question} />
                         </div>
 
                         {/* 作答区域：完全交给题型组件 */}

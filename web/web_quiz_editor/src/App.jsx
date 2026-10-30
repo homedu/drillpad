@@ -111,7 +111,8 @@ function App() {
         if (!question.trim()) return "请输入题目内容";
 
         const count = options.filter((opt) => opt.text.trim()).length;
-        if (count < 2) return "请至少填写两个选项";
+        if (QType.OPT && count < 2) return "请至少填写两个选项";
+        if (QType.FILL && count < 1) return "请至少填写一个空格的答案";
         if (count > OPTION_COUNT) return `最多只能填写 ${OPTION_COUNT} 个选项`;
 
         // 填空题都为正确答案

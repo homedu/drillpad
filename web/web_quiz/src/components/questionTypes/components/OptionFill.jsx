@@ -21,7 +21,7 @@ export function Option({
                 disabled={submitted}
                 className="me-2.5"
                 onChange={onChange}
-                onFocus={(e) => { e.stopPropagation(); onFocus(e.target.name) }}
+                onFocus={(e) => onFocus(e.target.name)}
             />
             <strong className="me-2">{opt.label}.</strong>
             <span>{opt.text}</span>
@@ -47,7 +47,7 @@ export function Fill({
                 disabled={submitted}
                 className="m-0 w-1/2 h-full min-h-0 box-border px-1 py-0 leading-normal"
                 onChange={(e) => onChange({ "label": opt.label, "text": e.target.value })}
-                onFocus={(e) => { e.stopPropagation(); onFocus(e.target.name) }}
+                onFocus={(e) => onFocus(e.target.name)}
             />
         </label>
     );

@@ -2,9 +2,13 @@ import { cn } from "../../../utils/utils.js"
 
 export const styles = {
 
-    card: "bg-white border border-solid border-[#e1e4e8] rounded-b-[8px] p-[20px] mb-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)]",
+    card: cn(
+        "bg-white border border-solid border-[#e1e4e8] rounded-b-[8px] p-[20px] mb-[16px] shadow-[0_1px_3px_rgba(0,0,0,0.05)]",
+        "focus-within:ring-1 focus-within:ring-blue-400 focus-within:border-blue-400",
+        "active:ring-1 active:ring-blue-400 active:border-blue-400"
+    ),
 
-    question: "mt-0 text-[16px] text-[#24292e] leading-[1.5]",
+    question: "mt-0 mb-3 text-[16px] text-[#24292e] leading-[1.5]",
 
     optionsContainer: "flex flex-col gap-[8px]",
 
@@ -36,7 +40,8 @@ export const styles = {
 
     resetBtn: "py-[10px] px-[24px] bg-[#0070f3] text-white border-none rounded-[6px] text-[15px] font-bold cursor-pointer",
 
-    cardNum: cn("absolute right-full -top-[1px] min-w-6 px-1 py-3",
+    cardNum: cn(
+        "absolute right-full -top-[1px] min-w-6 px-1 py-3",
         "text-center text-sm font-semibold border-[#e1e4e8]",
         "text-black bg-[#e1e4e8] rounded-l-md select-none",
         "[clip-path:polygon(0_0%,100%_0,100%_100%,0_60%)]",
