@@ -163,29 +163,31 @@ function App() {
 
             <div className="flex items-center">
 
-                <input
-                    id="user-input"
-                    ref={refInputUser}
-                    value={user}
-                    onChange={(e) => { setUser(e.target.value) }}
-                    onKeyUp={async (e) => {
-                        if (e.key === 'Enter' || e.key === 'Tab') {
-                            setQuizList(await list_quiz(e.target.value));
-                            if (!hasQuizList) {
-                                setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
-                                setFileContent(""); // 如果没有题库，清空上一次的作答内容
-                                setInfo("");
-                            }
-                            e.target.blur();
-                            if (refSelectQuiz.current) {
-                                refSelectQuiz.current.focus();
-                            }
+                <form onSubmit={
+                    async (e) => {
+                        e.preventDefault();
+                        setQuizList(await list_quiz(user));
+                        if (!hasQuizList) {
+                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
+                            setFileContent(""); // 如果没有题库，清空上一次的作答内容
+                            setInfo("");
                         }
-                    }}
-                    placeholder="用户名"
-                    className={cn(tw.input, "w-45")}
-                    disabled={connError || loading || disabledMap.userInput}
-                />
+                        if (refSelectQuiz.current) {
+                            refSelectQuiz.current.focus();
+                        }
+                    }
+                }
+                >
+                    <input
+                        id="user-input"
+                        ref={refInputUser}
+                        value={user}
+                        onChange={(e) => { setUser(e.target.value) }}
+                        placeholder="用户名"
+                        className={cn(tw.input, "w-45")}
+                        disabled={connError || loading || disabledMap.userInput}
+                    />
+                </form>
 
                 <select
                     id="quiz-select"
