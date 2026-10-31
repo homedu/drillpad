@@ -168,7 +168,7 @@ function App() {
                     ref={refInputUser}
                     value={user}
                     onChange={(e) => { setUser(e.target.value) }}
-                    onKeyDown={async (e) => {
+                    onKeyUp={async (e) => {
                         if (e.key === 'Enter' || e.key === 'Tab') {
                             setQuizList(await list_quiz(e.target.value));
                             if (!hasQuizList) {

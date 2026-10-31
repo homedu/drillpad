@@ -28,7 +28,7 @@ DIR_USER="../users/${CUR_USER}"
 [[ -n "${CUR_USER}" && -d "${DIR_USER}" ]] || { jq -n '[]'; exit 0; }
 
 ensure_dir QB="${DIR_USER}/quiz_bank/"
-QUIZ_LIST=$(find "${QB}" -type f -iname "*.tsv" -printf "%p\n" 2>/dev/null) # %p: path; %f: filename
+QUIZ_LIST=$(find "${QB}" -type f -iname "*.tsv" -printf "%p\n" | LC_ALL=C sort 2>/dev/null) # %p: path; %f: filename
 
 # trim path head to be relative to ***/quiz_bank/
 result=""

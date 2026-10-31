@@ -3,7 +3,19 @@
 
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base); /* preflight 里有一条全局规则，把所有元素的边框都清零 */
 @import "tailwindcss/utilities.css" layer(utilities);
 
-/* Preflight 里唯一建议补回的一条 */
-*, ::before, ::after { box-sizing: border-box; }
+/* 屏蔽 Preflight 后建议补回一条 */
+/* *, ::before, ::after { box-sizing: border-box; } */
+
+@layer base {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-md);
+    background-color: white;
+    padding: 0.375rem 0.625rem;
+  }
+}
