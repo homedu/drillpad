@@ -28,7 +28,15 @@ DIR_USER="../users/${CUR_USER}"
 [[ -n "${CUR_USER}" && -d "${DIR_USER}" ]] || { jq -n '[]'; exit 0; }
 
 ensure_dir QB="${DIR_USER}/quiz_bank/"
-QUIZ_LIST=$(find "${QB}" -type f -iname "*.tsv" -printf "%f\n" 2>/dev/null)
+QUIZ_LIST=$(find "${QB}" -type f -iname "*.tsv" -printf "%p\n" 2>/dev/null) # %p: path; %f: filename
+
+# trim path head to be relative to ***/quiz_bank/
+result=""
+while IFS= read -r line; do
+    result+="${line#"${QB}"}"$'\n'
+done <<< "${QUIZ_LIST}"
+QUIZ_LIST="${result}"
+#
 
 [[ -n "${QUIZ_LIST}" ]] || { jq -n '[]'; exit 0; }
 awk -F. '{print $1}' <<< "${QUIZ_LIST}" | jq -R -s 'split("\n") | map(select(length>0))'
