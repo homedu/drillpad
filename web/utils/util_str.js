@@ -1,3 +1,17 @@
+import { expand, trimTail } from './utils.js';
+
+if (!String.prototype.expand) {
+    String.prototype.expand = function (...chars) {
+        return expand(this.toString(), ...chars);
+    };
+}
+
+if (!String.prototype.trimTail) {
+    String.prototype.trimTail = function (...chars) {
+        return trimTail(this.toString(), ...chars);
+    };
+}
+
 if (!String.prototype.mustEnd) {
     String.prototype.mustEnd = function (tail, ignoreCase = false) {
         const str = this.toString();

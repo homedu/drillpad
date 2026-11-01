@@ -1,3 +1,4 @@
+import '../utils/util_str.js';
 
 export const getPromptObject = (quiz, type) => {
 
@@ -8,7 +9,7 @@ export const getPromptObject = (quiz, type) => {
     }
 
     const prompt = {
-        az_900: {
+        AZ_900: {
             quiz_name: `这是关于 AZ-900 Microsoft Azure Fundamentals 方面的 ${qTypeDesc[type]}，题目如下:`,
             question_profile: "双小括号内是问题，双中括号内是选项，选项之间用双分号分隔。",
             notice: "(如果题目毫无信息或毫无逻辑，亦或跟告知的测试方向完全不相关，直接返回即可，无需继续作答)",
@@ -27,5 +28,22 @@ export const getPromptObject = (quiz, type) => {
         }
     }
 
-    return prompt[quiz];
+    if (prompt[quiz]) {
+        return prompt[quiz];
+    }
+    let possible = null;
+    quiz.expand('_', '-').forEach(q => {
+        if (prompt[q]) {
+            possible = q;
+            return;
+        }
+    });
+    if (possible) {
+        return prompt[possible];
+    }
+    const tq = quiz.trimTail('-', '_', '.');
+    if (prompt[tq]) {
+        return prompt[tq];
+    }
+    throw new Error(`No prompt found for quiz: ${quiz}`);
 }

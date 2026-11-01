@@ -480,7 +480,22 @@ function App() {
 
             </div>
 
-            <label className={cn(tw.label, "block font-bold mt-6")}>题目</label>
+            <div>
+
+                <label className={cn(tw.label, "block font-bold mt-6")}>题目</label>
+
+                {/* <label className={tw.checkLabel(!opt.text.trim())} title="先填写选项内容">
+                    <input
+                        type='checkbox'
+                        name="keep-question"
+                        checked={false}
+                        onChange={() => { }}
+                    />
+                    <span style={{ marginLeft: 4 }}>正确</span>
+                </label> */}
+
+            </div>
+
             <RichTextEditor
                 className={tw.textarea}
                 value={question}
