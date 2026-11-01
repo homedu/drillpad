@@ -8,7 +8,6 @@ import RichTextEditor from "../../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles.js";
 import { PenIcon } from "./icons.js";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
-import { QuizListError } from "../../net_service/QDPErr.js";
 
 /**
  * QuestionUploadForm
@@ -20,10 +19,13 @@ import { QuizListError } from "../../net_service/QDPErr.js";
  *  - 清空按钮：重置所有输入
  */
 
-const OPTION_COUNT = 8;
+const MIN_OPTION_COUNT = 8;
+const MAX_OPTION_COUNT = 20;
 
 // 生成初始选项数组：[{ text: "", isCorrect: false }, ...]
-const createEmptyOptions = () => Array.from({ length: OPTION_COUNT }, () => ({ text: "", isCorrect: false }));
+const createEmptyOptions = (oc = MIN_OPTION_COUNT) => Array.from({ length: oc }, () => ({ text: "", isCorrect: false }));
+
+const INITIAL_SET_OPT_COUNT_BY = { MANUAL: false, FETCH: false };
 
 function App() {
 
@@ -51,11 +53,12 @@ function App() {
     const [idxGrp, setIdxGrp] = useState("");
     const [groupRef, setGroupRef] = useState("");
     const [question, setQuestion] = useState("");
+    const [optCount, setOptCount] = useState(MIN_OPTION_COUNT);
+    const [OptCountBy, setOptCountBy] = useState(INITIAL_SET_OPT_COUNT_BY);
     const [options, setOptions] = useState(createEmptyOptions());
     const [fillCount, setFillCount] = useState(0);
     const [skillStr, setSkillStr] = useState("");
     const [submitting, setSubmitting] = useState(false);
-
     const [disabledMap, setDisabledMap] = useState({
         userInput: false,  // 用户名输入框
         quizSelect: false, // 题目下拉框
@@ -63,6 +66,17 @@ function App() {
     });
 
     const hasQuizList = quizList?.length > 0;
+
+    const SetOptCountBy = (by) => {
+        if (by in INITIAL_SET_OPT_COUNT_BY) {
+            setOptCountBy({
+                ...INITIAL_SET_OPT_COUNT_BY,
+                [by]: true,
+            })
+        } else {
+            console.warn(`SetOptCountBy: invalid value '${by}'`);
+        }
+    }
 
     const handleOptionTextChange = (index, text, toTrim = false) => {
         const isEmpty = !text.trim();
@@ -113,7 +127,6 @@ function App() {
         const count = options.filter((opt) => opt.text.trim()).length;
         if (QType.OPT && count < 2) return "请至少填写两个选项";
         if (QType.FILL && count < 1) return "请至少填写一个空格的答案";
-        if (count > OPTION_COUNT) return `最多只能填写 ${OPTION_COUNT} 个选项`;
 
         // 填空题都为正确答案
         const correctCount = QType.FILL ? count : options.filter((opt) => opt.isCorrect).length;
@@ -143,7 +156,7 @@ function App() {
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count")); // update new question count
             setQid("");
-            await question_fetch(user, selectedQuiz, id, { question: true, option: true });
+            await question_fetch(user, selectedQuiz, id, { question: true, option: true }); // 提交后的刷新，某些字段需要清空，方便继续录入下一题
             setInfo(`提交成功! 题目ID: ${id}`)
         } catch (err) {
             setError("提交失败!");
@@ -152,7 +165,7 @@ function App() {
         }
     };
 
-    const question_fetch = async (user, quiz, qid, hiddenFields) => {
+    const question_fetch = async (user, quiz, qid, clearMap) => {
         try {
             const result = await fetch_question(user, quiz, qid.trim());
             if (result.status === "success") {
@@ -182,10 +195,13 @@ function App() {
                 setGroup(qGroup);
                 setIdxGrp(qGroupIdx);
                 setSkillStr(qSkills.join("; "))
-                setQuestion(hiddenFields?.question ? "" : qText);
-                setOptions(createEmptyOptions().map((opt, index) => ({
-                    text: hiddenFields?.option ? "" : (qOptions[index] || ""),
-                    isCorrect: hiddenFields?.option ? false : (qOptions[index] ? qAnswers.includes(qOptions[index]) : false),
+                setQuestion(clearMap?.question ? "" : qText);
+                SetOptCountBy("FETCH");
+                const oc = qOptions.length < MIN_OPTION_COUNT ? MIN_OPTION_COUNT : qOptions.length;
+                setOptCount(oc);
+                setOptions(createEmptyOptions(oc).map((opt, index) => ({
+                    text: clearMap?.option ? "" : (qOptions[index] || ""),
+                    isCorrect: clearMap?.option ? false : (qOptions[index] ? qAnswers.includes(qOptions[index]) : false),
                 })));
 
                 setInfo("题目搜索成功");
@@ -252,7 +268,6 @@ function App() {
             setOptions((prev) => {
                 const correctCount = prev.filter((o) => o.isCorrect).length;
                 if (correctCount <= 1) return prev;
-
                 let found = false;
                 return prev.map((o) => {
                     if (o.isCorrect && !found) {
@@ -274,6 +289,18 @@ function App() {
             setFillCount(0);
         }
     }, [question]);
+
+    useEffect(() => {
+        if (OptCountBy.MANUAL) {
+            const newOptions = createEmptyOptions(optCount);
+            newOptions.map((opt, index) => {
+                if (index < options.length) {
+                    newOptions[index] = options[index];
+                }
+            });
+            setOptions(newOptions);
+        }
+    }, [optCount, OptCountBy])
 
     const refInputUser = useRef(null);
     const refSelectQuiz = useRef(null);
@@ -359,7 +386,7 @@ function App() {
 
             </div>
 
-            <div className="flex items-center justify-end gap-2 mt-3">
+            <div className="flex items-center justify-end gap-2 mt-5">
                 <input
                     type="text"
                     value={qid}
@@ -462,6 +489,27 @@ function App() {
                 placeholder="输入题目内容"
                 rows={3}
             />
+
+            <div className="flex items-center justify-end gap-2 mt-5">
+                <label className={cn(tw.label, "font-bold")}>答案数量</label>
+                <input
+                    type="number"
+                    min={MIN_OPTION_COUNT}
+                    max={MAX_OPTION_COUNT}
+                    value={optCount}
+                    onChange={(e) => {
+                        SetOptCountBy("MANUAL");
+                        const value = e.target.value;
+                        if (value === "") {
+                            setOptCount(MIN_OPTION_COUNT); // 允许输入框暂时清空，而不是被 Number('') 强行变成 0
+                            return;
+                        }
+                        const n = Number(value);
+                        if (!Number.isNaN(n)) setOptCount(n);
+                    }}
+                    className={cn(tw.input, "w-12 text-center")}
+                />
+            </div>
 
             <label className={cn(tw.label, "block font-bold")}>
                 {QType.FILL ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
