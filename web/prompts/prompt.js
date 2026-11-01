@@ -28,9 +28,7 @@ export const getPromptObject = (quiz, type) => {
         }
     }
 
-    if (prompt[quiz]) {
-        return prompt[quiz];
-    }
+    if (prompt[quiz]) return prompt[quiz];
 
     const [lower, upper, title] = quiz.caseVariants();
 
@@ -38,10 +36,7 @@ export const getPromptObject = (quiz, type) => {
         let possible = null;
         const expandedQuizList = qz.expand('_', '-', ' ');
         expandedQuizList.forEach(q => {
-            if (prompt[q]) {
-                possible = q;
-                return;
-            }
+            if (prompt[q]) possible = q;
         });
         if (possible) return prompt[possible];
     }
@@ -51,9 +46,8 @@ export const getPromptObject = (quiz, type) => {
         const expandedQuizList = qz.expand('_', '-', ' ');
         expandedQuizList.forEach(q => {
             const tq = q.trimTail('_', '-', ' ', '.');
-            if (prompt[tq]) {
-                possible = tq;
-                return;
+            if (tq.length / q.length > 0.7) {
+                if (prompt[tq]) possible = tq;
             }
         });
         if (possible) return prompt[possible];

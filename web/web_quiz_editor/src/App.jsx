@@ -64,6 +64,8 @@ function App() {
         quizSelect: false, // 题目下拉框
         quizNew: false,    // 新建题目
     });
+    const [keepQuestion, setKeepQuestion] = useState(false); // 提交后保留题目内容
+    const [keepOptions, setKeepOptions] = useState(false); // 提交后保留选项内容
 
     const hasQuizList = quizList?.length > 0;
 
@@ -156,7 +158,7 @@ function App() {
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count")); // update new question count
             setQid("");
-            await question_fetch(user, selectedQuiz, id, { question: true, option: true }); // 提交后的刷新，某些字段需要清空，方便继续录入下一题
+            await question_fetch(user, selectedQuiz, id, { question: !keepQuestion, option: !keepOptions }); // 提交后的刷新，某些字段需要清空，方便继续录入下一题
             setInfo(`提交成功! 题目ID: ${id}`)
         } catch (err) {
             setError("提交失败!");
@@ -480,20 +482,17 @@ function App() {
 
             </div>
 
-            <div>
-
-                <label className={cn(tw.label, "block font-bold mt-6")}>题目</label>
-
-                {/* <label className={tw.checkLabel(!opt.text.trim())} title="先填写选项内容">
+            <div className="flex items-center mt-4">
+                <label className={cn(tw.label, "block font-bold")}>题目</label>
+                <label className={cn(tw.label, "block font-bold ml-auto")}>
+                    <span className="me-1">提交后保留内容</span>
                     <input
                         type='checkbox'
                         name="keep-question"
-                        checked={false}
-                        onChange={() => { }}
+                        checked={keepQuestion}
+                        onChange={(e) => setKeepQuestion(e.target.checked)}
                     />
-                    <span style={{ marginLeft: 4 }}>正确</span>
-                </label> */}
-
+                </label>
             </div>
 
             <RichTextEditor
@@ -528,9 +527,20 @@ function App() {
                 />
             </div>
 
-            <label className={cn(tw.label, "block font-bold")}>
-                {QType.FILL ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
-            </label>
+            <div className="flex items-center mt-2 mb-2">
+                <label className={cn(tw.label, "block font-bold")}>
+                    {QType.FILL ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
+                </label>
+                <label className={cn(tw.label, "block font-bold ml-auto")}>
+                    <span className="me-1">提交后保留内容</span>
+                    <input
+                        type='checkbox'
+                        name="keep-options"
+                        checked={keepOptions}
+                        onChange={(e) => setKeepOptions(e.target.checked)}
+                    />
+                </label>
+            </div>
 
             <div className={tw.optionsList}>
                 {options.map((opt, index) => {
@@ -558,7 +568,7 @@ function App() {
                                     disabled={!opt.text.trim()}
                                     onChange={() => handleOptionCheck(index)}
                                 />
-                                <span style={{ marginLeft: 4 }}>正确</span>
+                                <span className="ml-1">正确</span>
                             </label>
                         </div>
                     );
