@@ -131,7 +131,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const handleAI = (key, type, event) => {
         console.log("question id:", key, "; question type", type);
         const question = questions.filter((q) => q.id === key)[0];
-        if (question == undefined || question == null) {
+        if (question == null) {
             throw Error(`cannot find question - ${key}`);
         }
         const prompt = getPrompt(quiz, type, question.humanReadableQuestion);

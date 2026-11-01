@@ -505,7 +505,9 @@ function App() {
                             return;
                         }
                         const n = Number(value);
-                        if (!Number.isNaN(n)) setOptCount(n);
+                        if (!Number.isNaN(n) && n >= MIN_OPTION_COUNT && n <= MAX_OPTION_COUNT) {
+                            setOptCount(n);
+                        }
                     }}
                     className={cn(tw.input, "w-12 text-center")}
                 />
