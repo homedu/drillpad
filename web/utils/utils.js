@@ -171,3 +171,50 @@ export function trimTail(str, ...chars) {
     }
     return str; // 没找到任何目标字符
 }
+
+/**
+ * 输入字符串,返回 [全小写, 全大写, 每个单词首字母大写]
+ * 默认分隔符:空格、下划线 _、连字符 -;可额外传入任意个分隔符(不定参数或数组)
+ *
+ * @param {string} str         输入字符串
+ * @param {...string} extra    额外的分隔符(每项必须是单个字符),可直接传数组
+ * @returns {string[]}         [lower, upper, title]
+ *
+ * 示例:
+ *   caseVariants('foo-bar')            => ['foo-bar', 'FOO-BAR', 'Foo-Bar']
+ *   caseVariants('foo.bar', '.')       => ['foo.bar', 'FOO.BAR', 'Foo.Bar']
+ *   caseVariants('foo.bar/baz', ['.', '/']) => ['foo.bar/baz', 'FOO.BAR/BAZ', 'Foo.Bar/Baz']
+ */
+export function caseVariants(str, ...extra) {
+    if (typeof str !== 'string') throw new TypeError('str must be a string');
+
+    const DEFAULT_SEPARATORS = [' ', '_', '-', '\t'];
+
+    // 默认分隔符 + 额外分隔符,Set 自动去重
+    const seps = new Set(DEFAULT_SEPARATORS);
+    for (const c of extra.flat()) {
+        if (typeof c !== 'string' || [...c].length !== 1) {
+            throw new TypeError(`Invalid separator: "${c}"`);
+        }
+        seps.add(c);
+    }
+
+    const lower = str.toLowerCase();
+    const upper = str.toUpperCase();
+
+    let title = '';
+    let newWord = true; // 是否处于单词开头
+    for (const ch of lower) {            // 按码点遍历,兼容代理对字符
+        if (seps.has(ch)) {
+            title += ch;
+            newWord = true;
+        } else if (newWord) {
+            title += ch.toUpperCase();
+            newWord = false;
+        } else {
+            title += ch;
+        }
+    }
+
+    return [lower, upper, title];
+}

@@ -1,4 +1,4 @@
-import { expand, trimTail } from './utils.js';
+import { expand, trimTail, caseVariants } from './utils.js';
 
 if (!String.prototype.expand) {
     String.prototype.expand = function (...chars) {
@@ -9,6 +9,12 @@ if (!String.prototype.expand) {
 if (!String.prototype.trimTail) {
     String.prototype.trimTail = function (...chars) {
         return trimTail(this.toString(), ...chars);
+    };
+}
+
+if (!String.prototype.caseVariants) {
+    String.prototype.caseVariants = function (...extra) {
+        return caseVariants(this.toString(), ...extra);
     };
 }
 

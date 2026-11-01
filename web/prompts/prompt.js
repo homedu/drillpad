@@ -31,19 +31,33 @@ export const getPromptObject = (quiz, type) => {
     if (prompt[quiz]) {
         return prompt[quiz];
     }
-    let possible = null;
-    quiz.expand('_', '-').forEach(q => {
-        if (prompt[q]) {
-            possible = q;
-            return;
-        }
-    });
-    if (possible) {
-        return prompt[possible];
+
+    const [lower, upper, title] = quiz.caseVariants();
+
+    for (const qz of [lower, upper, title]) {
+        let possible = null;
+        const expandedQuizList = qz.expand('_', '-', ' ');
+        expandedQuizList.forEach(q => {
+            if (prompt[q]) {
+                possible = q;
+                return;
+            }
+        });
+        if (possible) return prompt[possible];
     }
-    const tq = quiz.trimTail('-', '_', '.');
-    if (prompt[tq]) {
-        return prompt[tq];
+
+    for (const qz of [lower, upper, title]) {
+        let possible = null;
+        const expandedQuizList = qz.expand('_', '-', ' ');
+        expandedQuizList.forEach(q => {
+            const tq = q.trimTail('_', '-', ' ', '.');
+            if (prompt[tq]) {
+                possible = tq;
+                return;
+            }
+        });
+        if (possible) return prompt[possible];
     }
+
     throw new Error(`No prompt found for quiz: ${quiz}`);
 }
