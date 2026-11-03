@@ -41,14 +41,15 @@ export function Fill({
     return (
         <label className={tw.fill({ submitted, isOptionSelected: filled, isThisOptionCorrect: isCorrect })}>
             <strong className="me-2">{opt.label}.</strong>
-            <input
-                type="text"
+            <textarea
                 name={`question-${questionId}-${opt.label}`}
                 disabled={submitted}
-                className="m-0 w-1/2 h-full min-h-0 box-border px-1 py-0 leading-normal"
+                autoComplete="off"
+                className="m-0 w-full h-[3rem] min-h-[3rem] box-border px-3 py-3 leading-norma text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                wrap="soft"
                 onChange={(e) => onChange({ "label": opt.label, "text": e.target.value })}
-                onFocus={(e) => onFocus(e.target.name)}
-            />
+                onFocus={(e) => onFocus(e.target.name)}>
+            </textarea>
         </label>
     );
 }

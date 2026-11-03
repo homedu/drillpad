@@ -440,7 +440,7 @@ function App() {
                         value={skillStr}
                         className={cn(tw.input, "w-full")}
                         onChange={(e) => setSkillStr(e.target.value)}
-                        placeholder="分号(;)分隔多个技能知识点输入"
+                        placeholder="分号(;)分隔多个技能知识点"
                     />
                 </div>
             </div>

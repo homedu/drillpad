@@ -17,8 +17,11 @@ export const FILL = {
         if (answer.length === 0 || q.correctAnswer.length !== answer.length) {
             return false;
         }
-        const filled = normalize(answer.map((o) => o.text));
+        const filled = normalize(answer.sort((a, b) => a.label.localeCompare(b.label)).map((o) => o.text));
         const correct = normalize(q.correctAnswer);
+        // console.log("answer", answer);
+        // console.log("filled", filled);
+        // console.log("correct", correct);
         return filled.every((f, i) => f === correct[i]);
     },
 
