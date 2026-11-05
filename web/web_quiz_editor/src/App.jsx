@@ -53,6 +53,8 @@ function App() {
     const [idxGrp, setIdxGrp] = useState("");
     const [groupRef, setGroupRef] = useState("");
     const [question, setQuestion] = useState("");
+    const [questionFieldType, setQuestionFieldType] = useState("TXT"); // "TXT" or "BIN"
+    const [evalMode, setEvalMode] = useState("OBJ"); // "SUB", "OBJ"
     const [optCount, setOptCount] = useState(MIN_OPTION_COUNT);
     const [OptCountBy, setOptCountBy] = useState(INITIAL_SET_OPT_COUNT_BY);
     const [options, setOptions] = useState(createEmptyOptions());
@@ -154,7 +156,7 @@ function App() {
 
         setSubmitting(true);
         try {
-            const id = await make_quiz(user, selectedQuiz, qid, type, group, question, opts, answers, skills);
+            const id = await make_quiz(user, selectedQuiz, qid, type, group, question, opts, answers, skills, questionFieldType, evalMode);
             resetForm();
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count")); // update new question count
             setQid("");
@@ -182,11 +184,13 @@ function App() {
                 const qOptions = fields.slice(+fields[5], +fields[6] - 1).filter(o => o.trim()); // "- 1" is skip "A:" 
                 const qAnswers = fields.slice(+fields[6], +fields[7] - 1).filter(a => a.trim()); // "- 1" is skip "S:"
                 const qSkills = fields.slice(+fields[7]);
+                const qFieldType = fields[8]; // "TXT" or "BIN"
 
-                const ref_id = fields[8];
-                const prev_id = fields[9];
-                const next_id = fields[10];
-                const prompt_id = fields[11];
+                const ref_id = fields[9];
+                const prev_id = fields[10];
+                const next_id = fields[11];
+                const prompt_id = fields[12];
+                const eval_mode = fields[14]; // "SUB" or "OBJ"
 
                 // console.log("Q:", qText);
                 // console.log("O:", qOptions);
@@ -198,6 +202,8 @@ function App() {
                 setIdxGrp(qGroupIdx);
                 setSkillStr(qSkills.join("; "))
                 setQuestion(clearMap?.question ? "" : qText);
+                setQuestionFieldType(qFieldType || "TXT");
+                setEvalMode(eval_mode || "OBJ");
                 SetOptCountBy("FETCH");
                 const oc = qOptions.length < MIN_OPTION_COUNT ? MIN_OPTION_COUNT : qOptions.length;
                 setOptCount(oc);
@@ -264,7 +270,9 @@ function App() {
             FILL: selectedQuestionType === 'FILL',
             OPT: selectedQuestionType === 'MCSA' || selectedQuestionType === 'MS'
         })
+    }, [selectedQuestionType]);
 
+    useEffect(() => {
         // 变为单选题，只保留第一个正确答案
         if (QType.MCSA) {
             setOptions((prev) => {
@@ -280,7 +288,10 @@ function App() {
                 });
             });
         }
-    }, [selectedQuestionType]);
+        if (QType.OPT) {
+            setEvalMode("OBJ"); // 选择题只能是客观题
+        }
+    }, [QType]);
 
     useEffect(() => {
         if (QType.FILL) {
@@ -504,27 +515,39 @@ function App() {
                 rows={3}
             />
 
-            <div className="flex items-center justify-end gap-2 mt-5">
-                <label className={cn(tw.label, "font-bold")}>答案数量</label>
-                <input
-                    type="number"
-                    min={MIN_OPTION_COUNT}
-                    max={MAX_OPTION_COUNT}
-                    value={optCount}
-                    onChange={(e) => {
-                        SetOptCountBy("MANUAL");
-                        const value = e.target.value;
-                        if (value === "") {
-                            setOptCount(MIN_OPTION_COUNT); // 允许输入框暂时清空，而不是被 Number('') 强行变成 0
-                            return;
-                        }
-                        const n = Number(value);
-                        if (!Number.isNaN(n) && n >= MIN_OPTION_COUNT && n <= MAX_OPTION_COUNT) {
-                            setOptCount(n);
-                        }
-                    }}
-                    className={cn(tw.input, "w-12 text-center")}
-                />
+            <div className="flex items-center gap-2 mt-5">
+                <label className={cn(tw.label, "block font-bold")}>
+                    <span className="me-1">主观题答案</span>
+                    <input
+                        type='checkbox'
+                        name="subjective-answer"
+                        disabled={QType.OPT} // 选择题只能是客观题
+                        checked={QType.FILL && evalMode === "SUB"}
+                        onChange={(e) => setEvalMode(e.target.checked ? "SUB" : "OBJ")}
+                    />
+                </label>
+                <div className="ml-auto">
+                    <label className={cn(tw.label, "font-bold me-1")}>答案数量</label>
+                    <input
+                        type="number"
+                        min={MIN_OPTION_COUNT}
+                        max={MAX_OPTION_COUNT}
+                        value={optCount}
+                        onChange={(e) => {
+                            SetOptCountBy("MANUAL");
+                            const value = e.target.value;
+                            if (value === "") {
+                                setOptCount(MIN_OPTION_COUNT); // 允许输入框暂时清空，而不是被 Number('') 强行变成 0
+                                return;
+                            }
+                            const n = Number(value);
+                            if (!Number.isNaN(n) && n >= MIN_OPTION_COUNT && n <= MAX_OPTION_COUNT) {
+                                setOptCount(n);
+                            }
+                        }}
+                        className={cn(tw.input, "w-12 text-center")}
+                    />
+                </div>
             </div>
 
             <div className="flex items-center mt-2 mb-2">

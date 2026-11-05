@@ -64,10 +64,13 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     PREV_ID=$(jq -r '.prev_id // ""' <<< "${PARAM}")
     NEXT_ID=$(jq -r '.next_id // ""' <<< "${PARAM}")
     PROMPT_ID=$(jq -r '.prompt_id // ""' <<< "${PARAM}")
+    QUESTION_FIELD_TYPE=$(jq -r '.question_field_type // "TXT"' <<< "${PARAM}")
+    EVAL_MODE=$(jq -r '.eval_mode // "OBJ"' <<< "${PARAM}")
 
     awk -v OFS='\t' -v qid="${QID}" -v type="$TYPE" -v group="${GROUP}" \
         -v question="${QUESTION}" -v options="$OPTIONS" -v answers="${ANSWERS}" -v skills="${SKILLS}" \
-        -v ref_id="${REF_ID}" -v prev_id="${PREV_ID}" -v next_id="${NEXT_ID}" -v prompt_id="${PROMPT_ID}" '
+        -v ref_id="${REF_ID}" -v prev_id="${PREV_ID}" -v next_id="${NEXT_ID}" -v prompt_id="${PROMPT_ID}" \
+        -v question_field_type="${QUESTION_FIELD_TYPE}" -v eval_mode="${EVAL_MODE}" '
 
         function repeat_tsv(s, n,   i, result) {
             for (i = 1; i <= n; i++) {
@@ -97,8 +100,6 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
             iSkill = iAnswer + answers_size + 1                         # insert "S:" between answers & skills
             skills_size = split(skills, arr_ski, "\t")
             skills_size = (skills_size == 0) ? 1 : skills_size          # empty string ("") deemed as size(1)
-
-            _pad = repeat_tsv("", iQuestion - 13)                       # 13 is occupied fields count (before 'question' and exclude '_pad')
         }
 
         # 扫描已有文件：记录每个第三列(group)值对应的第四列(group_idx)最大值
@@ -125,8 +126,8 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
             }
 
             print qid, type, group, group_idx,
-                  iQuestion, iOption, iAnswer, iSkill,
-                  ref_id, prev_id, next_id, prompt_id, _pad,
+                  iQuestion, iOption, iAnswer, iSkill, question_field_type,
+                  ref_id, prev_id, next_id, prompt_id, "", eval_mode,
                   "Q:", question, "O:", options, "A:", answers, "S:", skills
         }
         $1 != qid {
@@ -145,8 +146,8 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
                     group_idx = 1
 
                 print qid, type, group, group_idx,
-                      iQuestion, iOption, iAnswer, iSkill,
-                      ref_id, prev_id, next_id, prompt_id, _pad,
+                      iQuestion, iOption, iAnswer, iSkill, question_field_type,
+                      ref_id, prev_id, next_id, prompt_id, "", eval_mode,
                       "Q:", question, "O:", options, "A:", answers, "S:", skills
             }
         }

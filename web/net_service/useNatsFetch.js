@@ -326,7 +326,7 @@ export function useNatsFetch() {
         }
     }, [])
 
-    const make_quiz = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills) => {
+    const make_quiz = useCallback(async (user, quiz, qid, type, group, question, options, answers, skills, question_field_type, eval_mode) => {
         if (!qid.isValidGuid()) {
             qid = "";               // backend will make an id for empty qid
         }
@@ -346,7 +346,9 @@ export function useNatsFetch() {
             question: question.toLiteral(),
             options,
             answers,
-            skills
+            skills,
+            question_field_type,
+            eval_mode
         };
 
         console.log("make_quiz payload:", payload);
