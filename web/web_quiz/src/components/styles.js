@@ -24,16 +24,17 @@ export const styles = {
         submitted && isOptionSelected && !isThisOptionCorrect && "border-[#dc3545] bg-[#f8d7da]",
     ),
 
-    fill: ({ submitted, isOptionSelected, isThisOptionCorrect }) => cn(
+    fill: ({ submitted, isBlankFilled, isThisFilledCorrect, isSubEval }) => cn(
         "py-[10px] px-[14px] rounded-[6px]",
         "border border-solid",
         "flex items-center",
         "transition-all duration-200 ease-[ease]",
         "border-[#d1d5da] bg-[#f6f8fa]",
         submitted ? "cursor-default" : "cursor-pointer",
-        !submitted && isOptionSelected && "border-[#0070f3] bg-[#e6f0ff]",
-        submitted && isThisOptionCorrect && "border-[#28a745] bg-[#dcffe4]",
-        submitted && isOptionSelected && !isThisOptionCorrect && "border-[#dc3545] bg-[#f8d7da]",
+        !submitted && isBlankFilled && "border-[#0070f3] bg-[#e6f0ff]",
+        submitted && isThisFilledCorrect && "border-[#28a745] bg-[#dcffe4]",
+        submitted && isBlankFilled && !isThisFilledCorrect && "border-[#dc3545] bg-[#f8d7da]",
+        submitted && isSubEval && "border-[#0070f3] bg-[#FFEDD5]",
     ),
 
     submitBtn: "py-[10px] px-[24px] bg-[#28a745] text-white border-none rounded-[6px] text-[15px] font-bold cursor-pointer",

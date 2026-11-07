@@ -128,19 +128,22 @@ NF >= 12 && $1 !="" && $2 != "" && $5 != "" {
 
         inc_count++
 
-        inc_pool[inc_count]           = $0
-        inc_pool_id[inc_count]        = $1
-        inc_pool_type[inc_count]      = $2
-        inc_pool_group[inc_count]     = $3
-        inc_pool_idx_grp[inc_count]   = $4
-        inc_pool_iQuestion[inc_count] = $5
-        inc_pool_iOption[inc_count]   = $6
-        inc_pool_iAnswer[inc_count]   = $7
-        inc_pool_iSkill[inc_count]    = $8
-        inc_pool_ref_id[inc_count]    = $9
-        inc_pool_prev_id[inc_count]   = $10
-        inc_pool_next_id[inc_count]   = $11
-        inc_pool_prompt_id[inc_count] = $12
+        inc_pool[inc_count]             = $0
+        inc_pool_id[inc_count]          = $1
+        inc_pool_type[inc_count]        = $2
+        inc_pool_group[inc_count]       = $3
+        inc_pool_idx_grp[inc_count]     = $4
+        inc_pool_iQuestion[inc_count]   = $5
+        inc_pool_iOption[inc_count]     = $6
+        inc_pool_iAnswer[inc_count]     = $7
+        inc_pool_iSkill[inc_count]      = $8
+        inc_pool_qField_type[inc_count] = $9
+        inc_pool_ref_id[inc_count]      = $10
+        inc_pool_prev_id[inc_count]     = $11
+        inc_pool_next_id[inc_count]     = $12
+        inc_pool_prompt_id[inc_count]   = $13
+        inc_pool_reserved[inc_count]    = $14  # reserved
+        inc_pool_eval_mode[inc_count]   = $15
 
         # arr_line[] starts from 1; so $5 add 1 to find position in awk array.
         inc_pool_question[inc_count] = arr_line[$5 + 1]
@@ -156,19 +159,22 @@ NF >= 12 && $1 !="" && $2 != "" && $5 != "" {
 
         cand_count++
 
-        cand_pool[cand_count]           = $0
-        cand_pool_id[cand_count]        = $1
-        cand_pool_type[cand_count]      = $2
-        cand_pool_group[cand_count]     = $3
-        cand_pool_idx_grp[cand_count]   = $4
-        cand_pool_iQuestion[cand_count] = $5
-        cand_pool_iOption[cand_count]   = $6
-        cand_pool_iAnswer[cand_count]   = $7
-        cand_pool_iSkill[cand_count]    = $8
-        cand_pool_ref_id[cand_count]    = $9
-        cand_pool_prev_id[cand_count]   = $10
-        cand_pool_next_id[cand_count]   = $11
-        cand_pool_prompt_id[cand_count] = $12
+        cand_pool[cand_count]             = $0
+        cand_pool_id[cand_count]          = $1
+        cand_pool_type[cand_count]        = $2
+        cand_pool_group[cand_count]       = $3
+        cand_pool_idx_grp[cand_count]     = $4
+        cand_pool_iQuestion[cand_count]   = $5
+        cand_pool_iOption[cand_count]     = $6
+        cand_pool_iAnswer[cand_count]     = $7
+        cand_pool_iSkill[cand_count]      = $8
+        cand_pool_qField_type[cand_count] = $9
+        cand_pool_ref_id[cand_count]      = $10
+        cand_pool_prev_id[cand_count]     = $11
+        cand_pool_next_id[cand_count]     = $12
+        cand_pool_prompt_id[cand_count]   = $13
+        cand_pool_reserved[cand_count]    = $14  # reserved
+        cand_pool_eval_mode[cand_count]   = $15
 
         # arr_line[] starts from 1; so $5 add 1 to find position in awk array.
         cand_pool_question[cand_count] = arr_line[$5 + 1]
@@ -183,28 +189,28 @@ END {
 
     for (i = 1; i <= inc_count; i++) {
 
-        id        = inc_pool_id[i]
-        type      = inc_pool_type[i]
-        group     = inc_pool_group[i]
-        idx_grp   = inc_pool_idx_grp[i]
-        iQuestion = inc_pool_iQuestion[i]
-        question  = inc_pool_question[i]
-        iOption   = inc_pool_iOption[i]
-        options   = inc_pool_options[i]
-        iAnswer   = inc_pool_iAnswer[i]
-        answers   = inc_pool_answers[i]
-        iSkill    = inc_pool_iSkill[i]
-        skills    = inc_pool_skills[i]
-        ref_id    = inc_pool_ref_id[i]
-        prev_id   = inc_pool_prev_id[i]
-        next_id   = inc_pool_next_id[i]
-        prompt_id = inc_pool_prompt_id[i]
-
-        _pad = repeat_tsv("", iQuestion - 13)              # 13 is occupied fields count (before 'question' and exclude '_pad')
+        id         = inc_pool_id[i]
+        type       = inc_pool_type[i]
+        group      = inc_pool_group[i]
+        idx_grp    = inc_pool_idx_grp[i]
+        iQuestion  = inc_pool_iQuestion[i]
+        question   = inc_pool_question[i]
+        iOption    = inc_pool_iOption[i]
+        options    = inc_pool_options[i]
+        iAnswer    = inc_pool_iAnswer[i]
+        answers    = inc_pool_answers[i]
+        iSkill     = inc_pool_iSkill[i]
+        skills     = inc_pool_skills[i]
+        qFieldType = inc_pool_qField_type[i]
+        ref_id     = inc_pool_ref_id[i]
+        prev_id    = inc_pool_prev_id[i]
+        next_id    = inc_pool_next_id[i]
+        prompt_id  = inc_pool_prompt_id[i]
+        eval_mode  = inc_pool_eval_mode[i]
 
         print id, type, group, idx_grp,
-              iQuestion, iOption, iAnswer, iSkill,
-              ref_id, prev_id, next_id, prompt_id, _pad,
+              iQuestion, iOption, iAnswer, iSkill, qFieldType,
+              ref_id, prev_id, next_id, prompt_id, "", eval_mode,
               "Q:", question, "O:", shuffle_tabs(options), "A:", answers, "S:", skills
 
         printed++
@@ -216,28 +222,28 @@ END {
 
         for (j = 1; j <= limit; j++) {
 
-            id        = cand_pool_id[j]
-            type      = cand_pool_type[j]
-            group     = cand_pool_group[j]
-            idx_grp   = cand_pool_idx_grp[j]
-            iQuestion = cand_pool_iQuestion[j]
-            question  = cand_pool_question[j]
-            iOption   = cand_pool_iOption[j]
-            options   = cand_pool_options[j]
-            iAnswer   = cand_pool_iAnswer[j]
-            answers   = cand_pool_answers[j]
-            iSkill    = cand_pool_iSkill[j]
-            skills    = cand_pool_skills[j]
-            ref_id    = cand_pool_ref_id[j]
-            prev_id   = cand_pool_prev_id[j]
-            next_id   = cand_pool_next_id[j]
-            prompt_id = cand_pool_prompt_id[j]
-
-            _pad = repeat_tsv("", iQuestion - 13)              # 13 is occupied fields count (before 'question' and exclude '_pad')
+            id         = cand_pool_id[j]
+            type       = cand_pool_type[j]
+            group      = cand_pool_group[j]
+            idx_grp    = cand_pool_idx_grp[j]
+            iQuestion  = cand_pool_iQuestion[j]
+            question   = cand_pool_question[j]
+            iOption    = cand_pool_iOption[j]
+            options    = cand_pool_options[j]
+            iAnswer    = cand_pool_iAnswer[j]
+            answers    = cand_pool_answers[j]
+            iSkill     = cand_pool_iSkill[j]
+            skills     = cand_pool_skills[j]
+            qFieldType = cand_pool_qField_type[j]
+            ref_id     = cand_pool_ref_id[j]
+            prev_id    = cand_pool_prev_id[j]
+            next_id    = cand_pool_next_id[j]
+            prompt_id  = cand_pool_prompt_id[j]
+            eval_mode  = cand_pool_eval_mode[j]
 
             print id, type, group, idx_grp,
-                  iQuestion, iOption, iAnswer, iSkill,
-                  ref_id, prev_id, next_id, prompt_id, _pad,
+                  iQuestion, iOption, iAnswer, iSkill, qFieldType,
+                  ref_id, prev_id, next_id, prompt_id, "", eval_mode,
                   "Q:", question, "O:", shuffle_tabs(options), "A:", answers, "S:", skills
         }
     }

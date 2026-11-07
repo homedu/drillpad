@@ -30,7 +30,7 @@ function App() {
     const [questionCount, setQuestionCount] = useState(0);
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
-    const [count, setCount] = useState(10);
+    const [count, setCount] = useState(100);
 
     const [disabledMap, setDisabledMap] = useState({
         userInput: false,      // 用户名输入框

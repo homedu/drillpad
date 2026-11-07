@@ -32,14 +32,15 @@ export function Option({
 export function Fill({
     questionId,
     opt,
-    filled,
+    filled,           // 该空是否已填（用于提交后高亮）
     isCorrect,        // 该选项是否为正确选项（用于提交后高亮）
+    isSubEval,        // 是否该题为主观题 (用于提交后高亮)
     submitted,
     onChange,
     onFocus,
 }) {
     return (
-        <label className={tw.fill({ submitted, isOptionSelected: filled, isThisOptionCorrect: isCorrect })}>
+        <label className={tw.fill({ submitted, isBlankFilled: filled, isThisFilledCorrect: isCorrect, isSubEval })}>
             <strong className="me-2">{opt.label}.</strong>
             <textarea
                 name={`question-${questionId}-${opt.label}`}

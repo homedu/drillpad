@@ -13,6 +13,7 @@ import { showRatingModal } from "../../../utils/ShowRatingModal";
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
 const judge = (q, answer) => {
+    if (q.evalMode === "SUB") return "AI-judge"; // 主观题交给AI评判
     const handler = questionTypes[q.type];
     if (!handler || !handler.hasAnswered(q, answer)) return "blank";
     return handler.isCorrect(q, answer) ? "correct" : "incorrect";
@@ -43,7 +44,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             .filter((line) => line.length > 0)
             .map((line) => {
                 const fields = line.split("\t").map((f) => f.trim());
-                const [id, qType, qGroup, qIdxGrp, iQuestion, iOption, iAnswer, iSkill, ref_id, prev_id, next_id, prompt_id] = fields;
+                const [id, qType, qGroup, qIdxGrp, iQuestion, iOption, iAnswer, iSkill, qFieldType, ref_id, prev_id, next_id, prompt_id, _reserved, qEvalMode] = fields;
                 const question = fields[+iQuestion].fromLiteral();
                 const options = fields.slice(+iOption, +iAnswer - 1).filter(o => o.trim());
                 const answers = fields.slice(+iAnswer, +iSkill - 1).filter(a => a.trim());
@@ -72,6 +73,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     options: opts,
                     correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
+                    questionFieldType: qFieldType,
+                    evalMode: qEvalMode
                 };
             })
             .filter(Boolean);
@@ -84,11 +87,11 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         setUserAnswers((prev) => ({ ...prev, [questionId]: value }));
     }, [submitted]);
 
-    // 3. 计算得分
+    // 3. 计算客观题得分
     const score = useMemo(() => {
         // console.log("userAnswers:", userAnswers);
         if (!submitted) return 0;
-        return questions.reduce((acc, q) => (judge(q, userAnswers[q.id]) === "correct" ? acc + 1 : acc), 0);
+        return questions.filter((q) => q.evalMode === "OBJ").reduce((acc, q) => (judge(q, userAnswers[q.id]) === "correct" ? acc + 1 : acc), 0);
     }, [submitted, questions, userAnswers]);
 
     // 4. 提交答案
@@ -128,14 +131,14 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         console.log("question group:", group);
     };
 
-    const handleAI = (key, type, event) => {
+    const handleAI = (key, type, group_content, eval_mode, event) => {
         console.log("question id:", key, "; question type", type);
         const question = questions.filter((q) => q.id === key)[0];
         if (question == null) {
             throw Error(`cannot find question - ${key}`);
         }
-        const prompt = getPrompt(quiz, type, question.humanReadableQuestion);
-        console.log(prompt);
+        const prompt = getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode);
+        // console.log(prompt);
         setAiPrompt(prompt);
     };
 
@@ -298,7 +301,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                     <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
                                         <NoteIcon />
                                     </button>
-                                    <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, e)}>
+                                    <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, q.groupContent, q.evalMode === "SUB", e)}>
                                         <input type="hidden" name="q" value={aiPrompt} />
                                         <input type="hidden" name="udm" value="50" />
                                         <input type="hidden" name="btnK" value="Google Search" />
@@ -322,9 +325,9 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                             onClick={(e) => { showFloatingWindow(q.groupContent, { title: q.group }) }} >...
                                         </span>
                                     )}
-                                    {/* 提示label 单选/多选/填空 */}
+                                    {/* 提示label 单选/多选/填空 (主观题) */}
                                     {handler && (
-                                        <span className="text-sm text-zinc-500 ml-auto me-2">{handler.label}</span>
+                                        <span className="text-sm text-zinc-500 ml-auto me-2">{handler.label} {q.evalMode === "SUB" && "(主观题)"}</span>
                                     )}
                                 </div>
                             </h3>
@@ -370,6 +373,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                 {status === "correct" && (<span className="text-green-500 font-bold"> ✅ 正确 </span>)}
                                 {status === "incorrect" && (<span className="text-red-500"> ❌ 错误 (正确答案：{handler.formatCorrect(q)})  </span>)}
                                 {status === "blank" && (<span className="text-zinc-500"> ⚠️ 未作答 (正确答案：{handler.formatCorrect(q)})  </span>)}
+                                {status === "AI-judge" && (<span className="text-blue-500"> 🤖 点击右侧AI按钮，由AI评判结果，根据结果进行星号标注... </span>)}
                             </div>
                         )}
                     </div>
@@ -381,7 +385,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     ? (<button onClick={handleSubmit} className={tw.submitBtn}> 提交答案 </button>)
                     : (<>
                         {/* <button onClick={onReset} className={tw.resetBtn}> 重新作答 </button> */}
-                        <div className="text-lg font-bold text-[#24292e]"> 最终得分：{score} / {questions.length} </div>
+                        <div className="text-lg font-bold text-[#24292e]"> 客观题得分：{score} / {questions.filter((q) => q.evalMode === "OBJ").length} </div>
                     </>)
                 }
             </div>
