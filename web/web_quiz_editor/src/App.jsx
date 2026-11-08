@@ -4,6 +4,7 @@ import { cn } from "../../utils/utils.js"
 import "../../utils/util_str.js";
 import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
+import { showConfirmModal } from "../../utils/ShowConfirmModal.jsx";
 import RichTextEditor from "../../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles.js";
 import { PenIcon, ArrowIcon } from "./icons.js";
@@ -113,6 +114,7 @@ function App() {
 
     const resetForm = () => {
         setQid("");
+        setQnum(0);
         setGroup("");
         setIdxGrp("");
         setQuestion("");
@@ -266,9 +268,12 @@ function App() {
         }
     }, [quizList]);
 
-    // 更换不同的QUIZ，刷新不同的用户数据
+    // 更换不同的QUIZ，清空页面，刷新不同题库题数
     useEffect(() => {
-        (async () => setQuestionCount(await count_qa(user, selectedQuiz, "question_count")))();
+        (async () => {
+            setQuestionCount(await count_qa(user, selectedQuiz, "question_count"))
+            resetForm()
+        })();
     }, [selectedQuiz]);
 
     useEffect(() => {
@@ -453,7 +458,13 @@ function App() {
                         )
                     })}
                     <button
-                        onClick={async () => { await question_delete(user, selectedQuiz, qid) }}
+                        onClick={
+                            async () => {
+                                if (await showConfirmModal({ title: "Deleting Question ?", text: `${qid}` })) {
+                                    await question_delete(user, selectedQuiz, qid)
+                                }
+                            }
+                        }
                         disabled={!selectedQuiz.trim() || !qid.trim().isValidGuid()}
                         className={cn(tw.button, tw.primaryButton, "bg-red-500", "disabled:opacity-50 disabled:cursor-not-allowed")}
                     >
@@ -555,8 +566,8 @@ function App() {
             />
 
             <div className="flex items-center gap-2 mt-5">
-                <label className={cn(tw.label, "block font-bold")}>
-                    <span className="me-1">主观题答案</span>
+                <label className={cn(tw.label, "block font-bold", QType.OPT && "hidden")}>
+                    <span className={cn("me-2")}>主观题 ?</span>
                     <input
                         type='checkbox'
                         name="subjective-answer"
