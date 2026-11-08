@@ -6,7 +6,7 @@ import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
 import RichTextEditor from "../../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles.js";
-import { PenIcon } from "./icons.js";
+import { PenIcon, ArrowIcon } from "./icons.js";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
 
 /**
@@ -36,6 +36,7 @@ function App() {
         count_qa,
         fetch_question,
         delete_question,
+        fetch_prevnext_qid,
         make_quiz,
         new_quiz,
         save_group_content,
@@ -168,6 +169,14 @@ function App() {
             setSubmitting(false);
         }
     };
+
+    const qid_prevnext_fetch = async (user, quiz, qid, pn) => {
+        const r = await fetch_prevnext_qid(user, quiz, qid);
+        if (r.success === true && r.status === "found") {
+            if (["P", "p", "U", "u"].some(p => p === pn)) setQid(r.prev.id)
+            if (["N", "n", "D", "d"].some(n => n === pn)) setQid(r.next.id)
+        }
+    }
 
     const question_fetch = async (user, quiz, qid, clearMap) => {
         try {
@@ -304,6 +313,10 @@ function App() {
     }, [question]);
 
     useEffect(() => {
+        if (qid.isValidGuid()) (async () => (await question_fetch(user, selectedQuiz, qid)))()
+    }, [qid])
+
+    useEffect(() => {
         if (OptCountBy.MANUAL) {
             const newOptions = createEmptyOptions(optCount);
             newOptions.map((opt, index) => {
@@ -403,17 +416,18 @@ function App() {
                 <input
                     type="text"
                     value={qid}
+                    disabled={!user.trim() || !selectedQuiz.trim()}
                     onChange={(e) => setQid(e.target.value)}
                     placeholder="Question ID"
-                    className={cn(tw.input, "w-80")}
+                    className={cn(tw.input, "w-80 disabled:opacity-50 disabled:cursor-not-allowed")}
                 />
 
-                <button
-                    onClick={async () => { await question_fetch(user, selectedQuiz, qid) }}
-                    disabled={!user.trim() || !selectedQuiz.trim() || !qid.trim().isValidGuid()}
-                    className={cn(tw.button, tw.primaryButton, "disabled:opacity-50 disabled:cursor-not-allowed")}
-                >
-                    搜索
+                <button onClick={async () => { await qid_prevnext_fetch(user, selectedQuiz, qid, "U") }}>
+                    <ArrowIcon direction="U" className="w-5 h-5 text-gray-600 hover:text-black cursor-pointer" />
+                </button>
+
+                <button onClick={async () => { await qid_prevnext_fetch(user, selectedQuiz, qid, "D") }}>
+                    <ArrowIcon direction="D" className="w-5 h-5 text-gray-600 hover:text-black cursor-pointer" />
                 </button>
 
                 <button

@@ -46,6 +46,14 @@ export class QuestionDeleteError extends Error {
     }
 }
 
+export class QuestionPrevNextError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionPrevNextError";
+        this.stage = stage;
+    }
+}
+
 export class QuizMakeError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);

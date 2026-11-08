@@ -191,6 +191,23 @@ export function useNatsFetch() {
         }
     }, [])
 
+    const fetch_prevnext_qid = useCallback(async (user, quiz, qid) => {
+        const payload = { user, quiz, qid };
+        setLoading(true);
+        try {
+            const result = await reqNATS(TOPIC.T_QID_PREVNEXT, payload, { timeout: 10000 });
+            return result;
+        } catch (err) {
+            throw new QDPErr.QuestionPrevNextError(
+                `获取前置、后置题目ID失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
     // count_type: "question_count" | "correct_count" | "incorrect_count" | "raw"
     const count_qa = useCallback(async (user, quiz, count_type = "raw") => {
         const payload = { user, quiz };
@@ -468,6 +485,7 @@ export function useNatsFetch() {
         delete_question,
         rate_question,
         fetch_rate_question,
+        fetch_prevnext_qid,
         fetch_quiz,
         record_answer,
         make_quiz,
