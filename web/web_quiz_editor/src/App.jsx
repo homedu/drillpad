@@ -50,6 +50,7 @@ function App() {
     const [QType, setQType] = useState({ MCSA: true, MS: false, FILL: false, OPT: true });
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
+    const [qnum, setQnum] = useState(0);
     const [group, setGroup] = useState("");
     const [idxGrp, setIdxGrp] = useState("");
     const [groupRef, setGroupRef] = useState("");
@@ -69,8 +70,6 @@ function App() {
     });
     const [keepQuestion, setKeepQuestion] = useState(false); // 提交后保留题目内容
     const [keepOptions, setKeepOptions] = useState(false); // 提交后保留选项内容
-
-    const hasQuizList = quizList?.length > 0;
 
     const SetOptCountBy = (by) => {
         if (by in INITIAL_SET_OPT_COUNT_BY) {
@@ -173,8 +172,14 @@ function App() {
     const qid_prevnext_fetch = async (user, quiz, qid, pn) => {
         const r = await fetch_prevnext_qid(user, quiz, qid);
         if (r.success === true && r.status === "found") {
-            if (["P", "p", "U", "u"].some(p => p === pn)) setQid(r.prev.id)
-            if (["N", "n", "D", "d"].some(n => n === pn)) setQid(r.next.id)
+            if (["P", "p", "U", "u"].some(p => p === pn)) {
+                setQid(r.prev.id)
+                setQnum(r.prev.line)
+            }
+            if (["N", "n", "D", "d"].some(n => n === pn)) {
+                setQid(r.next.id)
+                setQnum(r.next.line)
+            }
         }
     }
 
@@ -253,13 +258,13 @@ function App() {
 
     // 根据用户名找出来QUIZ列表后，用户名便不可更改了
     useEffect(() => {
-        if (hasQuizList) {
+        if (quizList.length > 0) {
             setDisabledMap(prev => ({
                 ...prev,
                 userInput: true,
             }))
         }
-    }, [hasQuizList]);
+    }, [quizList]);
 
     // 更换不同的QUIZ，刷新不同的用户数据
     useEffect(() => {
@@ -313,7 +318,15 @@ function App() {
     }, [question]);
 
     useEffect(() => {
-        if (qid.isValidGuid()) (async () => (await question_fetch(user, selectedQuiz, qid)))()
+        if (qid.isValidGuid()) {
+            (async () => {
+                const r = await fetch_prevnext_qid(user, selectedQuiz, qid);
+                if (r.success === true && r.status === "found") {
+                    setQnum(r.target.line)
+                    await question_fetch(user, selectedQuiz, qid)
+                }
+            })()
+        }
     }, [qid])
 
     useEffect(() => {
@@ -342,19 +355,20 @@ function App() {
 
             <div className="flex items-center">
 
-                <form onSubmit={
-                    async (e) => {
-                        e.preventDefault();
-                        setQuizList(await list_quiz(user));
-                        if (!hasQuizList) {
-                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
-                            setInfo("");
-                        }
-                        if (refSelectQuiz.current) {
-                            refSelectQuiz.current.focus();
+                <form
+                    onSubmit={
+                        async (e) => {
+                            e.preventDefault();
+                            setQuizList(await list_quiz(user));
+                            if (quizList.length === 0) {
+                                setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
+                                setInfo("");
+                            }
+                            if (refSelectQuiz.current) {
+                                refSelectQuiz.current.focus();
+                            }
                         }
                     }
-                }
                 >
                     <input
                         id="user-input"
@@ -381,10 +395,10 @@ function App() {
                                 }
                             }
                         }}
-                        disabled={connError || loading}
-                        className={cn(tw.input, "w-70 rounded-sm")}
+                        disabled={connError || loading || !user.trim()}
+                        className={cn(tw.input, "w-70 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed")}
                     >
-                        {hasQuizList && (
+                        {quizList.length > 0 && (
                             <>
                                 <option value="" disabled hidden>题库</option>
                                 {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
@@ -412,31 +426,40 @@ function App() {
 
             </div>
 
-            <div className="flex items-center justify-end gap-2 mt-5">
-                <input
-                    type="text"
-                    value={qid}
-                    disabled={!user.trim() || !selectedQuiz.trim()}
-                    onChange={(e) => setQid(e.target.value)}
-                    placeholder="Question ID"
-                    className={cn(tw.input, "w-80 disabled:opacity-50 disabled:cursor-not-allowed")}
-                />
+            <div className="flex items-center gap-2 mt-5">
 
-                <button onClick={async () => { await qid_prevnext_fetch(user, selectedQuiz, qid, "U") }}>
-                    <ArrowIcon direction="U" className="w-5 h-5 text-gray-600 hover:text-black cursor-pointer" />
-                </button>
+                <label className={cn(tw.label, "font-bold")}>题目序号 {qnum} / {questionCount}</label>
 
-                <button onClick={async () => { await qid_prevnext_fetch(user, selectedQuiz, qid, "D") }}>
-                    <ArrowIcon direction="D" className="w-5 h-5 text-gray-600 hover:text-black cursor-pointer" />
-                </button>
-
-                <button
-                    onClick={async () => { await question_delete(user, selectedQuiz, qid) }}
-                    disabled={!user.trim() || !selectedQuiz.trim() || !qid.trim().isValidGuid()}
-                    className={cn(tw.button, tw.primaryButton, "bg-red-500", "disabled:opacity-50 disabled:cursor-not-allowed")}
-                >
-                    删除
-                </button>
+                <div className="flex items-center gap-2 ml-auto">
+                    <label className={cn(tw.label, "font-bold")}>题目ID</label>
+                    <input
+                        type="text"
+                        value={qid}
+                        disabled={!selectedQuiz.trim()}
+                        onChange={(e) => setQid(e.target.value)}
+                        placeholder="Question ID"
+                        className={cn(tw.input, "w-80 disabled:opacity-50 disabled:cursor-not-allowed")}
+                    />
+                    {["U", "D"].map((e, i) => {
+                        return (
+                            <button
+                                key={i}
+                                onClick={async () => { await qid_prevnext_fetch(user, selectedQuiz, qid, e) }}
+                                disabled={!selectedQuiz.trim() || !qid.isValidGuid()}
+                                className="cursor-pointer disabled:cursor-not-allowed"
+                            >
+                                <ArrowIcon direction={e} className="w-5 h-5 text-gray-600 hover:text-black" />
+                            </button>
+                        )
+                    })}
+                    <button
+                        onClick={async () => { await question_delete(user, selectedQuiz, qid) }}
+                        disabled={!selectedQuiz.trim() || !qid.trim().isValidGuid()}
+                        className={cn(tw.button, tw.primaryButton, "bg-red-500", "disabled:opacity-50 disabled:cursor-not-allowed")}
+                    >
+                        删除
+                    </button>
+                </div>
             </div>
 
             {/*  */}
@@ -447,8 +470,8 @@ function App() {
                     <select
                         value={selectedQuestionType}
                         onChange={(e) => setSelectedQuestionType(e.target.value)}
-                        disabled={connError || loading}
-                        className={cn(tw.input, "w-45 rounded-sm")}
+                        disabled={connError || loading || !selectedQuiz.trim()}
+                        className={cn(tw.input, "w-45 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed")}
                     >
                         <>
                             <option value='' disabled hidden>题型</option>
@@ -463,7 +486,8 @@ function App() {
                     <input
                         type="text"
                         value={skillStr}
-                        className={cn(tw.input, "w-full")}
+                        disabled={!selectedQuiz.trim()}
+                        className={cn(tw.input, "w-full disabled:opacity-50 disabled:cursor-not-allowed")}
                         onChange={(e) => setSkillStr(e.target.value)}
                         placeholder="分号(;)分隔多个技能知识点"
                     />
@@ -475,7 +499,8 @@ function App() {
                 <input
                     type="text"
                     value={group}
-                    className={cn(tw.input)}
+                    className={cn(tw.input, "disabled:opacity-50 disabled:cursor-not-allowed")}
+                    disabled={!selectedQuiz.trim()}
                     onChange={(e) => setGroup(e.target.value.replace(/[\s-]+/g, '-'))}
                     onBlur={(e) => setGroup(e.target.value.replace(/^-+|-+$/g, ''))}
                     placeholder="题目组类"
@@ -493,7 +518,7 @@ function App() {
                         await save_group_content(user, selectedQuiz, group, result.html);
                     }
                 }}
-                    disabled={!user.trim() || !selectedQuiz.trim() || !group.trim()}
+                    disabled={!selectedQuiz.trim() || !group.trim()}
                     className={cn(tw.button, tw.primaryButton, "bg-blue-500 w-11 disabled:opacity-50 disabled:cursor-not-allowed")}
                 >
                     <PenIcon />
