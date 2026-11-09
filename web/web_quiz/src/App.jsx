@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
-import { createRoot } from "react-dom/client";
+import { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import QuizViewer from "./components/QuizViewer.jsx";
 import { styles as tw } from "./styles.js";
 import { cn } from "../../utils/utils.js";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
-import { QuizFetchError, QuizListError } from "../../net_service/QDPErr.js";
+import { QuizFetchError } from "../../net_service/QDPErr.js";
 import "../../utils/util_str.js";
 
-window.React = React;
+export default function App() {
+    const location = useLocation();
 
-function App() {
     const { status, loading, connError,
         fetch_quiz,
         list_quiz,
@@ -24,7 +24,7 @@ function App() {
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
 
-    const [user, setUser] = useState("");
+    const user = location.state?.username ?? "";
     const [quizList, setQuizList] = useState([]);
     const [selectedQuiz, setSelectedQuiz] = useState('');
     const [questionCount, setQuestionCount] = useState(0);
@@ -136,6 +136,10 @@ function App() {
         // console.log(`showQACount: ${qaCount}`);
     }
 
+    useEffect(() => {
+        (async () => { setQuizList(await list_quiz(user)); })()
+    }, []);
+
     // 根据用户名找出来QUIZ列表后，用户名便不可更改了
     useEffect(() => {
         if (hasQuizList) {
@@ -151,9 +155,6 @@ function App() {
         (async () => { await showQACount(); })();
     }, [selectedQuiz]);
 
-    const refInputUser = useRef(null);
-    const refSelectQuiz = useRef(null);
-
     return (
         <div className={tw.app}>
 
@@ -163,36 +164,9 @@ function App() {
 
             <div className="flex items-center">
 
-                <form onSubmit={
-                    async (e) => {
-                        e.preventDefault();
-                        setQuizList(await list_quiz(user));
-                        if (!hasQuizList) {
-                            setSelectedQuiz(""); // 如果没有题库，清空上一次的选择
-                            setFileContent(""); // 如果没有题库，清空上一次的作答内容
-                            setInfo("");
-                        }
-                        if (refSelectQuiz.current) {
-                            refSelectQuiz.current.focus();
-                        }
-                    }
-                }
-                >
-                    <input
-                        id="user-input"
-                        ref={refInputUser}
-                        value={user}
-                        onChange={(e) => { setUser(e.target.value) }}
-                        placeholder="用户名"
-                        className={cn(tw.input, "w-45")}
-                        disabled={connError || loading || disabledMap.userInput}
-                    />
-                </form>
-
                 <select
                     id="quiz-select"
                     key={user}
-                    ref={refSelectQuiz}
                     value={selectedQuiz}
                     onChange={(e) => setSelectedQuiz(e.target.value)}
                     onKeyDown={(e) => {
@@ -269,6 +243,3 @@ function App() {
         </div>
     );
 }
-
-const root = createRoot(document.getElementById("root"));
-root.render(<React.StrictMode><App /></React.StrictMode>);
