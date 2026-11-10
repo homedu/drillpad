@@ -1,245 +1,53 @@
-import { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import QuizViewer from "./components/QuizViewer.jsx";
-import { styles as tw } from "./styles.js";
-import { cn } from "../../utils/utils.js";
-import { useNatsFetch } from "../../net_service/useNatsFetch.js";
-import { QuizFetchError } from "../../net_service/QDPErr.js";
-import "../../utils/util_str.js";
+import { useState } from "react";
+import Sidebar from "./components/Sidebar";
+import QuizPage from './components/QuizPage';
+
+// 树数据：有 children 的是分支（点击折叠/展开），没有的是叶节点（点击触发 onSelect）
+const treeData = [
+    {
+        id: "guide",
+        label: "入门指南",
+        children: [
+            { id: "guide/install", label: "安装" },
+            { id: "guide/quickstart", label: "快速开始" },
+        ],
+    },
+    {
+        id: "components",
+        label: "组件",
+        children: [
+            { id: "components/button", label: "Button 按钮" },
+            {
+                id: "components/form",
+                label: "表单",
+                children: [
+                    { id: "components/form/input", label: "Input 输入框" },
+                    { id: "components/form/select", label: "Select 选择器" },
+                ],
+            },
+        ],
+    },
+    {
+        id: "changelog",
+        label: "更新日志"
+    }, // 顶层叶节点也可以
+];
 
 export default function App() {
-    const location = useLocation();
-
-    const { status, loading, connError,
-        fetch_quiz,
-        list_quiz,
-        count_qa,
-        fetch_group_content,
-        list_group
-    } = useNatsFetch();
-
-    const [fileContent, setFileContent] = useState("");
-    const [mapGroupContent, setMapGroupContent] = useState(null);
-    const [info, setInfo] = useState("");
-    const [error, setError] = useState("");
-    const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
-
-    const user = location.state?.username ?? "";
-    const [quizList, setQuizList] = useState([]);
-    const [selectedQuiz, setSelectedQuiz] = useState('');
-    const [questionCount, setQuestionCount] = useState(0);
-    const [correctCount, setCorrectCount] = useState(0);
-    const [incorrectCount, setIncorrectCount] = useState(0);
-    const [count, setCount] = useState(100);
-
-    const [disabledMap, setDisabledMap] = useState({
-        userInput: false,      // 用户名输入框
-        quizSelect: false,     // 题目下拉框
-        countInput: false,     // 题目数量输入框
-        submitBtn: false       // 提交按钮
-    });
-
-    const isUserValid = user.trim() !== ""
-    const hasQuizList = quizList?.length > 0;
-    const hasSelectedQuiz = selectedQuiz.trim() !== "";
-    const isUserQuizReady = isUserValid && hasQuizList && hasSelectedQuiz;
-    const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
-    const canFetch = !connError && !loading && isUserQuizReady && isCountValid;
-
-    // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
-    // and exclude empty-value object to be map element
-    const arrToMap = (arr, keyForNotArr = "NEED-A-KEY-FOR-NONE-ARRAY") => {
-        if (!Array.isArray(arr)) {
-            return new Map([[keyForNotArr, arr]])
-        }
-        return new Map(arr
-            .filter(obj => Object.values(obj).every(val => val !== undefined && val !== null && val !== ""))
-            .map(obj => Object.entries(obj).flat()));
-    };
-
-    const handleCountChange = (e) => {
-        const value = e.target.value;
-        if (value === "") {
-            setCount(""); // 允许输入框暂时清空，而不是被 Number('') 强行变成 0
-            return;
-        }
-        const n = Number(value);
-        if (!Number.isNaN(n)) setCount(n);
-    };
-
-    const fetchQuiz = async () => {
-        if (!canFetch) {
-            setError("请先填写用户名、题库名称，并确保数量为正整数");
-            return;
-        }
-
-        setError("");
-        try {
-            const groups = await list_group(user, selectedQuiz);
-            const groups_content = await fetch_group_content(user, selectedQuiz, groups[0], ...groups.slice(1));
-            const m = arrToMap(groups_content, groups[0]);
-            setMapGroupContent(m);
-
-            const text = await fetch_quiz(
-                user,
-                selectedQuiz,
-                count,
-            );
-
-            setFileContent(text);
-            setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
-
-            // 开始作答，不可再更改用户输入
-            setDisabledMap(prev => ({
-                ...prev,
-                userInput: true,
-                quizSelect: !!text,
-                countInput: !!text,
-                submitBtn: !!text,
-            }))
-
-            setInfo(!text ? ` No questions need to do for <${selectedQuiz}> now` : "")
-
-        } catch (err) {
-            // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
-            // 翻译成了可读的中文提示（并区分了 stage: request / fetch），直接展示即可
-            const message = err instanceof QuizFetchError ? err.message : `未知错误: ${err?.message ?? err}`;
-            setError(message);
-            // 注意：这里不清空 fileContent —— 请求失败时不应该把用户上一次
-            // 已经在做的题目清掉，只提示错误、保留原有内容
-        }
-    };
-
-    // 彻底清空并重新初始化作答
-    const handleResetQuiz = () => { setQuizKey((prev) => prev + 1); };
-
-    const handleOnSubmit = async () => {
-
-        // 开始作答后，不可再更改用户输入; 提交后，解锁输入框
-        setDisabledMap(prev => ({
-            ...prev,
-            // userInput: false,
-            quizSelect: false,
-            countInput: false,
-            submitBtn: false,
-        }))
-
-        // 提交后刷新统计数据
-        await showQACount();
-    };
-
-    const showQACount = async () => {
-        const qaCount = user && selectedQuiz ? await count_qa(user, selectedQuiz) : { question_count: 0, correct_count: 0, incorrect_count: 0 };
-        setQuestionCount(qaCount.question_count);
-        setCorrectCount(qaCount.correct_count);
-        setIncorrectCount(qaCount.incorrect_count);
-        // console.log(`showQACount: ${qaCount}`);
-    }
-
-    useEffect(() => {
-        (async () => { setQuizList(await list_quiz(user)); })()
-    }, []);
-
-    // 根据用户名找出来QUIZ列表后，用户名便不可更改了
-    useEffect(() => {
-        if (hasQuizList) {
-            setDisabledMap(prev => ({
-                ...prev,
-                userInput: true,
-            }))
-        }
-    }, [hasQuizList]);
-
-    // 更换不同的QUIZ，刷新不同的用户数据
-    useEffect(() => {
-        (async () => { await showQACount(); })();
-    }, [selectedQuiz]);
-
+    const [current, setCurrent] = useState(null);
     return (
-        <div className={tw.app}>
-
-            {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
-
-            <h2 className={tw.title}>刷题本</h2>
-
-            <div className="flex items-center">
-
-                <select
-                    id="quiz-select"
-                    key={user}
-                    value={selectedQuiz}
-                    onChange={(e) => setSelectedQuiz(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (typeof e.currentTarget.showPicker === 'function') {
-                                e.currentTarget.showPicker();
-                            }
-                        }
-                    }}
-                    disabled={connError || loading || disabledMap.quizSelect}
-                    className={cn(tw.input, "w-50 rounded-sm")}
-                >
-                    {hasQuizList && (
-                        <>
-                            <option value="" disabled hidden>题库</option>
-                            {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
-                        </>
-                    )}
-                </select>
-
-                {
-                    questionCount > 0 &&
-                    <label className={cn(tw.label, "ml-auto flex items-center gap-3")}>
-                        <span className="font-semibold text-gray-500">习题共 {questionCount} 道,</span>
-                        <span className="font-semibold text-black">已练习 {+correctCount + +incorrectCount},</span>
-                        <span className="font-semibold text-green-600">掌握 {correctCount},</span>
-                        <span className="font-semibold text-red-600">待巩固 {+questionCount - +correctCount}</span>
-                    </label>
-                }
-
-            </div>
-
-            {
-                isUserQuizReady &&
-                <div className="my-2 flex justify-end gap-2">
-                    <input
-                        type="number"
-                        min="1"
-                        value={count}
-                        onChange={handleCountChange}
-                        className={cn(tw.input, "w-15")}
-                        disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
-                    />
-                    <button
-                        onClick={fetchQuiz}
-                        disabled={connError || !canFetch || disabledMap.submitBtn}
-                        className={cn(
-                            tw.input,
-                            tw.fetchBtn(canFetch && !disabledMap.submitBtn),
-                            "w-30"
-                        )}
-                    >
-                        {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
-                    </button>
-                </div>
-            }
-
-            {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
-            {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
-
-            {/* 通过递增 key 彻底重置 DOM 和 State */}
-            {hasQuizList && selectedQuiz && fileContent && (
-                <QuizViewer
-                    key={quizKey}
-                    user={user}
-                    quiz={selectedQuiz}
-                    quizFileContent={fileContent}
-                    mGroupContent={mapGroupContent}
-                    onSubmit={handleOnSubmit}
-                    onReset={handleResetQuiz}
-                />
-            )}
+        // 关键布局：父容器 flex + 固定高度，右侧内容 flex-1 + min-w-0
+        <div className="flex h-screen w-screen overflow-hidden">
+            <Sidebar
+                title="文档"
+                data={treeData}
+                defaultExpandedIds={["components"]}
+                selectedId={current?.id}
+                onSelect={(node) => setCurrent(node)} // 在这里接路由，如 navigate(node.path)
+            />
+            <main className="min-w-0 flex-1 overflow-auto pt-6 pr-6">
+                <QuizPage />
+            </main>
         </div>
     );
 }

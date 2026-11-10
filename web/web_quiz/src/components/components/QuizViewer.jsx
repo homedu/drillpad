@@ -1,14 +1,14 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { styles as tw } from "./styles.js";
-import { cn } from "../../../utils/utils.js";
-import "../../../utils/util_str.js";
-import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
-import { AnswerRecordError, QuestionRateError, QuestionRateFetchError } from "../../../net_service/QDPErr.js";
+import { cn } from "../../../../utils/utils.js";
+import "../../../../utils/util_str.js";
+import { useNatsFetch } from "../../../../net_service/useNatsFetch.js";
+import { AnswerRecordError, QuestionRateError, QuestionRateFetchError } from "../../../../net_service/QDPErr.js";
 import { AiHelpIcon, NoteIcon, BookmarkIcon, RatingIcon } from "./icons.js";
-import { getPrompt } from "../../../prompts/prompt_util.js";
+import { getPrompt } from "../../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
-import { showFloatingWindow } from "../../../utils/FloatingWindow";
-import { showRatingModal } from "../../../utils/ShowRatingModal";
+import { showFloatingWindow } from "../../../../utils/FloatingWindow";
+import { showRatingModal } from "../../../../utils/ShowRatingModal";
 
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
