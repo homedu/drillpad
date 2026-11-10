@@ -116,7 +116,7 @@ export default function Sidebar({
             <aside
                 aria-label={title}
                 aria-hidden={!open}
-                className={`h-full overflow-hidden bg-slate-50 text-slate-700 ${open ? "" : "invisible"
+                className={`h-full overflow-hidden bg-slate-100 text-slate-700 ${open ? "" : "invisible"
                     } ${dragging ? "" : "transition-[visibility] duration-200"}`}
             >
                 {/* 内层固定为当前宽度，动画过程中文字不会反复换行 */}

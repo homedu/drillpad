@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import QuizViewer from "./components/QuizViewer.jsx";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
@@ -7,12 +6,9 @@ import { QuizFetchError } from "../../../net_service/QDPErr.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
 
-export default function QuizPage() {
-    const location = useLocation();
-
-    const { status, loading, connError,
+export default function QuizPage({ user, selectedQuiz }) {
+    const { status, loading,
         fetch_quiz,
-        list_quiz,
         count_qa,
         fetch_group_content,
         list_group
@@ -24,27 +20,16 @@ export default function QuizPage() {
     const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
 
-    const user = location.state?.username ?? "";
-    const [quizList, setQuizList] = useState([]);
-    const [selectedQuiz, setSelectedQuiz] = useState('');
     const [questionCount, setQuestionCount] = useState(0);
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
-    const [count, setCount] = useState(100);
 
     const [disabledMap, setDisabledMap] = useState({
-        userInput: false,      // 用户名输入框
-        quizSelect: false,     // 题目下拉框
-        countInput: false,     // 题目数量输入框
         submitBtn: false       // 提交按钮
     });
 
-    const isUserValid = user.trim() !== ""
-    const hasQuizList = quizList?.length > 0;
-    const hasSelectedQuiz = selectedQuiz.trim() !== "";
-    const isUserQuizReady = isUserValid && hasQuizList && hasSelectedQuiz;
-    const isCountValid = count !== "" && Number.isInteger(count) && count > 0;
-    const canFetch = !connError && !loading && isUserQuizReady && isCountValid;
+    const isQuizReady = !!selectedQuiz && selectedQuiz?.trim() !== "";
+    const canFetch = !loading && isQuizReady;
 
     // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
     // and exclude empty-value object to be map element
@@ -55,16 +40,6 @@ export default function QuizPage() {
         return new Map(arr
             .filter(obj => Object.values(obj).every(val => val !== undefined && val !== null && val !== ""))
             .map(obj => Object.entries(obj).flat()));
-    };
-
-    const handleCountChange = (e) => {
-        const value = e.target.value;
-        if (value === "") {
-            setCount(""); // 允许输入框暂时清空，而不是被 Number('') 强行变成 0
-            return;
-        }
-        const n = Number(value);
-        if (!Number.isNaN(n)) setCount(n);
     };
 
     const fetchQuiz = async () => {
@@ -83,7 +58,7 @@ export default function QuizPage() {
             const text = await fetch_quiz(
                 user,
                 selectedQuiz,
-                count,
+                100,
             );
 
             setFileContent(text);
@@ -92,9 +67,6 @@ export default function QuizPage() {
             // 开始作答，不可再更改用户输入
             setDisabledMap(prev => ({
                 ...prev,
-                userInput: true,
-                quizSelect: !!text,
-                countInput: !!text,
                 submitBtn: !!text,
             }))
 
@@ -118,9 +90,6 @@ export default function QuizPage() {
         // 开始作答后，不可再更改用户输入; 提交后，解锁输入框
         setDisabledMap(prev => ({
             ...prev,
-            // userInput: false,
-            quizSelect: false,
-            countInput: false,
             submitBtn: false,
         }))
 
@@ -129,26 +98,12 @@ export default function QuizPage() {
     };
 
     const showQACount = async () => {
-        const qaCount = user && selectedQuiz ? await count_qa(user, selectedQuiz) : { question_count: 0, correct_count: 0, incorrect_count: 0 };
+        const qaCount = selectedQuiz ? await count_qa(user, selectedQuiz) : { question_count: 0, correct_count: 0, incorrect_count: 0 };
         setQuestionCount(qaCount.question_count);
         setCorrectCount(qaCount.correct_count);
         setIncorrectCount(qaCount.incorrect_count);
         // console.log(`showQACount: ${qaCount}`);
     }
-
-    useEffect(() => {
-        (async () => { setQuizList(await list_quiz(user)); })()
-    }, []);
-
-    // 根据用户名找出来QUIZ列表后，用户名便不可更改了
-    useEffect(() => {
-        if (hasQuizList) {
-            setDisabledMap(prev => ({
-                ...prev,
-                userInput: true,
-            }))
-        }
-    }, [hasQuizList]);
 
     // 更换不同的QUIZ，刷新不同的用户数据
     useEffect(() => {
@@ -158,78 +113,40 @@ export default function QuizPage() {
     return (
         <div className={tw.app}>
 
-            {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，部分功能可能不可用：{connError.message} </p>)}
-
-            <h2 className={tw.title}>刷题本</h2>
-
             <div className="flex items-center">
-
-                <select
-                    id="quiz-select"
-                    key={user}
-                    value={selectedQuiz}
-                    onChange={(e) => setSelectedQuiz(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (typeof e.currentTarget.showPicker === 'function') {
-                                e.currentTarget.showPicker();
-                            }
-                        }
-                    }}
-                    disabled={connError || loading || disabledMap.quizSelect}
-                    className={cn(tw.input, "w-50 rounded-sm")}
-                >
-                    {hasQuizList && (
-                        <>
-                            <option value="" disabled hidden>题库</option>
-                            {quizList.map((item, index) => (<option key={index} value={item}>{item}</option>))}
-                        </>
-                    )}
-                </select>
-
                 {
                     questionCount > 0 &&
-                    <label className={cn(tw.label, "ml-auto flex items-center gap-3")}>
-                        <span className="font-semibold text-gray-500">习题共 {questionCount} 道,</span>
-                        <span className="font-semibold text-black">已练习 {+correctCount + +incorrectCount},</span>
-                        <span className="font-semibold text-green-600">掌握 {correctCount},</span>
+                    <label className={cn(tw.label, "flex items-center gap-3")}>
+                        <span className="font-bold text-olive-900">{selectedQuiz}</span>
+                        <span className="font-semibold text-gray-500">共 {questionCount} 习题</span>
+                        <span className="font-semibold text-blue-500">已练习 {+correctCount + +incorrectCount}</span>
+                        <span className="font-semibold text-green-600">掌握 {correctCount}</span>
                         <span className="font-semibold text-red-600">待巩固 {+questionCount - +correctCount}</span>
                     </label>
                 }
-
+                {
+                    isQuizReady &&
+                    <div className="my-2 flex items-center gap-2 ml-auto">
+                        <button
+                            onClick={fetchQuiz}
+                            disabled={!canFetch || disabledMap.submitBtn}
+                            className={cn(
+                                tw.input,
+                                tw.fetchBtn(canFetch && !disabledMap.submitBtn),
+                                "w-30"
+                            )}
+                        >
+                            {loading ? `⏳ 读取中... ${status}` : "📁 开始练习"}
+                        </button>
+                    </div>
+                }
             </div>
-
-            {
-                isUserQuizReady &&
-                <div className="my-2 flex justify-end gap-2">
-                    <input
-                        type="number"
-                        min="1"
-                        value={count}
-                        onChange={handleCountChange}
-                        className={cn(tw.input, "w-15")}
-                        disabled={connError || loading || !hasQuizList || !selectedQuiz || disabledMap.countInput}
-                    />
-                    <button
-                        onClick={fetchQuiz}
-                        disabled={connError || !canFetch || disabledMap.submitBtn}
-                        className={cn(
-                            tw.input,
-                            tw.fetchBtn(canFetch && !disabledMap.submitBtn),
-                            "w-30"
-                        )}
-                    >
-                        {loading ? `⏳ 读取中... ${status}` : "📁 获取练习"}
-                    </button>
-                </div>
-            }
 
             {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
             {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
 
             {/* 通过递增 key 彻底重置 DOM 和 State */}
-            {hasQuizList && selectedQuiz && fileContent && (
+            {isQuizReady && fileContent && (
                 <QuizViewer
                     key={quizKey}
                     user={user}

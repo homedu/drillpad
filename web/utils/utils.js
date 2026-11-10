@@ -218,3 +218,31 @@ export function caseVariants(str, ...extra) {
 
     return [lower, upper, title];
 }
+
+export function buildTree(paths) {
+    const roots = [];
+    const nodeMap = new Map(); // id -> node，用于合并相同前缀
+    for (const path of paths) {
+        const parts = path.split("/");
+        let siblings = roots; // 当前层级的节点数组
+        for (let i = 0; i < parts.length; i++) {
+            // 完整路径作为 id（最后一层的 id 与原始字符串完全一致）
+            const id = parts.slice(0, i + 1).join("/");
+            let node = nodeMap.get(id);
+            if (!node) {
+                node = { id, label: parts[i] }; // label 可按需修改，比如改成 parts[i]
+                nodeMap.set(id, node);
+                siblings.push(node);
+            }
+            // 还有更深的层级时，才创建 children
+            if (i < parts.length - 1) {
+                node.children ??= [];
+                siblings = node.children;
+            }
+        }
+    }
+    return roots;
+}
+
+const result = buildTree(["A", "B", "C/D", "C/E", "C/E/F", "G/H/I"]);
+console.log(JSON.stringify(result, null, 2));
