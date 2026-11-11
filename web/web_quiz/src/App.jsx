@@ -40,6 +40,9 @@ export default function App() {
     const location = useLocation();
     const { connError, list_quiz } = useNatsFetch();
 
+    const [sidebarOpen, setSidebarOpen] = useState(undefined);
+    const [sidebarDisable, setSidebarDisable] = useState(false);
+
     const user = location.state?.username ?? "";
     const isValidUser = () => { return user.trim().length > 0 }
 
@@ -72,11 +75,18 @@ export default function App() {
                 title="题库"
                 data={quizTree}
                 defaultExpandedIds={["components"]}
+                open={sidebarOpen}
                 selectedId={quiz?.id}
                 onSelect={(node) => setQuiz(node)} // 在这里接路由，如 navigate(node.path)
+                disablePanel={sidebarDisable}
             />
             <main className="min-w-0 flex-1 overflow-auto pt-6 pr-6">
-                <QuizPage user={user} selectedQuiz={quiz?.id} />
+                <QuizPage
+                    user={user}
+                    selectedQuiz={quiz?.id}
+                    onFetchQuiz={() => { setSidebarOpen(false); setSidebarDisable(true) }}
+                    onSubmitQuiz={() => { setSidebarOpen(undefined); setSidebarDisable(false) }}
+                />
             </main>
         </div>
     );

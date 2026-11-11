@@ -10,14 +10,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
  *   没有 children（或为空数组）的节点即叶节点，点击会触发 onSelect(node)
  *
  * Props:
- *   data               树数据 Node[]
- *   title              顶部标题（可选）
- *   selectedId         当前选中的叶节点 id（受控；不传则组件内部管理）
- *   onSelect(node)     点击叶节点回调
- *   defaultExpandedIds 默认展开的分支节点 id 数组
+ *   data                 树数据 Node[]
+ *   title                顶部标题（可选）
+ *   selectedId           当前选中的叶节点 id（受控；不传则组件内部管理）
+ *   onSelect(node)       点击叶节点回调
+ *   defaultExpandedIds   默认展开的分支节点 id 数组
  *   open / onOpenChange  受控显示/隐藏（不传则组件内部管理）
- *   defaultOpen        非受控时的初始显示状态，默认 true
- *   defaultWidth       初始宽度(px)，默认 260
+ *   defaultOpen          非受控时的初始显示状态，默认 true
+ *   defaultWidth         初始宽度(px)，默认 260
  *   minWidth / maxWidth  拖拽宽度范围，默认 180 / 480
  */
 export default function Sidebar({
@@ -32,6 +32,7 @@ export default function Sidebar({
     defaultWidth = 260,
     minWidth = 180,
     maxWidth = 480,
+    disablePanel = false,
 }) {
     /* ---------- 显示 / 隐藏 ---------- */
     const [openState, setOpenState] = useState(defaultOpen);
@@ -109,8 +110,7 @@ export default function Sidebar({
     return (
         // 外层占位：宽度随 open/width 变化，内容区 flex-1 会自动让位
         <div
-            className={`relative h-full shrink-0 ${dragging ? "" : "transition-[width] duration-200 ease-out"
-                }`}
+            className={`relative h-full shrink-0 ${dragging ? "" : "transition-[width] duration-200 ease-out"}`}
             style={{ width: open ? width : 0 }}
         >
             <aside
@@ -133,8 +133,9 @@ export default function Sidebar({
                             onClick={() => setOpen(false)}
                             title="隐藏导航栏 (Ctrl+B)"
                             aria-label="隐藏导航栏"
-                            className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 focus-visible:outline 
-                            focus-visible:outline-blue-500"
+                            className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
+                                       focus-visible:outline focus-visible:outline-blue-500 
+                                       cursor-pointer disabled:cursor-not-allowed"
                         >
                             <PanelIcon />
                         </button>
@@ -178,10 +179,12 @@ export default function Sidebar({
             {!open && (
                 <button
                     type="button"
+                    disabled={disablePanel}
                     onClick={() => setOpen(true)}
                     title="展开导航栏 (Ctrl+B)"
                     aria-label="展开导航栏"
-                    className="absolute left-2 top-2 z-20 rounded border border-slate-200 bg-white p-1.5 text-slate-500 shadow-sm hover:text-slate-900 focus-visible:outline focus-visible:outline-blue-500"
+                    className="absolute left-2 top-2 z-20 rounded border border-slate-200 bg-white p-1.5 cursor-pointer disabled:cursor-not-allowed
+                             text-slate-500 shadow-sm hover:text-slate-900 focus-visible:outline focus-visible:outline-blue-500"
                 >
                     <PanelIcon />
                 </button>

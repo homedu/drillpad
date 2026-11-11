@@ -244,5 +244,5 @@ export function buildTree(paths) {
     return roots;
 }
 
-const result = buildTree(["A", "B", "C/D", "C/E", "C/E/F", "G/H/I"]);
-console.log(JSON.stringify(result, null, 2));
+// const result = buildTree(["A", "B", "C/D", "C/E", "C/E/F", "G/H/I"]);
+// console.log(JSON.stringify(result, null, 2));

@@ -385,7 +385,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     ? (<button onClick={handleSubmit} className={tw.submitBtn}> 提交答案 </button>)
                     : (<>
                         {/* <button onClick={onReset} className={tw.resetBtn}> 重新作答 </button> */}
-                        <div className="text-lg font-bold text-[#24292e]"> 客观题得分：{score} / {questions.filter((q) => q.evalMode === "OBJ").length} </div>
+                        <div className="text-lg font-bold text-[#24292e]"> 客观题得分：{score} / {questions.filter((q) => q.evalMode !== "SUB").length} </div>
                     </>)
                 }
             </div>

@@ -6,7 +6,7 @@ import { QuizFetchError } from "../../../net_service/QDPErr.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
 
-export default function QuizPage({ user, selectedQuiz }) {
+export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz }) {
     const { status, loading,
         fetch_quiz,
         count_qa,
@@ -44,7 +44,7 @@ export default function QuizPage({ user, selectedQuiz }) {
 
     const fetchQuiz = async () => {
         if (!canFetch) {
-            setError("请先填写用户名、题库名称，并确保数量为正整数");
+            setError("无效用户名、或题库名称");
             return;
         }
 
@@ -72,6 +72,8 @@ export default function QuizPage({ user, selectedQuiz }) {
 
             setInfo(!text ? ` No questions need to do for <${selectedQuiz}> now` : "")
 
+            if (!!text) onFetchQuiz();
+
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
             // 翻译成了可读的中文提示（并区分了 stage: request / fetch），直接展示即可
@@ -88,13 +90,13 @@ export default function QuizPage({ user, selectedQuiz }) {
     const handleOnSubmit = async () => {
 
         // 开始作答后，不可再更改用户输入; 提交后，解锁输入框
-        setDisabledMap(prev => ({
-            ...prev,
-            submitBtn: false,
-        }))
+        setDisabledMap(prev => ({ ...prev, submitBtn: false }))
 
         // 提交后刷新统计数据
         await showQACount();
+
+        // 通知外部，答题已经提交
+        onSubmitQuiz();
     };
 
     const showQACount = async () => {

@@ -971,6 +971,9 @@
   .active\:ring-blue-400:active {
     --tw-ring-color: var(--color-blue-400);
   }
+  .disabled\:cursor-not-allowed:disabled {
+    cursor: not-allowed;
+  }
 }
 @layer base {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select {

@@ -43,4 +43,4 @@ awk -F. '{print $1}' <<< "${QUIZ_LIST}" | jq -R -s 'split("\n") | map(select(len
 
 # topic: quiz-list
 # nats reply "quiz-list" --command="./reply_quiz-list.sh" 2>/dev/null
-# nats req "quiz-list" test --raw
+# nats req "quiz-list" user --raw
