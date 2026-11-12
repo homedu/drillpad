@@ -208,11 +208,12 @@ function TreeNode({ node, depth, expanded, toggle, selectedId, onSelect }) {
                 aria-selected={isBranch ? undefined : isSelected}
                 onClick={() => (isBranch ? toggle(node.id) : onSelect(node))}
                 style={{ paddingLeft: 8 + depth * 16 }} // 每层缩进 16px
-                className={`flex w-full items-center gap-1 rounded py-1.5 pr-2 text-left text-sm focus-visible:outline focus-visible:outline-blue-500 ${isSelected
-                    ? "bg-blue-100 font-medium text-blue-800"
-                    : isBranch
-                        ? "font-medium text-slate-800 hover:bg-slate-200/70"
-                        : "hover:bg-slate-200/70"
+                className={`flex w-full items-center gap-1 rounded py-1.5 pr-2 text-left text-sm cursor-pointer focus-visible:outline focus-visible:outline-blue-500 
+                    ${isSelected
+                        ? "bg-blue-100 font-medium text-blue-800"
+                        : isBranch
+                            ? "font-medium text-slate-800 hover:bg-slate-200/70"
+                            : "hover:bg-slate-200/70"
                     }`}
             >
                 {isBranch ? (
