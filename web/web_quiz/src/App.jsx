@@ -4,6 +4,7 @@ import { buildTree } from "../../utils/utils.js";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
 import Sidebar from "./components/Sidebar";
 import QuizPage from './components/QuizPage';
+import QuizEditor from "./components/QuizEditor";
 
 // SIDEBAR 树数据：有 children 的是分支（点击折叠/展开），没有的是叶节点（点击触发 onSelect）
 // const treeData = [
@@ -100,11 +101,15 @@ export default function App() {
                     disablePanel={sidebarDisable}
                 />
                 <main className="min-w-0 flex-1 overflow-auto pt-6 pr-6">
-                    <QuizPage
+                    {false && (<QuizPage
                         user={user}
                         selectedQuiz={quiz?.id}
                         onFetchQuiz={() => { setSidebarOpen(false); setSidebarDisable(true) }}
                         onSubmitQuiz={() => { setSidebarOpen(undefined); setSidebarDisable(false) }}
+                    />)}
+                    <QuizEditor
+                        user={user}
+                        selectedQuiz={quiz?.id}
                     />
                 </main>
             </div>
