@@ -18,6 +18,14 @@ if (!String.prototype.caseVariants) {
     };
 }
 
+if (!String.prototype.part) {
+    String.prototype.part = function (index, separator = "/") {
+        const str = this.toString();
+        const parts = str.split(separator);
+        return parts.at(index) ?? '';
+    };
+}
+
 if (!String.prototype.mustEnd) {
     String.prototype.mustEnd = function (tail, ignoreCase = false) {
         const str = this.toString();

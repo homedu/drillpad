@@ -28,7 +28,7 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
         submitBtn: false       // 提交按钮
     });
 
-    const isQuizReady = !!selectedQuiz && selectedQuiz?.trim() !== "";
+    const isQuizReady = !!selectedQuiz && selectedQuiz?.trim() !== "" && questionCount > 0;
     const canFetch = !loading && isQuizReady;
 
     // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
@@ -55,11 +55,7 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
             const m = arrToMap(groups_content, groups[0]);
             setMapGroupContent(m);
 
-            const text = await fetch_quiz(
-                user,
-                selectedQuiz,
-                100,
-            );
+            const text = await fetch_quiz(user, selectedQuiz, 100);
 
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
@@ -70,7 +66,7 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                 submitBtn: !!text,
             }))
 
-            setInfo(!text ? ` No questions need to do for <${selectedQuiz}> now` : "")
+            setInfo(!text ? ` No Quiz for <${selectedQuiz.part(-1)}> Now` : "")
 
             if (!!text) onFetchQuiz();
 
@@ -110,6 +106,9 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
     // 更换不同的QUIZ，刷新不同的用户数据
     useEffect(() => {
         (async () => { await showQACount(); })();
+        setFileContent(""); // 清空题目
+        setInfo("");
+        setError("");
     }, [selectedQuiz]);
 
     return (
@@ -117,30 +116,32 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
 
             <div className="flex items-center">
                 {
-                    questionCount > 0 &&
-                    <label className={cn(tw.label, "flex items-center gap-3")}>
-                        <span className="font-bold text-olive-900">{selectedQuiz}</span>
-                        <span className="font-semibold text-gray-500">共 {questionCount} 习题</span>
-                        <span className="font-semibold text-blue-500">已练习 {+correctCount + +incorrectCount}</span>
-                        <span className="font-semibold text-green-600">掌握 {correctCount}</span>
-                        <span className="font-semibold text-red-600">待巩固 {+questionCount - +correctCount}</span>
-                    </label>
-                }
-                {
-                    isQuizReady &&
-                    <div className="my-2 flex items-center gap-2 ml-auto">
-                        <button
-                            onClick={fetchQuiz}
-                            disabled={!canFetch || disabledMap.submitBtn}
-                            className={cn(
-                                tw.input,
-                                tw.fetchBtn(canFetch && !disabledMap.submitBtn),
-                                "w-30"
-                            )}
-                        >
-                            {loading ? `⏳ 读取中... ${status}` : "📁 开始练习"}
-                        </button>
-                    </div>
+                    isQuizReady && (
+                        <>
+                            <div>
+                                <span className="block font-bold text-xl text-olive-900 mb-1">{selectedQuiz.part(-1)}</span>
+                                <label className={cn(tw.label, "flex items-center gap-5")}>
+                                    <span className="font-semibold text-sm text-gray-500">共 {questionCount} 习题</span>
+                                    <span className="font-semibold text-sm text-blue-500">已练习 {+correctCount + +incorrectCount}</span>
+                                    <span className="font-semibold text-sm text-green-600">掌握 {correctCount}</span>
+                                    <span className="font-semibold text-sm text-red-600">待巩固 {+questionCount - +correctCount}</span>
+                                </label>
+                            </div>
+                            <div className="my-2 flex items-center gap-2 ml-auto">
+                                <button
+                                    onClick={fetchQuiz}
+                                    disabled={!canFetch || disabledMap.submitBtn}
+                                    className={cn(
+                                        tw.input,
+                                        tw.fetchBtn(canFetch && !disabledMap.submitBtn),
+                                        "w-30"
+                                    )}
+                                >
+                                    {loading ? `⏳ 读取中...` : "📁 开始练习"}
+                                </button>
+                            </div>
+                        </>
+                    )
                 }
             </div>
 
