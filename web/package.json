@@ -3,7 +3,6 @@
     "workspaces": [
         "utils",
         "net_service",
-        "web_quiz",
-        "web_quiz_editor"
+        "web_quiz"
     ]
 }

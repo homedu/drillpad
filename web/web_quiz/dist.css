@@ -282,9 +282,6 @@
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
   }
-  .ms-1 {
-    margin-inline-start: var(--spacing);
-  }
   .me-1 {
     margin-inline-end: var(--spacing);
   }

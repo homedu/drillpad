@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { buildTree } from "../../utils/utils.js";
+import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
 import Sidebar from "./components/Sidebar";
 import QuizPage from './components/QuizPage';
@@ -40,12 +41,10 @@ import QuizEditor from "./components/QuizEditor";
 export default function App() {
     const location = useLocation();
     const navigate = useNavigate();
-
-    const { connError, list_quiz } = useNatsFetch();
-
+    const { connError, list_quiz, new_quiz } = useNatsFetch();
+    const [mode, setMode] = useState("EDITOR");
     const [sidebarOpen, setSidebarOpen] = useState(undefined);
     const [sidebarDisable, setSidebarDisable] = useState(false);
-
     const [user] = useState(() => location.state?.username ?? "");
     const [isValidUser] = useState(() => { return user?.trim().length > 0 });
 
@@ -79,6 +78,25 @@ export default function App() {
         setQuizTree(buildTree(quizList))
     }, [quizList])
 
+    function SlotNewQuiz() {
+        return (<button
+            type="button"
+            className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
+                                       focus-visible:outline focus-visible:outline-blue-500 
+                                       cursor-pointer disabled:cursor-not-allowed"
+            onClick={async () => {
+                let qz = await showSimpleInputModal({ title: "新建题库名", label: "" });
+                if (!qz) return
+                console.log(qz)
+                qz = qz.replace(/[\s-]+/g, '-');
+                await new_quiz(user, qz)
+                setQuizList(await list_quiz(user))
+            }}
+        >
+            <NewQuizIcon />
+        </button>)
+    }
+
     const alertMsg = connError
         ? `⚠️ NATS 连接异常，功能不可用：${connError.message}`
         : !isValidUser
@@ -99,20 +117,34 @@ export default function App() {
                     selectedId={quiz?.id}
                     onSelect={(node) => setQuiz(node)} // 在这里接路由，如 navigate(node.path)
                     disablePanel={sidebarDisable}
+                    slotBtn_NewQuiz={mode === "EDITOR" ? <SlotNewQuiz /> : null}
                 />
                 <main className="min-w-0 flex-1 overflow-auto pt-6 pr-6">
-                    {false && (<QuizPage
-                        user={user}
-                        selectedQuiz={quiz?.id}
-                        onFetchQuiz={() => { setSidebarOpen(false); setSidebarDisable(true) }}
-                        onSubmitQuiz={() => { setSidebarOpen(undefined); setSidebarDisable(false) }}
-                    />)}
-                    <QuizEditor
-                        user={user}
-                        selectedQuiz={quiz?.id}
-                    />
+                    {
+                        mode === "QUIZ" ?
+                            (<QuizPage
+                                user={user}
+                                selectedQuiz={quiz?.id}
+                                onFetchQuiz={() => { setSidebarOpen(false); setSidebarDisable(true) }}
+                                onSubmitQuiz={() => { setSidebarOpen(undefined); setSidebarDisable(false) }}
+                            />) :
+                            (< QuizEditor
+                                user={user}
+                                selectedQuiz={quiz?.id}
+                            />)
+                    }
                 </main>
             </div>
         </>
+    );
+}
+
+function NewQuizIcon() {
+    return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+            <path d="M11.5 2.5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7l-4.5-4.5Z" />
+            <path d="M11.5 2.5V7H16" />
+            <path d="M10 10.5v4M8 12.5h4" />
+        </svg>
     );
 }

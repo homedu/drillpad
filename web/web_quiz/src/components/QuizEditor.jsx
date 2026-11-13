@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { cn } from "../../../utils/utils.js"
 import "../../../utils/util_str.js";
 import { showInputModal } from "../../../utils/ShowInputModal.jsx";
-import { showSimpleInputModal } from "../../../utils/ShowSimpleInputModal.jsx";
 import { showConfirmModal } from "../../../utils/ShowConfirmModal.jsx";
 import RichTextEditor from "../../../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles_e.js";
@@ -32,20 +31,17 @@ export default function QuizEditor({ user, selectedQuiz }) {
     const [info, setInfo] = useState("");
     const [error, setError] = useState("");
     const { loading, connError,
-        list_quiz,
         count_qa,
         fetch_question,
         delete_question,
         fetch_prevnext_qid,
         make_quiz,
-        new_quiz,
         save_group_content,
         fetch_group_content
     } = useNatsFetch();
 
     const isQuizReady = !!selectedQuiz && selectedQuiz?.trim() !== "";
 
-    const [quizList, setQuizList] = useState([]);
     const [selectedQuestionType, setSelectedQuestionType] = useState('MCSA'); // 'MCSA', 'MS', 'FILL'
     const [QType, setQType] = useState({ MCSA: true, MS: false, FILL: false, OPT: true });
     const [questionCount, setQuestionCount] = useState(0);
@@ -331,28 +327,13 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
             <div className="flex items-center">
                 <span className="block font-bold text-xl text-olive-900 mb-1">{isQuizReady ? selectedQuiz.part(-1) : "选择题库进行题目录入编辑，或新建题库录入"}</span>
-                <div className="flex items-center ml-auto">
-                    <button
-                        className={cn(tw.button, tw.primaryButton, "ms-1 disabled:opacity-50 disabled:cursor-not-allowed")}
-                        onClick={async () => {
-                            let qz = await showSimpleInputModal({ title: "新建题库名", label: "" });
-                            if (!qz) return
-                            console.log(qz)
-                            qz = qz.replace(/[\s-]+/g, '-');
-                            await new_quiz(user, qz)
-                            setQuizList(await list_quiz(user))
-                        }}
-                    >
-                        新建题库
-                    </button>
-                </div>
             </div>
 
             {isQuizReady && (<div>
 
                 <div className="flex items-center gap-2 mt-5">
 
-                    <label className={cn(tw.label, "font-bold")}>题目序号 {qnum} / {questionCount}</label>
+                    <label className={cn(tw.label, "font-bold")}>序号 {qnum}/{questionCount}</label>
 
                     <div className="flex items-center gap-2 ml-auto">
                         <label className={cn(tw.label, "font-bold")}>题目ID</label>

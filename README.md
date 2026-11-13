@@ -22,9 +22,6 @@ add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 ### in /web_quiz, copy /dist to remote ###
 `sshpass -e rsync -av --inplace --delete ./dist root@192.168.1.159:/var/www/qdp_dist`
 
-### in /web_quiz_editor, copy /dist to remote ###
-`sshpass -e rsync -av --inplace --delete ./dist root@192.168.1.159:/var/www/qdp_editor_dist`
-
 ## clean up ##
 
 ### clear all node_modules/ dist/ bun.lock under /web ###

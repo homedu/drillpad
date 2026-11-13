@@ -33,6 +33,7 @@ export default function Sidebar({
     minWidth = 180,
     maxWidth = 480,
     disablePanel = false,
+    slotBtn_NewQuiz = null,
 }) {
     /* ---------- 显示 / 隐藏 ---------- */
     const [openState, setOpenState] = useState(defaultOpen);
@@ -128,19 +129,21 @@ export default function Sidebar({
                         <span className="truncate text-sm font-semibold text-slate-900">
                             {title}
                         </span>
-                        <button
-                            type="button"
-                            onClick={() => setOpen(false)}
-                            title="隐藏导航栏 (Ctrl+B)"
-                            aria-label="隐藏导航栏"
-                            className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
+                        <div className="ml-auto" >
+                            <span>{slotBtn_NewQuiz}</span>
+                            <button
+                                type="button"
+                                onClick={() => setOpen(false)}
+                                title="隐藏导航栏 (Ctrl+B)"
+                                aria-label="隐藏导航栏"
+                                className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
                                        focus-visible:outline focus-visible:outline-blue-500 
                                        cursor-pointer disabled:cursor-not-allowed"
-                        >
-                            <PanelIcon />
-                        </button>
+                            >
+                                <PanelIcon />
+                            </button>
+                        </div>
                     </div>
-
                     <nav className="flex-1 overflow-y-auto px-2 pb-4">
                         <ul role="tree" className="space-y-px">
                             {data.map((node) => (
