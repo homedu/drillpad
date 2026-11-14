@@ -33,6 +33,8 @@ export default function Sidebar({
     minWidth = 180,
     maxWidth = 480,
     disablePanel = false,
+    //
+    user = "",
     slotBtn_NewQuiz = null,
     slotBtn_DelQuiz = null,
 }) {
@@ -127,23 +129,35 @@ export default function Sidebar({
                     style={{ width }}
                 >
                     <div className="flex h-12 shrink-0 items-center justify-between px-3">
+                        <div className="flex items-center gap-2.5 py-1.5 min-w-0">
+                            {/* 左侧首字母圆形微章 */}
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-800 text-xs font-semibold text-white uppercase">
+                                {user?.trim()?.charAt(0) || "U"}
+                            </div>
+                            {/* 右侧用户名 */}
+                            <span className="font-mono text-xs font-semibold text-zinc-700 tracking-wider uppercase truncate">
+                                {user}
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setOpen(false)}
+                            title="隐藏导航栏 (Ctrl+B)"
+                            aria-label="隐藏导航栏"
+                            className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
+                                       focus-visible:outline focus-visible:outline-blue-500 
+                                       cursor-pointer disabled:cursor-not-allowed"
+                        >
+                            <PanelIcon />
+                        </button>
+                    </div>
+                    <div className="flex h-12 shrink-0 items-center justify-between px-3">
                         <span className="truncate text-sm font-semibold text-slate-900">
                             {title}
                         </span>
                         <div className="ml-auto" >
                             <span>{slotBtn_NewQuiz}</span>
                             <span>{slotBtn_DelQuiz}</span>
-                            <button
-                                type="button"
-                                onClick={() => setOpen(false)}
-                                title="隐藏导航栏 (Ctrl+B)"
-                                aria-label="隐藏导航栏"
-                                className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
-                                       focus-visible:outline focus-visible:outline-blue-500 
-                                       cursor-pointer disabled:cursor-not-allowed"
-                            >
-                                <PanelIcon />
-                            </button>
                         </div>
                     </div>
                     <nav className="flex-1 overflow-y-auto px-2 pb-4">

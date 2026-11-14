@@ -45,7 +45,7 @@ export default function App() {
     const navigate = useNavigate();
     const { alertState, showAlert, hideAlert } = useAlert(3000);
     const { connError, list_quiz, new_quiz, count_qa } = useNatsFetch();
-    const [mode, setMode] = useState("EDITOR");
+    const [mode, setMode] = useState("QUIZ");
     const [sidebarOpen, setSidebarOpen] = useState(undefined);
     const [sidebarDisable, setSidebarDisable] = useState(false);
     const [user] = useState(() => location.state?.username ?? "");
@@ -138,6 +138,7 @@ export default function App() {
                     selectedId={quiz?.id}
                     onSelect={(node) => setQuiz(node)} // 在这里接路由，如 navigate(node.path)
                     disablePanel={sidebarDisable}
+                    user={user}
                     slotBtn_NewQuiz={mode === "EDITOR" ? <SlotNewQuiz /> : null}
                     slotBtn_DelQuiz={mode === "EDITOR" ? <SlotDelQuiz quiz={quiz?.id} /> : null}
                 />

@@ -147,7 +147,7 @@ export function useNatsFetch() {
             return result;
         } catch (err) {
             throw new QDPErr.QuestionDeleteError(
-                `删除题目失败: ${describeError(err)}`,
+                `题目删除失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
             );

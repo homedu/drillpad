@@ -238,11 +238,11 @@ export default function QuizEditor({ user, selectedQuiz }) {
                 setError("");
             } else if (result.status === "failure") {
                 resetForm();
-                setError("删除题目失败");
+                setError("题目删除失败");
             }
         } catch (err) {
             resetForm();
-            setError("删除题目失败");
+            setError("题目删除失败");
         }
     };
 
@@ -368,7 +368,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
                             disabled={!selectedQuiz?.trim() || !qid.trim().isValidGuid()}
                             className={cn(tw.button, tw.primaryButton, "bg-red-500", "disabled:opacity-50 disabled:cursor-not-allowed")}
                         >
-                            删除题目
+                            删除
                         </button>
                     </div>
                 </div>
