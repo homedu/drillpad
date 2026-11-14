@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useAlert } from "../utils/alert/useAlert.js";
+import { AlertBanner } from "../utils/alert/AlertBanner.jsx";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
@@ -7,6 +9,7 @@ import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
 
 export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz }) {
+    const { alertState, showAlert, hideAlert } = useAlert(5000);
     const { status, loading,
         fetch_quiz,
         count_qa,
@@ -16,8 +19,6 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
 
     const [fileContent, setFileContent] = useState("");
     const [mapGroupContent, setMapGroupContent] = useState(null);
-    const [info, setInfo] = useState("");
-    const [error, setError] = useState("");
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
 
     const [questionCount, setQuestionCount] = useState(0);
@@ -44,11 +45,10 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
 
     const fetchQuiz = async () => {
         if (!canFetch) {
-            setError("无效用户名、或题库名称");
+            showAlert("无效用户名、或题库名称")
             return;
         }
 
-        setError("");
         try {
             const groups = await list_group(user, selectedQuiz);
             const groups_content = await fetch_group_content(user, selectedQuiz, groups[0], ...groups.slice(1));
@@ -66,15 +66,14 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                 submitBtn: !!text,
             }))
 
-            setInfo(!text ? ` No Quiz for <${selectedQuiz.part(-1)}> Now` : "")
-
+            if (!text) showAlert(`No Question need to do for <${selectedQuiz.part(-1)}> Now`, "success")
             if (!!text) onFetchQuiz();
 
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
             // 翻译成了可读的中文提示（并区分了 stage: request / fetch），直接展示即可
             const message = err instanceof QuizFetchError ? err.message : `未知错误: ${err?.message ?? err}`;
-            setError(message);
+            showAlert(message);
             // 注意：这里不清空 fileContent —— 请求失败时不应该把用户上一次
             // 已经在做的题目清掉，只提示错误、保留原有内容
         }
@@ -107,12 +106,12 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
     useEffect(() => {
         (async () => { await showQACount(); })();
         setFileContent(""); // 清空题目
-        setInfo("");
-        setError("");
     }, [selectedQuiz]);
 
     return (
         <div className={tw.app}>
+
+            <AlertBanner alert={alertState} onClose={hideAlert} className={cn(alertState.visible ? "mb-4" : "")} />
 
             <div className="flex items-center">
                 {
@@ -144,9 +143,6 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                     )
                 }
             </div>
-
-            {info && !error && <p className={tw.infoBox}> 💬 {info}</p>}
-            {error && !info && <p className={tw.errBox}> ❌ {error}</p>}
 
             {/* 通过递增 key 彻底重置 DOM 和 State */}
             {isQuizReady && fileContent && (

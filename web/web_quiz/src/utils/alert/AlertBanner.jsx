@@ -4,6 +4,12 @@ const STYLE_MAP = {
     warning: "text-amber-700 bg-amber-100",
 };
 
+const SYMBOL_MAP = {
+    error: "❌",
+    success: "💬",
+    warning: "⚠️",
+}
+
 export function AlertBanner({ alert, onClose, className = "" }) {
     // 彻底清空后直接返回 null，不占任何空间
     if (!alert?.text) return null;
@@ -24,7 +30,7 @@ export function AlertBanner({ alert, onClose, className = "" }) {
                     role="alert"
                     className={`flex items-center justify-between p-3 rounded-md ${colorStyle}`}
                 >
-                    <span>{alert.text}</span>
+                    <span>{SYMBOL_MAP[alert.type] + " " + alert.text}</span>
                     {onClose && (
                         <button
                             type="button"
