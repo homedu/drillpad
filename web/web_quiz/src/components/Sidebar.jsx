@@ -34,6 +34,7 @@ export default function Sidebar({
     maxWidth = 480,
     disablePanel = false,
     slotBtn_NewQuiz = null,
+    slotBtn_DelQuiz = null,
 }) {
     /* ---------- 显示 / 隐藏 ---------- */
     const [openState, setOpenState] = useState(defaultOpen);
@@ -131,6 +132,7 @@ export default function Sidebar({
                         </span>
                         <div className="ml-auto" >
                             <span>{slotBtn_NewQuiz}</span>
+                            <span>{slotBtn_DelQuiz}</span>
                             <button
                                 type="button"
                                 onClick={() => setOpen(false)}

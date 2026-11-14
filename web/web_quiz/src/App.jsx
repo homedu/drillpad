@@ -41,12 +41,13 @@ import QuizEditor from "./components/QuizEditor";
 export default function App() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { connError, list_quiz, new_quiz } = useNatsFetch();
+    const { connError, list_quiz, new_quiz, count_qa } = useNatsFetch();
     const [mode, setMode] = useState("EDITOR");
     const [sidebarOpen, setSidebarOpen] = useState(undefined);
     const [sidebarDisable, setSidebarDisable] = useState(false);
     const [user] = useState(() => location.state?.username ?? "");
     const [isValidUser] = useState(() => { return user?.trim().length > 0 });
+    const [noneEmptyQuiz, setNoneEmptyQuiz] = useState(false);
 
     // 挂载后立即用 replace: true 覆盖当前历史记录，清空 state
     useEffect(() => {
@@ -81,6 +82,7 @@ export default function App() {
     function SlotNewQuiz() {
         return (<button
             type="button"
+            title="新建题库"
             className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
                                        focus-visible:outline focus-visible:outline-blue-500 
                                        cursor-pointer disabled:cursor-not-allowed"
@@ -97,11 +99,38 @@ export default function App() {
         </button>)
     }
 
+    function SlotDelQuiz({ quiz = "" }) {
+        return (<button
+            type="button"
+            title="删除题库"
+            disabled={!quiz || quiz.length === 0}
+            className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-900 
+                                       focus-visible:outline focus-visible:outline-blue-500 
+                                       cursor-pointer disabled:cursor-not-allowed"
+            onClick={async () => {
+                if (quiz == null || quiz?.length === 0) return
+                const c = await count_qa(user, quiz, "question_count")
+                setNoneEmptyQuiz(c > 0)
+                if (c === 0) return
+
+                // TODO: delete QUIZ
+
+                // qz = qz.replace(/[\s-]+/g, '-');
+                // await new_quiz(user, qz)
+                // setQuizList(await list_quiz(user))
+            }}
+        >
+            <DelQuizIcon />
+        </button>)
+    }
+
     const alertMsg = connError
         ? `⚠️ NATS 连接异常，功能不可用：${connError.message}`
         : !isValidUser
             ? '⚠️ 无效用户'
-            : null;
+            : noneEmptyQuiz
+                ? '非空题库不可删除'
+                : null;
 
     return (
         <>
@@ -118,6 +147,7 @@ export default function App() {
                     onSelect={(node) => setQuiz(node)} // 在这里接路由，如 navigate(node.path)
                     disablePanel={sidebarDisable}
                     slotBtn_NewQuiz={mode === "EDITOR" ? <SlotNewQuiz /> : null}
+                    slotBtn_DelQuiz={mode === "EDITOR" ? <SlotDelQuiz quiz={quiz?.id} /> : null}
                 />
                 <main className="min-w-0 flex-1 overflow-auto pt-6 pr-6">
                     {
@@ -142,9 +172,19 @@ export default function App() {
 function NewQuizIcon() {
     return (
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-            <path d="M11.5 2.5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7l-4.5-4.5Z" />
-            <path d="M11.5 2.5V7H16" />
-            <path d="M10 10.5v4M8 12.5h4" />
+            <path d="M11 3.5H5.5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9" />
+            <path d="M15.5 2.5a1.414 1.414 0 0 1 2 2L10.5 11.5 8 12l.5-2.5 7-7Z" />
+        </svg>
+    );
+}
+
+function DelQuizIcon() {
+    return (
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+            <path d="M3.5 5.5h13" />
+            <path d="M8 5.5V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1.5" />
+            <path d="M5 5.5l.8 10a1.5 1.5 0 0 0 1.5 1.5h5.4a1.5 1.5 0 0 0 1.5-1.5l.8-10" />
+            <path d="M8.5 9v4.5M11.5 9v4.5" />
         </svg>
     );
 }
