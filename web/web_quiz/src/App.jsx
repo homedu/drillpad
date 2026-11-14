@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { buildTree } from "../../utils/utils.js";
+import { useAlert } from "./utils/alert/useAlert.js";
+import { AlertBanner } from "./utils/alert/AlertBanner.jsx";
 import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
 import Sidebar from "./components/Sidebar";
@@ -41,13 +43,12 @@ import QuizEditor from "./components/QuizEditor";
 export default function App() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { alertState, showAlert, hideAlert } = useAlert(3000);
     const { connError, list_quiz, new_quiz, count_qa } = useNatsFetch();
     const [mode, setMode] = useState("EDITOR");
     const [sidebarOpen, setSidebarOpen] = useState(undefined);
     const [sidebarDisable, setSidebarDisable] = useState(false);
     const [user] = useState(() => location.state?.username ?? "");
-    const [isValidUser] = useState(() => { return user?.trim().length > 0 });
-    const [noneEmptyQuiz, setNoneEmptyQuiz] = useState(false);
 
     // 挂载后立即用 replace: true 覆盖当前历史记录，清空 state
     useEffect(() => {
@@ -56,23 +57,20 @@ export default function App() {
         }
     }, [location, navigate]);
 
-    // 刷新后，user 会变成 undefined，可在此做兜底处理
-    if (!isValidUser) {
-        navigate('/');
-    }
+    useEffect(() => {
+        if (connError) showAlert(`⚠️ NATS 连接异常，功能不可用：${connError.message}`)
+    }, [connError])
 
     const [quizList, setQuizList] = useState([]);
     const [quizTree, setQuizTree] = useState([]);
     const [quiz, setQuiz] = useState(null);
 
     useEffect(() => {
-        (
-            async () => {
-                if (isValidUser) {
-                    setQuizList(await list_quiz(user));
-                }
-            }
-        )()
+        if (!user) {
+            showAlert('⚠️ 无效用户, 跳转至登录页...')
+            navigate('/'); // 刷新后，user 会变成 undefined，可在此做兜底处理
+        }
+        (async () => { setQuizList(await list_quiz(user)); })()
     }, [user]);
 
     useEffect(() => {
@@ -110,8 +108,10 @@ export default function App() {
             onClick={async () => {
                 if (quiz == null || quiz?.length === 0) return
                 const c = await count_qa(user, quiz, "question_count")
-                setNoneEmptyQuiz(c > 0)
-                if (c === 0) return
+                if (c > 0) {
+                    showAlert('非空题库不可删除', 'warning')
+                    return
+                }
 
                 // TODO: delete QUIZ
 
@@ -124,17 +124,9 @@ export default function App() {
         </button>)
     }
 
-    const alertMsg = connError
-        ? `⚠️ NATS 连接异常，功能不可用：${connError.message}`
-        : !isValidUser
-            ? '⚠️ 无效用户'
-            : noneEmptyQuiz
-                ? '非空题库不可删除'
-                : null;
-
     return (
         <>
-            {alertMsg && (<p className="text-red-600 bg-red-100 p-3 rounded-md mt-3.75">{alertMsg}</p>)}
+            <AlertBanner alert={alertState} onClose={hideAlert} />
 
             {/* 关键布局：父容器 flex + 固定高度，右侧内容 flex-1 + min-w-0 */}
             <div className="flex h-screen w-screen overflow-hidden">
