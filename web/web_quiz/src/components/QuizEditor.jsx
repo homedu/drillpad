@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { cn } from "../../../utils/utils.js"
 import "../../../utils/util_str.js";
-import { showInputModal } from "../../../utils/ShowInputModal.jsx";
-import { showConfirmModal } from "../../../utils/ShowConfirmModal.jsx";
-import RichTextEditor from "../../../utils/RichTextEditor.jsx";
+import { showInputModal } from "../utils/ShowInputModal.jsx";
+import { showConfirmModal } from "../utils/ShowConfirmModal.jsx";
+import RichTextEditor from "../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles_e.js";
 import { PenIcon, ArrowIcon } from "./icons_e.js";
 import { useNatsFetch } from "../../../net_service/useNatsFetch.js";

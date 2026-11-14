@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { buildTree } from "../../utils/utils.js";
 import { useAlert } from "./utils/alert/useAlert.js";
 import { AlertBanner } from "./utils/alert/AlertBanner.jsx";
-import { showSimpleInputModal } from "../../utils/ShowSimpleInputModal.jsx";
+import { showSimpleInputModal } from "./utils/ShowSimpleInputModal.jsx";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
 import Sidebar from "./components/Sidebar";
 import QuizPage from './components/QuizPage';
