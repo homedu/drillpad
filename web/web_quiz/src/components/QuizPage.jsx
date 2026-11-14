@@ -119,7 +119,7 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                     isQuizReady && (
                         <>
                             <div>
-                                <span className="block font-bold text-xl text-olive-900 mb-1">{selectedQuiz.part(-1)}</span>
+                                <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{selectedQuiz.part(-1)}</span>
                                 <label className={cn(tw.label, "flex items-center gap-5")}>
                                     <span className="font-semibold text-sm text-gray-500">共 {questionCount} 习题</span>
                                     <span className="font-semibold text-sm text-blue-500">已练习 {+correctCount + +incorrectCount}</span>

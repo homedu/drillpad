@@ -37,9 +37,21 @@ if (!String.prototype.mustEnd) {
 }
 
 if (!String.prototype.isValidGuid) {
-    String.prototype.isValidGuid = function () {
-        const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        return guidRegex.test(this.toString());
+    String.prototype.isValidGuid = function (part = 0) {
+        if (part === 0) {
+            const guidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+            return guidRegex.test(this.toString());
+        } else if (part === 1) {
+            const guidRegex = /^[0-9a-fA-F]{8}$/;
+            return guidRegex.test(this.toString());
+        } else if (part === 2 || part === 3 || part === 4) {
+            const guidRegex = /^[0-9a-fA-F]{4}$/;
+            return guidRegex.test(this.toString());
+        } else if (part === 5) {
+            const guidRegex = /^[0-9a-fA-F]{12}$/;
+            return guidRegex.test(this.toString());
+        }
+        return false
     };
 }
 

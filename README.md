@@ -10,9 +10,7 @@
 
 ### in root, copy /scripts to remote ###
 add `export HISTCONTROL=ignoreboth` into ~/.bashrc
-
 ` export SSHPASS='password***'`
-
 `sshpass -e rsync -av --inplace --delete ./scripts root@192.168.1.159:/home/qmiao/qm1_share/drillpad`
 `sshpass -e rsync -av --inplace ./config/topic.json  root@192.168.1.159:/home/qmiao/qm1_share/drillpad/config/topic.json`
 

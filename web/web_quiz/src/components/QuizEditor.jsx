@@ -290,10 +290,14 @@ export default function QuizEditor({ user, selectedQuiz }) {
     }, [question]);
 
     useEffect(() => {
-        if (qid.isValidGuid()) {
+        if (qid.isValidGuid() || qid.isValidGuid(5)) {
             (async () => {
                 const r = await fetch_prevnext_qid(user, selectedQuiz, qid);
                 if (r.success === true && r.status === "found") {
+                    if (!qid.isValidGuid()) {
+                        setQid(r.target.id)
+                        return
+                    }
                     setQnum(r.target.line)
                     await question_fetch(user, selectedQuiz, qid)
                 }
