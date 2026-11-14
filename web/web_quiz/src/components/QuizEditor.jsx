@@ -7,6 +7,8 @@ import RichTextEditor from "../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles_e.js";
 import { PenIcon, ArrowIcon } from "./icons_e.js";
 import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
+import { useAlert } from "../utils/alert/useAlert.js";
+import { AlertBanner } from "../utils/alert/AlertBanner.jsx";
 
 /**
  * QuestionUploadForm
@@ -27,9 +29,7 @@ const createEmptyOptions = (oc = MIN_OPTION_COUNT) => Array.from({ length: oc },
 const INITIAL_SET_OPT_COUNT_BY = { MANUAL: false, FETCH: false };
 
 export default function QuizEditor({ user, selectedQuiz }) {
-
-    const [info, setInfo] = useState("");
-    const [error, setError] = useState("");
+    const { alertState, showAlert, hideAlert } = useAlert(6000);
     const { loading, connError,
         count_qa,
         fetch_question,
@@ -110,8 +110,6 @@ export default function QuizEditor({ user, selectedQuiz }) {
         setQuestion("");
         setOptions(createEmptyOptions());
         setSkillStr("");
-        setInfo("");
-        setError("");
     };
 
     const validate = () => {
@@ -135,7 +133,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
     const handleSubmit = async () => {
         const err = validate();
         if (err) {
-            setError(err)
+            showAlert(err)
             return;
         }
 
@@ -151,9 +149,9 @@ export default function QuizEditor({ user, selectedQuiz }) {
             setQuestionCount(await count_qa(user, selectedQuiz, "question_count")); // update new question count
             setQid("");
             await question_fetch(user, selectedQuiz, id, { question: !keepQuestion, option: !keepOptions }); // 提交后的刷新，某些字段需要清空，方便继续录入下一题
-            setInfo(`提交成功! 题目ID: ${id}`)
+            showAlert(`提交成功! 题目ID: ${id}`, "success")
         } catch (err) {
-            setError("提交失败!");
+            showAlert("提交失败!");
         } finally {
             setSubmitting(false);
         }
@@ -215,16 +213,14 @@ export default function QuizEditor({ user, selectedQuiz }) {
                     text: clearMap?.option ? "" : (qOptions[index] || ""),
                     isCorrect: clearMap?.option ? false : (qOptions[index] ? qAnswers.includes(qOptions[index]) : false),
                 })));
-
-                setInfo("题目搜索成功");
-                setError("");
+                showAlert("搜索成功", "success");
             } else if (result.status === "failure") {
                 resetForm();
-                setError("搜索题目失败");
+                showAlert("搜索失败");
             }
         } catch (err) {
             resetForm();
-            setError("搜索题目失败");
+            showAlert("搜索失败");
         }
     }
 
@@ -234,15 +230,14 @@ export default function QuizEditor({ user, selectedQuiz }) {
             if (result.status === "success") {
                 resetForm();
                 setQuestionCount(await count_qa(user, quiz, "question_count"));
-                setInfo("题目删除成功");
-                setError("");
+                showAlert("删除成功", "success");
             } else if (result.status === "failure") {
                 resetForm();
-                setError("题目删除失败");
+                showAlert("删除失败");
             }
         } catch (err) {
             resetForm();
-            setError("题目删除失败");
+            showAlert("删除失败");
         }
     };
 
@@ -321,12 +316,10 @@ export default function QuizEditor({ user, selectedQuiz }) {
     return (
         <div className={tw.container}>
 
-            {connError && (<p className={tw.errBox}> ⚠️ NATS 连接异常，功能不可用：{connError.message} </p>)}
-            {info && !error && <p className={cn(tw.infoBox)}> 💬 {info}</p>}
-            {error && <p className={cn(tw.errBox)}> ❌ {error}</p>}
+            <AlertBanner alert={alertState} onClose={hideAlert} className={cn(alertState.visible ? "mb-4" : "")} />
 
             <div className="flex items-center">
-                <span className="block font-bold text-xl text-olive-900 mb-1">{isQuizReady ? selectedQuiz.part(-1) : "选择题库进行题目录入编辑，或新建题库录入"}</span>
+                <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{isQuizReady ? selectedQuiz.part(-1) : "选择题库进行题目录入编辑，或新建题库录入"}</span>
             </div>
 
             {isQuizReady && (<div>
@@ -336,7 +329,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
                     <label className={cn(tw.label, "font-bold")}>序号 {qnum}/{questionCount}</label>
 
                     <div className="flex items-center gap-2 ml-auto">
-                        <label className={cn(tw.label, "font-bold")}>题目ID</label>
+                        <label className={cn(tw.label, "font-bold", "mr-1.5")}>搜索</label>
                         <input
                             type="text"
                             value={qid}
@@ -366,7 +359,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
                                 }
                             }
                             disabled={!selectedQuiz?.trim() || !qid.trim().isValidGuid()}
-                            className={cn(tw.button, tw.primaryButton, "bg-red-500", "disabled:opacity-50 disabled:cursor-not-allowed")}
+                            className={cn(tw.button, tw.primaryButton, "bg-red-500", "ml-4 disabled:opacity-50 disabled:cursor-not-allowed")}
                         >
                             删除
                         </button>

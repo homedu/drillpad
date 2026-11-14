@@ -74,7 +74,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
                     questionFieldType: qFieldType,
-                    evalMode: qEvalMode
+                    evalMode: qEvalMode // SUB, OBJ
                 };
             })
             .filter(Boolean);
@@ -126,9 +126,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     }, [questions, userAnswers, user, quiz, record_answer, onSubmit]);
 
     // 5. 双击触发的处理函数
-    const handleDoubleClick = (key, group, event) => {
+    const handleDoubleClick = (key, group, evalMode, event) => {
         console.log("question id:", key);
         console.log("question group:", group);
+        console.log("evaluation mode:", evalMode);
     };
 
     const handleAI = (key, type, group_content, eval_mode, event) => {
@@ -282,7 +283,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         onClick={(e) => handleCardClick(index, e)}>
 
                         {/* 左侧题号：绝对定位到卡片左边框外面，靠上 */}
-                        <div className={cn(tw.cardNum)} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, e)}>
+                        <div className={cn(tw.cardNum, q.evalMode === "SUB" ? "bg-green-200" : "bg-blue-200")} onDoubleClick={(e) => handleDoubleClick(q.id, q.group, q.evalMode, e)}>
                             <span className="inline-block transform -translate-y-1.25">
                                 {index + 1}
                             </span>

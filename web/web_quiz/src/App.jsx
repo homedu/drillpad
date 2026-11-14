@@ -45,10 +45,10 @@ export default function App() {
     const navigate = useNavigate();
     const { alertState, showAlert, hideAlert } = useAlert(3000);
     const { connError, list_quiz, new_quiz, count_qa } = useNatsFetch();
-    const [mode, setMode] = useState("QUIZ");
     const [sidebarOpen, setSidebarOpen] = useState(undefined);
     const [sidebarDisable, setSidebarDisable] = useState(false);
-    const [user] = useState(() => location.state?.username ?? "");
+    const [user, setUser] = useState(location.state?.username ?? "");
+    const [mode, setMode] = useState("QUIZ");
 
     // 挂载后立即用 replace: true 覆盖当前历史记录，清空 state
     useEffect(() => {
@@ -69,6 +69,11 @@ export default function App() {
         if (!user) {
             showAlert('⚠️ 无效用户, 跳转至登录页...')
             navigate('/'); // 刷新后，user 会变成 undefined，可在此做兜底处理
+        }
+        if (user.part(-1) === "editor") {
+            setMode("EDITOR");
+            setUser(user.replace(/\/editor$/, ""));
+            return;
         }
         (async () => { setQuizList(await list_quiz(user)); })()
     }, [user]);
