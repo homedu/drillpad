@@ -20,7 +20,7 @@ const judge = (q, answer) => {
 };
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, onSubmit, onReset }) {
+export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, filter = { evalMode: "", rating: 0 }, onSubmit, onReset }) {
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
@@ -77,6 +77,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     evalMode: qEvalMode // SUB, OBJ
                 };
             })
+            .filter((q) =>
+                (!filter.evalMode || q.evalMode === filter.evalMode) &&
+                (!(filter.rating > 0) || q.rating >= filter.rating)
+            )
             .filter(Boolean);
     }, [quizFileContent]);
 

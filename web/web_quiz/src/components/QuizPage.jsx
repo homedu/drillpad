@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAlert } from "../utils/alert/useAlert.js";
 import { AlertBanner } from "../utils/alert/AlertBanner.jsx";
 import QuizViewer from "./components/QuizViewer.jsx";
+import { RadioGroup } from "../utils/RadioGroup.jsx";
 import { styles as tw } from "./styles.js";
 import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
 import { QuizFetchError } from "../../../net_service/QDPErr.js";
@@ -19,6 +20,7 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
 
     const [fileContent, setFileContent] = useState("");
     const [mapGroupContent, setMapGroupContent] = useState(null);
+    const [filter, setFilter] = useState({ evalMode: "", rating: 0 })
     const [quizKey, setQuizKey] = useState(0); // 用于彻底销毁并重新初始化 QuizViewer
 
     const [questionCount, setQuestionCount] = useState(0);
@@ -126,7 +128,19 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                                     <span className="font-semibold text-sm text-red-600">待巩固 {+questionCount - +correctCount}</span>
                                 </label>
                             </div>
-                            <div className="my-2 flex items-center gap-2 ml-auto">
+
+                            <div className="my-2 flex items-center gap-3 ml-auto">
+                                <RadioGroup
+                                    name="evalMode"
+                                    value={filter.evalMode}
+                                    disabled={!canFetch || disabledMap.submitBtn}
+                                    onChange={(val) => setFilter({ ...filter, evalMode: val })}
+                                    options={[
+                                        { label: '全部', value: '' },
+                                        { label: '主观题', value: 'SUB' },
+                                        { label: '客观题', value: 'OBJ' },
+                                    ]}
+                                />
                                 <button
                                     onClick={fetchQuiz}
                                     disabled={!canFetch || disabledMap.submitBtn}
@@ -152,6 +166,7 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                     quiz={selectedQuiz}
                     quizFileContent={fileContent}
                     mGroupContent={mapGroupContent}
+                    filter={filter}
                     onSubmit={handleOnSubmit}
                     onReset={handleResetQuiz}
                 />
