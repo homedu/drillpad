@@ -44,6 +44,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
         ids[NR] = id
         if (!found && id == target) { target_idx = NR; found = 1 }
         if (!found && substr(id, length(id) - length(target) + 1) == target) { target_idx = NR; found = 1 }
+        if (!found && target ~ /^#[0-9]+$/ && NR == substr(target, 2)) { target_idx = NR; found = 1 }
     }
     END {
         if (!found)  { print "NOTFOUND"; exit }

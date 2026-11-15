@@ -437,9 +437,6 @@
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
-  .h-\[3rem\] {
-    height: 3rem;
-  }
   .h-full {
     height: 100%;
   }
@@ -449,8 +446,8 @@
   .min-h-10 {
     min-height: calc(var(--spacing) * 10);
   }
-  .min-h-\[3rem\] {
-    min-height: 3rem;
+  .min-h-12 {
+    min-height: calc(var(--spacing) * 12);
   }
   .min-h-screen {
     min-height: 100vh;

@@ -46,7 +46,7 @@ export function Fill({
                 name={`question-${questionId}-${opt.label}`}
                 disabled={submitted}
                 autoComplete="off"
-                className="m-0 w-full h-[3rem] min-h-[3rem] box-border px-3 py-3 leading-norma text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="m-0 w-full h-12 min-h-12 box-border px-3 py-3 leading-norma text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 wrap="soft"
                 onChange={(e) => onChange({ "label": opt.label, "text": e.target.value })}
                 onFocus={(e) => onFocus(e.target.name)}>
