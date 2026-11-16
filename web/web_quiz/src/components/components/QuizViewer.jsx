@@ -20,11 +20,12 @@ const judge = (q, answer) => {
 };
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, filter = { evalMode: "", rating: 0 }, onSubmit, onReset }) {
+export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, filter = { evalMode: "", rating: 0 }, onSubmit, onReset, onNoQuestions, onQuestionsReady }) {
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const { record_answer, rate_question, fetch_rate_question } = useNatsFetch();
+    const hasOutAlerted = useRef(false);
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState([]);
@@ -121,7 +122,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             console.log(result);
 
             // record_answer 成功完成后，再通知父组件进行后续刷新
-            await onSubmit();
+            onSubmit?.();
 
         } catch (err) {
             const message = err instanceof AnswerRecordError ? err.message : `未知错误: ${err?.message ?? err}`;
@@ -202,9 +203,21 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         }
     };
 
-    if (!questions.length) {
-        return (<p className="mt-5 text-zinc-500"> ⚠️ 未解析到有效题目内容，请检查文件格式。</p>);
-    }
+    useEffect(() => {
+        if (!questions.length) {
+            if (!hasOutAlerted.current) {
+                hasOutAlerted.current = true
+                onNoQuestions?.();
+            }
+        } else {
+            if (!submitted) {
+                onQuestionsReady?.(); // answering 状态下，且有题目，则通知外部
+            }
+            hasOutAlerted.current = false
+        }
+    }, [questions, onNoQuestions, onQuestionsReady]);
+
+    if (!questions.length) { return null }
 
     useEffect(() => {
         const init = async () => {

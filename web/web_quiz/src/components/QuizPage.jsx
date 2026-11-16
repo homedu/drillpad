@@ -9,8 +9,8 @@ import { QuizFetchError } from "../../../net_service/QDPErr.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
 
-export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz }) {
-    const { alertState, showAlert, hideAlert } = useAlert(5000);
+export default function QuizPage({ user, selectedQuiz, onQuestionsReady, onSubmitQuiz, onNoQuestions }) {
+    const { alertState, showAlert, hideAlert } = useAlert(3000);
     const { status, loading,
         fetch_quiz,
         count_qa,
@@ -27,12 +27,9 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
 
-    const [disabledMap, setDisabledMap] = useState({
-        submitBtn: false       // 提交按钮
-    });
-
+    const [answering, setAnswering] = useState(false)
     const isQuizReady = !!selectedQuiz && selectedQuiz?.trim() !== "" && questionCount > 0;
-    const canFetch = !loading && isQuizReady;
+    const canFetch = !loading && !alertState.visible && isQuizReady;
 
     // [ { key1: value1 }, { key2: value2 }, ... ] => Map( key1: value1, key2: value2 )
     // and exclude empty-value object to be map element
@@ -47,10 +44,9 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
 
     const fetchQuiz = async () => {
         if (!canFetch) {
-            showAlert("无效用户名、或题库名称")
+            showAlert("无效题库名")
             return;
         }
-
         try {
             const groups = await list_group(user, selectedQuiz);
             const groups_content = await fetch_group_content(user, selectedQuiz, groups[0], ...groups.slice(1));
@@ -58,18 +54,11 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
             setMapGroupContent(m);
 
             const text = await fetch_quiz(user, selectedQuiz, 100);
-
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
 
-            // 开始作答，不可再更改用户输入
-            setDisabledMap(prev => ({
-                ...prev,
-                submitBtn: !!text,
-            }))
-
-            if (!text) showAlert(`No Question need to do for <${selectedQuiz.part(-1)}> Now`, "success")
-            if (!!text) onFetchQuiz();
+            // 开始作答，锁定
+            setAnswering(!!text)
 
         } catch (err) {
             // useNatsFetch 内部已经把 NATS / 文件拉取的各种异常
@@ -81,20 +70,26 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
         }
     };
 
+    const handleQuestionsReady = () => {
+        onQuestionsReady?.();
+    }
+
+    const handleSubmit = async () => {
+        setAnswering(false)
+        onSubmitQuiz?.();
+        await showQACount();
+    };
+
+    const handleNoQuestions = () => {
+        if (!alertState.visible) {
+            setAnswering(false)
+            onNoQuestions?.()
+            showAlert(`No Question for <${selectedQuiz.part(-1)}> on ${filter.evalMode}`, "success")
+        }
+    }
+
     // 彻底清空并重新初始化作答
     const handleResetQuiz = () => { setQuizKey((prev) => prev + 1); };
-
-    const handleOnSubmit = async () => {
-
-        // 开始作答后，不可再更改用户输入; 提交后，解锁输入框
-        setDisabledMap(prev => ({ ...prev, submitBtn: false }))
-
-        // 提交后刷新统计数据
-        await showQACount();
-
-        // 通知外部，答题已经提交
-        onSubmitQuiz();
-    };
 
     const showQACount = async () => {
         const qaCount = selectedQuiz ? await count_qa(user, selectedQuiz) : { question_count: 0, correct_count: 0, incorrect_count: 0 };
@@ -116,45 +111,40 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
             <AlertBanner alert={alertState} onClose={hideAlert} className={cn(alertState.visible ? "mb-4" : "")} />
 
             <div className="flex items-center">
-                {
-                    isQuizReady && (
-                        <>
-                            <div>
-                                <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{selectedQuiz.part(-1)}</span>
-                                <label className={cn(tw.label, "flex items-center gap-5")}>
-                                    <span className="font-semibold text-sm text-gray-500">共 {questionCount} 习题</span>
-                                    <span className="font-semibold text-sm text-blue-500">已练习 {+correctCount + +incorrectCount}</span>
-                                    <span className="font-semibold text-sm text-green-600">掌握 {correctCount}</span>
-                                    <span className="font-semibold text-sm text-red-600">待巩固 {+questionCount - +correctCount}</span>
-                                </label>
-                            </div>
-
-                            <div className="my-2 flex items-center gap-3 ml-auto">
-                                <RadioGroup
-                                    name="evalMode"
-                                    value={filter.evalMode}
-                                    disabled={!canFetch || disabledMap.submitBtn}
-                                    onChange={(val) => setFilter({ ...filter, evalMode: val })}
-                                    options={[
-                                        { label: '全部', value: '' },
-                                        { label: '主观题', value: 'SUB' },
-                                        { label: '客观题', value: 'OBJ' },
-                                    ]}
-                                />
-                                <button
-                                    onClick={fetchQuiz}
-                                    disabled={!canFetch || disabledMap.submitBtn}
-                                    className={cn(
-                                        tw.input,
-                                        tw.fetchBtn(canFetch && !disabledMap.submitBtn),
-                                        "w-30"
-                                    )}
-                                >
-                                    {loading ? `⏳ 读取中...` : "📁 开始练习"}
-                                </button>
-                            </div>
-                        </>
-                    )
+                <div>
+                    <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{selectedQuiz?.part(-1)}</span>
+                    <label className={cn(tw.label, "flex items-center gap-5")}>
+                        <span className="font-semibold text-sm text-gray-500">共 {questionCount} 习题</span>
+                        <span className="font-semibold text-sm text-blue-500">已练习 {+correctCount + +incorrectCount}</span>
+                        <span className="font-semibold text-sm text-green-600">掌握 {correctCount}</span>
+                        <span className="font-semibold text-sm text-red-600">待巩固 {+questionCount - +correctCount}</span>
+                    </label>
+                </div>
+                {isQuizReady && (
+                    <div className="my-2 flex items-center gap-3 ml-auto">
+                        <RadioGroup
+                            name="evalMode"
+                            value={filter.evalMode}
+                            disabled={!canFetch || answering}
+                            onChange={(val) => setFilter({ ...filter, evalMode: val })}
+                            options={[
+                                { label: '全部', value: '' },
+                                { label: '主观题', value: 'SUB' },
+                                { label: '客观题', value: 'OBJ' },
+                            ]}
+                        />
+                        <button
+                            onClick={fetchQuiz}
+                            disabled={!canFetch || answering}
+                            className={cn(
+                                tw.input,
+                                tw.fetchBtn(canFetch && !answering),
+                                "w-30"
+                            )}
+                        >
+                            {loading ? `⏳ 读取中...` : "📁 开始练习"}
+                        </button>
+                    </div>)
                 }
             </div>
 
@@ -167,8 +157,10 @@ export default function QuizPage({ user, selectedQuiz, onFetchQuiz, onSubmitQuiz
                     quizFileContent={fileContent}
                     mGroupContent={mapGroupContent}
                     filter={filter}
-                    onSubmit={handleOnSubmit}
+                    onSubmit={handleSubmit}
                     onReset={handleResetQuiz}
+                    onNoQuestions={handleNoQuestions}
+                    onQuestionsReady={handleQuestionsReady}
                 />
             )}
         </div>

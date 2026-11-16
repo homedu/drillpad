@@ -153,8 +153,9 @@ export default function App() {
                             (<QuizPage
                                 user={user}
                                 selectedQuiz={quiz?.id}
-                                onFetchQuiz={() => { setSidebarOpen(false); setSidebarDisable(true) }}
+                                onQuestionsReady={() => { setSidebarOpen(false); setSidebarDisable(true) }}
                                 onSubmitQuiz={() => { setSidebarOpen(undefined); setSidebarDisable(false) }}
+                                onNoQuestions={() => { setSidebarOpen(undefined); setSidebarDisable(false) }}
                             />) :
                             (< QuizEditor
                                 user={user}
