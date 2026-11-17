@@ -319,7 +319,6 @@ export function useNatsFetch() {
             user,
             quiz,
         }
-
         console.log("new_quiz payload:", payload);
 
         setLoading(true);
@@ -335,6 +334,34 @@ export function useNatsFetch() {
         } catch (err) {
             throw new QDPErr.QuizNewError(
                 `新建题库失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
+    const delete_quiz = useCallback(async (user, quiz) => {
+        const payload = {
+            user,
+            quiz,
+        }
+        console.log("delete_quiz payload:", payload);
+
+        setLoading(true);
+        try {
+            const result = await reqNATS(TOPIC.T_QUIZ_DELETE, payload, { timeout: 10000 });
+            if (result === null || !result.status) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.status;
+        } catch (err) {
+            throw new QDPErr.QuizDeleteError(
+                `删除题库失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
             );
@@ -490,6 +517,7 @@ export function useNatsFetch() {
         record_answer,
         make_quiz,
         new_quiz,
+        delete_quiz,
         save_group_content,
         fetch_group_content,
         list_group

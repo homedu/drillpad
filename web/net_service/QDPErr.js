@@ -70,6 +70,14 @@ export class QuizNewError extends Error {
     }
 }
 
+export class QuizDeleteError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuizDeleteError";
+        this.stage = stage;
+    }
+}
+
 export class GroupContentSaveError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);

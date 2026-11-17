@@ -5,6 +5,7 @@ import { useAlert } from "./utils/alert/useAlert.js";
 import { AlertBanner } from "./utils/alert/AlertBanner.jsx";
 import { showSimpleInputModal } from "./utils/ShowSimpleInputModal.jsx";
 import { useNatsFetch } from "../../net_service/useNatsFetch.js";
+import { showConfirmModal } from "./utils/ShowConfirmModal.jsx";
 import Sidebar from "./components/Sidebar";
 import QuizPage from './components/QuizPage';
 import QuizEditor from "./components/QuizEditor";
@@ -44,7 +45,7 @@ export default function App() {
     const location = useLocation();
     const navigate = useNavigate();
     const { alertState, showAlert, hideAlert } = useAlert(3000);
-    const { connError, list_quiz, new_quiz, count_qa } = useNatsFetch();
+    const { connError, list_quiz, new_quiz, delete_quiz, count_qa } = useNatsFetch();
     const [sidebarOpen, setSidebarOpen] = useState(undefined);
     const [sidebarDisable, setSidebarDisable] = useState(false);
     const [user, setUser] = useState(location.state?.username ?? "");
@@ -95,6 +96,7 @@ export default function App() {
                 console.log(qz)
                 qz = qz.replace(/[\s-]+/g, '-');
                 await new_quiz(user, qz)
+                setQuiz(qz);
                 setQuizList(await list_quiz(user))
             }}
         >
@@ -112,17 +114,16 @@ export default function App() {
                                        cursor-pointer disabled:cursor-not-allowed"
             onClick={async () => {
                 if (quiz == null || quiz?.length === 0) return
-                const c = await count_qa(user, quiz, "question_count")
-                if (c > 0) {
-                    showAlert('非空题库不可删除', 'warning')
-                    return
+                if (await showConfirmModal({ title: "Deleting Quiz ?", text: `${quiz}` })) {
+                    const c = await count_qa(user, quiz, "question_count")
+                    if (c > 0) {
+                        showAlert('非空题库不可删除', 'warning')
+                        return
+                    }
+                    await delete_quiz(user, quiz);
+                    setQuiz(null);
+                    setQuizList(await list_quiz(user));
                 }
-
-                // TODO: delete QUIZ
-
-                // qz = qz.replace(/[\s-]+/g, '-');
-                // await new_quiz(user, qz)
-                // setQuizList(await list_quiz(user))
             }}
         >
             <DelQuizIcon />
