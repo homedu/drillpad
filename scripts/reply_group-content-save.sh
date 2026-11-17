@@ -30,8 +30,8 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
     GROUP=$(jq -r '.group' <<< "${PARAM}")
     GROUP_CONTENT=$(jq '.group_content' <<< "${PARAM}")
     trim_inplace GROUP_CONTENT "\""                # trim "" auto-wrapped by jq without '-r'

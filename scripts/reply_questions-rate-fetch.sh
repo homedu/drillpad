@@ -28,8 +28,8 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
         echo "error: user not found: ${CUR_USER}"

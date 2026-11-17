@@ -30,8 +30,8 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
 
     # 注意:GROUPS 是 bash 内置只读变量(当前用户所属组 ID),不能作为自定义变量名,
     # 所以这里用 GROUP_LIST 保存 groups 数组(JSON 字符串)

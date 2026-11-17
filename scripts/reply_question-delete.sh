@@ -28,8 +28,8 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
     QID=$(jq -r '.qid' <<< "${PARAM}")
     ensure_file QUIZ_FILE="../users/${CUR_USER}/quiz_bank/${QUIZ}.tsv"
 

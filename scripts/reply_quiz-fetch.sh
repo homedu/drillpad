@@ -32,8 +32,8 @@ declare -A _LOCKS=()
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
     COUNT=$(jq -r '.count' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {

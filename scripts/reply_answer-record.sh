@@ -30,8 +30,8 @@ declare -A _LOCKS=()
 # 使用 jq 尝试解析参数，检查它是否为合法的 JSON 对象或数组
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
         echo "错误: 用户目录不存在: ${DIR_USER}" >&2
