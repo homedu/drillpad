@@ -42,7 +42,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     }
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
-        echo "error: user does not exist: ${DIR_USER}"
+        echo "error: user not found: ${CUR_USER}"
         exit 1
     }
 

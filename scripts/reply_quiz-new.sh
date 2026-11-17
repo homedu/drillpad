@@ -30,12 +30,17 @@ PARAM="${NATS_REQUEST_BODY:-${1:-}}"
 if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     # CUR_USER should be extract from token
-    CUR_USER=$(jq -r '.user' <<< "${PARAM}")
-    QUIZ=$(jq -r '.quiz' <<< "${PARAM}")
+    CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
+    QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
-        echo "error: user does not exist: ${DIR_USER}"
+        echo "error: user not found: ${CUR_USER}"
         exit 1
+    }
+
+    [[ -n "${QUIZ}" && "${QUIZ}" != "null" ]] || {
+        jq -n --arg t "${CURRENT_TIME}" --arg s "abort" '{ time: $t, status: $s }'
+        exit 0
     }
 
     ensure_file QUIZ_BANK_FILE="${DIR_USER}/quiz_bank/${QUIZ}.tsv" || { echo $?; exit 1;}
