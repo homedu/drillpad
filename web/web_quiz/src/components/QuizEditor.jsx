@@ -131,6 +131,12 @@ export default function QuizEditor({ user, selectedQuiz }) {
     };
 
     const handleSubmit = async () => {
+        if (qid.isValidGuid()) {
+            if (!await showConfirmModal({ title: "Updating Question ?", text: `${qid}` })) {
+                return;
+            }
+        }
+
         const err = validate();
         if (err) {
             showAlert(err)
@@ -213,7 +219,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
                     text: clearMap?.option ? "" : (qOptions[index] || ""),
                     isCorrect: clearMap?.option ? false : (qOptions[index] ? qAnswers.includes(qOptions[index]) : false),
                 })));
-                showAlert("搜索成功", "success");
+
             } else if (result.status === "failure") {
                 resetForm();
                 showAlert("搜索失败");
@@ -326,7 +332,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
             <AlertBanner alert={alertState} onClose={hideAlert} className={cn(alertState.visible ? "mb-4" : "")} />
 
             <div className="flex items-center">
-                <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{isQuizReady ? selectedQuiz.part(-1) : "选择题库进行题目录入编辑，或新建题库录入"}</span>
+                <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{isQuizReady ? selectedQuiz.part(-1) : "侧边栏选择题库进行题目录入编辑，或新建题库录入"}</span>
             </div>
 
             {isQuizReady && (<div>

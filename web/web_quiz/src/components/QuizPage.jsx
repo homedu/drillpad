@@ -112,13 +112,13 @@ export default function QuizPage({ user, selectedQuiz, onQuestionsReady, onSubmi
 
             <div className="flex items-center">
                 <div>
-                    <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{selectedQuiz?.part(-1)}</span>
-                    <label className={cn(tw.label, "flex items-center gap-5")}>
+                    <span className="block uppercase font-bold text-xl text-olive-900 mb-1">{selectedQuiz?.part(-1) ?? "侧边栏选择题库进行题目练习"}</span>
+                    {selectedQuiz?.part(-1) && (<label className={cn(tw.label, "flex items-center gap-5")}>
                         <span className="font-semibold text-sm text-gray-500">共 {questionCount} 习题</span>
                         <span className="font-semibold text-sm text-blue-500">已练习 {+correctCount + +incorrectCount}</span>
                         <span className="font-semibold text-sm text-green-600">掌握 {correctCount}</span>
                         <span className="font-semibold text-sm text-red-600">待巩固 {+questionCount - +correctCount}</span>
-                    </label>
+                    </label>)}
                 </div>
                 {isQuizReady && (
                     <div className="my-2 flex items-center gap-3 ml-auto">
