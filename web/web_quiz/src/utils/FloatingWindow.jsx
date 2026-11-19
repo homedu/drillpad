@@ -149,7 +149,7 @@ export function FloatingWindow({
 
     // 内容类型判断（text 不变时不重复解析）
     const [isHtml, htmlContent] = React.useMemo(() => {
-        const str = text == null ? "" : String(text);
+        const str = unescapeQuotes(text == null ? "" : String(text));
         const html = format === "html" || (format === "auto" && looksLikeHtml(str));
         return [html, html ? sanitizeHtml(str) : null];
     }, [text, format]);
@@ -211,6 +211,11 @@ export function FloatingWindow({
         }
         op.current = null;
     }, []);
+
+    /** 引号被转义了两次（如 <img src=\"...\">）时先还原，否则 src 会变成 \"http://...\" */
+    function unescapeQuotes(str) {
+        return /=\\["']/.test(str) ? str.replace(/\\(["'])/g, "$1").replace(/\\\//g, "/") : str;
+    }
 
     return (
         <div

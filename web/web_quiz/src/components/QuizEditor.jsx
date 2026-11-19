@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { cn } from "../../../utils/utils.js"
 import "../../../utils/util_str.js";
-import { showInputModal } from "../utils/ShowInputModal.jsx";
+import { showWangEditorModal, makeUploadConfig } from "../utils/ShowWangEditorModal.jsx";
 import { showConfirmModal } from "../utils/ShowConfirmModal.jsx";
 import RichTextEditor from "../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles_e.js";
@@ -426,9 +426,10 @@ export default function QuizEditor({ user, selectedQuiz }) {
                     <button onClick={async () => {
                         const content = await fetch_group_content(user, selectedQuiz, group)
                         setGroupRef(content);
-                        const result = await showInputModal({
+                        const result = await showWangEditorModal({
                             title: group,
                             defaultValue: content,
+                            editorConfig: makeUploadConfig("http://localhost:8080"),
                         });
                         if (result !== null) {
                             setGroupRef(result.html);

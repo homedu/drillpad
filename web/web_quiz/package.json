@@ -1,6 +1,8 @@
 {
     "name": "web_quiz",
     "dependencies": {
+        "@wangeditor-next/editor": "^6.7.0",
+        "@wangeditor-next/editor-for-react": "^6.7.0",
         "net_service": "workspace:*",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
