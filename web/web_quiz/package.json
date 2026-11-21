@@ -14,12 +14,13 @@
         "tailwindcss": "^4.3.5"
     },
     "scripts": {
-        "dev": "concurrently \"bun dev:css\" \"bun dev:server\"  \"bun dev:upload\"",
+        "dev": "concurrently \"bun dev:css\" \"bun dev:server\" \"bun dev:upload\"",
         "dev:server": "bun --hot --port 3000 index.html",
         "dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
         "dev:upload": "bun ../service_upload/svr-upload.js",
         "build:html": "bun build index.html --outdir ./dist --define QDP_IP='\"192.168.1.159\"'",
         "build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify",
-        "build": "bun build:css && bun build:html"
+        "build:upload": "bun build ../service_upload/svr-upload.js --compile --target=bun-linux-x64 --outfile svr-upload --define QDP_IP='\"192.168.1.159\"'",
+        "build": "bun build:css && bun build:html && bun build:upload"
     }
 }

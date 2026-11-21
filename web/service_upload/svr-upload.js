@@ -14,7 +14,9 @@ const ALLOWED_ORIGINS = new Set([
     "http://localhost",
     "http://localhost:80",
     "http://localhost:3000",
-    "http://192.168.1.159:80"
+    "http://192.168.1.159:80",
+    "http://192.168.1.159",
+    "http://192.168.1.159:3000"
 ]);
 
 // 统一的 CORS 头生成

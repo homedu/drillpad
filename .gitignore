@@ -153,3 +153,8 @@ debug.txt
 resource
 
 web/web_quiz/uploads
+web/web_quiz/.bun-cache
+web/web_quiz/svr-upload
+web/service_upload/.bun-cache
+web/service_upload/uploads
+web/service_upload/svr-upload
