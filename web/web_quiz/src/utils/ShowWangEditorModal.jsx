@@ -349,7 +349,7 @@ function Demo() {
         const r = await showWangEditorModal({
             title: "编辑备注",
             defaultValue: result?.html || "",
-            editorConfig: makeUploadConfig("http://localhost:8088"),
+            editorConfig: makeUploadConfig("http://localhost:8088", { dir_image: "image/2026", dir_video: "video/2026" }),
         });
         if (r !== null) setResult(r);
     };
@@ -381,7 +381,7 @@ function Demo() {
  * 直接用 <Editor> 时：<Editor defaultConfig={{ ...makeUploadConfig(base) }} ... />
  */
 export function makeUploadConfig(baseUrl = "http://localhost:8088", options = {}) {
-    const { headers = {}, withCredentials = false, onMessage = (msg) => alert(msg) } = options;
+    const { headers = {}, withCredentials = false, onMessage = (msg) => alert(msg), dir_image = "image", dir_video = "video" } = options;
 
     const common = {
         fieldName: "file", // 必须和 server.js 里 multer 的 .single("file") 一致
@@ -404,6 +404,7 @@ export function makeUploadConfig(baseUrl = "http://localhost:8088", options = {}
                 maxNumberOfFiles: 10,
                 allowedFileTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
                 timeout: 30 * 1000,
+                meta: { dir: dir_image }
             },
             uploadVideo: {
                 ...common,
@@ -412,6 +413,7 @@ export function makeUploadConfig(baseUrl = "http://localhost:8088", options = {}
                 maxNumberOfFiles: 3,
                 allowedFileTypes: ["video/mp4", "video/webm", "video/ogg"],
                 timeout: 5 * 60 * 1000,
+                meta: { dir: dir_video }
             },
         },
     };

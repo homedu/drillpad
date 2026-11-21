@@ -1,3 +1,4 @@
+import path from "path";
 import { useState, useEffect } from "react";
 import { cn, joinUrl } from "../../../utils/utils.js"
 import "../../../utils/util_str.js";
@@ -427,10 +428,13 @@ export default function QuizEditor({ user, selectedQuiz }) {
                     <button onClick={async () => {
                         const content = await fetch_group_content(user, selectedQuiz, group)
                         setGroupRef(content);
+
+                        const dir_image = path.join(user, selectedQuiz, group, "image");
+                        const dir_video = path.join(user, selectedQuiz, group, "video");
                         const result = await showWangEditorModal({
                             title: group,
                             defaultValue: content,
-                            editorConfig: makeUploadConfig(joinUrl(IP_SERVER_UPLOAD)),
+                            editorConfig: makeUploadConfig(joinUrl(IP_SERVER_UPLOAD), { dir_image, dir_video }),
                         });
                         if (result !== null) {
                             setGroupRef(result.html);
