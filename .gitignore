@@ -151,3 +151,5 @@ scripts/*.tsv
 *.lock
 debug.txt
 resource
+
+web/web_quiz/uploads

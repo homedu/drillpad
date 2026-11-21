@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { cn } from "../../../utils/utils.js"
+import { cn, joinUrl } from "../../../utils/utils.js"
 import "../../../utils/util_str.js";
 import { showWangEditorModal, makeUploadConfig } from "../utils/ShowWangEditorModal.jsx";
 import { showConfirmModal } from "../utils/ShowConfirmModal.jsx";
@@ -9,6 +9,7 @@ import { PenIcon, ArrowIcon } from "./icons_e.js";
 import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
 import { useAlert } from "../utils/alert/useAlert.js";
 import { AlertBanner } from "../utils/alert/AlertBanner.jsx";
+import { IP_SERVER_UPLOAD } from "../../../config.js";
 
 /**
  * QuestionUploadForm
@@ -429,7 +430,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
                         const result = await showWangEditorModal({
                             title: group,
                             defaultValue: content,
-                            editorConfig: makeUploadConfig("http://localhost:8080"),
+                            editorConfig: makeUploadConfig(joinUrl(IP_SERVER_UPLOAD)),
                         });
                         if (result !== null) {
                             setGroupRef(result.html);

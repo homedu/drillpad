@@ -1,5 +1,5 @@
 import { wsconnect } from "@nats-io/nats-core";
-import { IP_NATS_REPLY } from "./addr";
+import { IP_NATS_REPLY } from "../config";
 
 const NATS_SERVER = `ws://${IP_NATS_REPLY}`; // 修改 nats 服务器地址
 

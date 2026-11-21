@@ -349,7 +349,7 @@ function Demo() {
         const r = await showWangEditorModal({
             title: "编辑备注",
             defaultValue: result?.html || "",
-            editorConfig: makeUploadConfig("http://localhost:8080"),
+            editorConfig: makeUploadConfig("http://localhost:8088"),
         });
         if (r !== null) setResult(r);
     };
@@ -375,12 +375,12 @@ function Demo() {
  *   const r = await showInputModal({
  *       title: "编辑备注",
  *       defaultValue: html,
- *       editorConfig: makeUploadConfig("http://localhost:8080"),
+ *       editorConfig: makeUploadConfig("http://localhost:8088"),
  *   });
  *
  * 直接用 <Editor> 时：<Editor defaultConfig={{ ...makeUploadConfig(base) }} ... />
  */
-export function makeUploadConfig(baseUrl = "http://localhost:8080", options = {}) {
+export function makeUploadConfig(baseUrl = "http://localhost:8088", options = {}) {
     const { headers = {}, withCredentials = false, onMessage = (msg) => alert(msg) } = options;
 
     const common = {
@@ -399,16 +399,16 @@ export function makeUploadConfig(baseUrl = "http://localhost:8080", options = {}
         MENU_CONF: {
             uploadImage: {
                 ...common,
-                server: baseUrl.replace(/\/$/, "") + "/upload/image",
-                maxFileSize: 5 * 1024 * 1024, // 和后端限制保持一致
+                server: baseUrl.replace(/\/$/, "") + "/api/upload/image",
+                maxFileSize: 16 * 1024 * 1024, // 和后端限制保持一致
                 maxNumberOfFiles: 10,
                 allowedFileTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
                 timeout: 30 * 1000,
             },
             uploadVideo: {
                 ...common,
-                server: baseUrl.replace(/\/$/, "") + "/upload/video",
-                maxFileSize: 200 * 1024 * 1024,
+                server: baseUrl.replace(/\/$/, "") + "/api/upload/video",
+                maxFileSize: 512 * 1024 * 1024,
                 maxNumberOfFiles: 3,
                 allowedFileTypes: ["video/mp4", "video/webm", "video/ogg"],
                 timeout: 5 * 60 * 1000,

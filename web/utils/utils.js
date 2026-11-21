@@ -248,3 +248,19 @@ export function buildTree(paths) {
 
 // const result = buildTree(["A", "B", "C/D", "C/E", "C/E/F", "G/H/I"]);
 // console.log(JSON.stringify(result, null, 2));
+
+export function joinUrl(base, ...paths) {
+    const normalize = s => String(s ?? "").trim().replace(/\\/g, "/");
+    base = normalize(base);
+    // 补协议：没有协议就默认 http://，兼容 //example.com
+    if (base.startsWith("//")) base = "http:" + base;
+    else if (!/^[a-z][a-z\d+.-]*:\/\//i.test(base)) base = "http://" + base;
+    // 清理每一段：去空白、反斜杠转正斜杠、去开头的 ./ 和 /，去掉空段
+    const path = paths
+        .map(p => normalize(p).replace(/^(\.?\/)+/, ""))
+        .filter(Boolean)
+        .join("/")
+        .replace(/\/{2,}/g, "/"); // 合并重复斜杠
+    // 用 URL 做最终规范化（处理 ../、空格转义等）
+    return new URL(path, base.replace(/\/+$/, "") + "/").href;
+}

@@ -1,6 +1,6 @@
-import { IP_CADDY } from "./addr";
+import { IP_CADDY_FETCH_QUIZ } from "../config";
 
-const CADDY_URL = `http://${IP_CADDY}/[PATH]`;
+const CADDY_URL_FETCH_QUIZ = `http://${IP_CADDY_FETCH_QUIZ}/[PATH]`;
 const DEFAULT_TIMEOUT = 10000;
 
 /* ============================================================
@@ -53,7 +53,7 @@ export class FetchFileReadError extends FetchFileError { }
 /**
  * 从 Caddy 服务拉取文件内容（文本）。
  *
- * @param {string} path - 相对路径，会替换掉 CADDY_URL 里的 [PATH]
+ * @param {string} path - 相对路径，会替换掉 CADDY_URL_FETCH_QUIZ 里的 [PATH]
  * @param {object} [opts]
  * @param {number} [opts.timeout=10000] - 超时时间(ms)
  * @param {AbortSignal} [opts.signal] - 外部传入的 AbortSignal，可用于主动取消；会和内部的超时 signal 一起生效
@@ -83,7 +83,7 @@ export async function fetchFile(path, opts = {}) {
     }
 
     const timestamp = Date.now();
-    const url = CADDY_URL.replace("[PATH]", path) + `?v=${timestamp}`;
+    const url = CADDY_URL_FETCH_QUIZ.replace("[PATH]", path) + `?v=${timestamp}`;
 
     // 用 AbortController 实现超时控制；同时兼容外部传入的 signal
     const timeoutController = new AbortController();
