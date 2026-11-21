@@ -1,5 +1,5 @@
 {
-    "name": "net_service",
+    "name": "service_net",
     "dependencies": {
         "@nats-io/nats-core": "^3.4.0"
     },

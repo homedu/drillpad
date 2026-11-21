@@ -6,7 +6,7 @@ import { showConfirmModal } from "../utils/ShowConfirmModal.jsx";
 import RichTextEditor from "../utils/RichTextEditor.jsx";
 import { styles as tw } from "./styles_e.js";
 import { PenIcon, ArrowIcon } from "./icons_e.js";
-import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
+import { useNatsFetch } from "../../../service_net/useNatsFetch.js";
 import { useAlert } from "../utils/alert/useAlert.js";
 import { AlertBanner } from "../utils/alert/AlertBanner.jsx";
 import { IP_SERVER_UPLOAD } from "../../../config.js";

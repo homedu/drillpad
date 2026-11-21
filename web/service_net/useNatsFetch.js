@@ -13,7 +13,7 @@ import {
     NatsNoRespondersError,
     NatsRequestFailedError,
     NatsResponseParseError,
-} from "./natsClient";
+} from "./natsClient.js";
 import {
     fetchFile,
     FetchFileInvalidPathError,
@@ -22,7 +22,7 @@ import {
     FetchFileNotFoundError,
     FetchFileHttpError,
     FetchFileReadError,
-} from "./fetchClient";
+} from "./fetchClient.js";
 
 // /////////////////////////////////////////////////////////////////////////////
 

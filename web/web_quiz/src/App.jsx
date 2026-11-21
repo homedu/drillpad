@@ -4,7 +4,7 @@ import { buildTree } from "../../utils/utils.js";
 import { useAlert } from "./utils/alert/useAlert.js";
 import { AlertBanner } from "./utils/alert/AlertBanner.jsx";
 import { showSimpleInputModal } from "./utils/ShowSimpleInputModal.jsx";
-import { useNatsFetch } from "../../net_service/useNatsFetch.js";
+import { useNatsFetch } from "../../service_net/useNatsFetch.js";
 import { showConfirmModal } from "./utils/ShowConfirmModal.jsx";
 import Sidebar from "./components/Sidebar";
 import QuizPage from './components/QuizPage';

@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import path from "path";
 import fs from "fs/promises";
-import { IP_SERVER_UPLOAD, IP_QDP_WEB } from "../config";
+import { IP_SERVER_UPLOAD, IP_QDP_WEB } from "../config.js";
 import "../utils/util_str.js"
 import { joinUrl } from "../utils/utils.js";
 

@@ -2,7 +2,7 @@
     "private": true,
     "workspaces": [
         "utils",
-        "net_service",
+        "service_net",
         "web_quiz"
     ],
     "dependencies": {

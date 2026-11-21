@@ -4,8 +4,8 @@ import { AlertBanner } from "../utils/alert/AlertBanner.jsx";
 import QuizViewer from "./components/QuizViewer.jsx";
 import { RadioGroup } from "../utils/RadioGroup.jsx";
 import { styles as tw } from "./styles.js";
-import { useNatsFetch } from "../../../net_service/useNatsFetch.js";
-import { QuizFetchError } from "../../../net_service/QDPErr.js";
+import { useNatsFetch } from "../../../service_net/useNatsFetch.js";
+import { QuizFetchError } from "../../../service_net/QDPErr.js";
 import { cn } from "../../../utils/utils.js";
 import "../../../utils/util_str.js";
 

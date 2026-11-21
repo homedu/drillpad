@@ -3,7 +3,7 @@
     "dependencies": {
         "@wangeditor-next/editor": "^6.7.0",
         "@wangeditor-next/editor-for-react": "^6.7.0",
-        "net_service": "workspace:*",
+        "service_net": "workspace:*",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
         "react-router-dom": "^7.18.5"
@@ -17,7 +17,7 @@
         "dev": "concurrently \"bun dev:css\" \"bun dev:server\"  \"bun dev:upload\"",
         "dev:server": "bun --hot --port 3000 index.html",
         "dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
-        "dev:upload": "bun ../upload_service/svr-upload.js",
+        "dev:upload": "bun ../service_upload/svr-upload.js",
         "build:html": "bun build index.html --outdir ./dist --define QDP_IP='\"192.168.1.159\"'",
         "build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify",
         "build": "bun build:css && bun build:html"
