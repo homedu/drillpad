@@ -5,7 +5,10 @@ import { IP_SERVER_UPLOAD, IP_QDP_WEB } from "../config.js";
 import "../utils/util_str.js"
 import { joinUrl } from "../utils/utils.js";
 
-const UPLOAD_DIR = "uploads";
+// Bun.argv 的内容示例: ['/path/to/bun', '/path/to/here.js', 'arg1', 'arg2']
+const args = Bun.argv.slice(2);
+
+const UPLOAD_DIR = args[0] ?? "uploads";
 await fs.mkdir(UPLOAD_DIR, { recursive: true });
 
 // 允许的前端来源，生产环境请改成具体域名
@@ -94,7 +97,7 @@ const handleFetch = {
     OPTIONS: (req) => new Response(null, { status: 204, headers: corsHeaders(req) }),
     GET: async (req) => {
         const url = new URL(req.url);
-        const relative = url.pathname.slice(`/${UPLOAD_DIR}/`.length);
+        const relative = url.pathname.slice(`/uploads/`.length);
 
         // 路径安全校验：解码 → 规范化 → 确认没有逃逸出 UPLOAD_DIR
         let decoded;
@@ -129,7 +132,7 @@ Bun.serve({
     routes: {
         "/api/upload/image": handleUpload,
         "/api/upload/video": handleUpload,
-        [`/${UPLOAD_DIR}/*`]: handleFetch,
+        "/uploads/*": handleFetch,
     },
 
     // 兜底：未匹配路由也统一带 CORS，并处理全局 OPTIONS
@@ -144,4 +147,4 @@ Bun.serve({
 console.log(`Upload Server: ${IP_SERVER_UPLOAD}`);
 console.log(`To upload image: /api/upload/image`);
 console.log(`To upload video: /api/upload/video`);
-console.log(`To fetch uploads: /${UPLOAD_DIR}/`);
+console.log(`To fetch uploads: /uploads/*`);
