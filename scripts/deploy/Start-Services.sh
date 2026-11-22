@@ -25,6 +25,9 @@ defer_trap 'unset __ALLOWED_BY_START_SERVICES__' EXIT
 # 单一 tmux session，内部使用多个 window 分别运行各个服务
 # ============================================================================
 
+UPLOAD_SERVER=false
+[[ "$1" == "--upload-server" || "$1" == "-us" ]] && UPLOAD_SERVER=true
+
 SESSION_NAME="qdp-services"
 
 CONFIG_PATH="../../config/nats-server.conf"
@@ -44,13 +47,14 @@ check_port "${NATS_WS_PORT}" || {
 WINDOW_NAMES=(
 "nats-server"
 "ebbinghaus"
-"upload-server"
 )
+[[ "${UPLOAD_SERVER}" == "true" ]] && WINDOW_NAMES+=("upload-server")
+
 WINDOW_CMDS=(
 "nats-server -c ${CONFIG_PATH}"
 "../EbbinghausRec.sh ../users/ 30"  # running *.sh with PWD step into its file directory, args should be relative to *.sh
-"../../web/service_upload/svr-upload"
 )
+[[ "${UPLOAD_SERVER}" == "true" ]] && WINDOW_CMDS+=("../../web/service_upload/svr-upload")
 
 echo "正在检查 tmux 会话..."
 
@@ -126,18 +130,20 @@ else
     echo "   原因分析: 可能是 './EbbinghausRec.sh' 找不到/没有执行权限。"
 fi
 
-# ---------------------------------------------------------------------------
-# 检查 svr-upload
-# ---------------------------------------------------------------------------
-PID=$(pgrep -f "svr-upload")
-PID=$(printf '%s' "${PID}" | tr '\n' ' ' | tr -s ' ')
+[[ "${UPLOAD_SERVER}" == "true" ]] && {
+    # ---------------------------------------------------------------------------
+    # 检查 svr-upload
+    # ---------------------------------------------------------------------------
+    PID=$(pgrep -f "svr-upload")
+    PID=$(printf '%s' "${PID}" | tr '\n' ' ' | tr -s ' ')
 
-if [[ -n "${PID}" ]]; then
-    echo "✅ [svr-upload] 进程检查: svr-upload 响应服务已成功启动并正在运行! (PID: ${PID})"
-else
-    echo "❌ [svr-upload] 错误: 未找到 svr-upload 进程，启动可能失败了。"
-    echo "   原因分析: 可能是 svr-upload 找不到/没有执行权限。"
-fi
+    if [[ -n "${PID}" ]]; then
+        echo "✅ [svr-upload] 进程检查: svr-upload 响应服务已成功启动并正在运行! (PID: ${PID})"
+    else
+        echo "❌ [svr-upload] 错误: 未找到 svr-upload 进程，启动可能失败了。"
+        echo "   原因分析: 可能是 svr-upload 找不到/没有执行权限。"
+    fi
+}
 
 # ---------------------------------------------------------------------------
 # 运行 及 检查 replies

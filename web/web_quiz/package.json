@@ -6,7 +6,7 @@
         "service_net": "workspace:*",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
-        "react-router-dom": "^7.18.5"
+        "react-router-dom": "^7.18.6"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.3.5",
@@ -14,7 +14,7 @@
         "tailwindcss": "^4.3.5"
     },
     "scripts": {
-        "dev": "concurrently \"bun dev:css\" \"bun dev:server\" \"bun dev:upload-skip\"",
+        "dev": "concurrently \"bun dev:css\" \"bun dev:server\" \"bun dev:upload\"",
         "dev:server": "bun --hot --port 3000 index.html",
         "dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
         "dev:upload": "bun ../service_upload/svr-upload.js",

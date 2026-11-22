@@ -33,7 +33,7 @@ EOF
     sshpass -e rsync -av --inplace ./web/service_upload/svr-upload "${REMOTE}":"${ROOT}"/web/service_upload/
 
     sshpass -e ssh -o StrictHostKeyChecking=no "${REMOTE}" << EOF
-        cd "${ROOT}"/scripts/deploy && ./Start-Services.sh && systemctl restart caddy
+        cd "${ROOT}"/scripts/deploy && ./Start-Services.sh --upload-server && systemctl restart caddy
 EOF
 }
 
