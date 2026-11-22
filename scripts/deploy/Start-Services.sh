@@ -26,11 +26,17 @@ defer_trap 'unset __ALLOWED_BY_START_SERVICES__' EXIT
 # ============================================================================
 
 SESSION_NAME="qdp-services"
+
 CONFIG_PATH="../../config/nats-server.conf"
-NATS_PORT=4222 # NATS 默认客户端端口，可根据你的 conf 文件修改
+NATS_PORT=4222 # NATS 默认客户端端口，根据 conf 文件修改
+NATS_WS_PORT=9222 # NATS WS 端口，根据 conf 文件修改
 
 check_port "${NATS_PORT}" || {
     echo "❌ 请先释放端口 ${NATS_PORT} 后再运行本脚本，或者修改脚本中的 NATS_PORT 变量" >&2
+    exit 1
+}
+check_port "${NATS_WS_PORT}" || {
+    echo "❌ 请先释放端口 ${NATS_WS_PORT} 后再运行本脚本，或者修改脚本中的 NATS_WS_PORT 变量" >&2
     exit 1
 }
 
@@ -38,10 +44,12 @@ check_port "${NATS_PORT}" || {
 WINDOW_NAMES=(
 "nats-server"
 "ebbinghaus"
+"upload-server"
 )
 WINDOW_CMDS=(
 "nats-server -c ${CONFIG_PATH}"
 "../EbbinghausRec.sh ../users/ 30"  # running *.sh with PWD step into its file directory, args should be relative to *.sh
+"../../web/service_upload/svr-upload"
 )
 
 echo "正在检查 tmux 会话..."
@@ -89,18 +97,20 @@ if [[ -n "${PID}" ]]; then
 
     if command -v ss &> /dev/null; then
         PORT_CHECK=$(ss -tlnp | grep "${NATS_PORT}")
+        PORT_CHECK_WS=$(ss -tlnp | grep "${NATS_WS_PORT}")
     elif command -v netstat &> /dev/null; then
         PORT_CHECK=$(netstat -tlnp | grep "${NATS_PORT}")
+        PORT_CHECK_WS=$(netstat -tlnp | grep "${NATS_WS_PORT}")
     fi
 
-    if [[ -n "${PORT_CHECK}" ]]; then
-        echo "✅ [nats-server] 端口检查: 发现端口 ${NATS_PORT} 正在被监听，服务运行正常。"
+    if [[ -n "${PORT_CHECK}" && -n "${PORT_CHECK_WS}" ]]; then
+        echo "✅ [nats-server] 端口检查: 端口 ${NATS_PORT} 和 ${NATS_WS_PORT} 正在被监听，服务运行正常。"
     else
-        echo "⚠️  [nats-server] 提示: 进程虽然存在，但未探测到端口 ${NATS_PORT} 的监听状态。"
-        echo "   这可能是因为配置文件中更改了默认端口，或者服务正在启动中。"
+        echo "⚠️  [nats-server] 提示: 进程虽然存在，但未探测到端口 ${NATS_PORT} 或 ${NATS_WS_PORT} 的监听状态。"
+        echo "     可能是配置文件中更改了默认端口，或服务正在启动中。"
     fi
 else
-    echo "❌ [nats-server] 错误: 未找到 nats-server 进程，启动可能失败了。"
+    echo "❌ [nats-server] 错误: 未找到 nats-server 进程，启动失败。"
 fi
 
 # ---------------------------------------------------------------------------
@@ -114,6 +124,19 @@ if [[ -n "${PID}" ]]; then
 else
     echo "❌ [EbbinghausRec] 错误: 未找到 EbbinghausRec 进程，启动可能失败了。"
     echo "   原因分析: 可能是 './EbbinghausRec.sh' 找不到/没有执行权限。"
+fi
+
+# ---------------------------------------------------------------------------
+# 检查 svr-upload
+# ---------------------------------------------------------------------------
+PID=$(pgrep -f "svr-upload")
+PID=$(printf '%s' "${PID}" | tr '\n' ' ' | tr -s ' ')
+
+if [[ -n "${PID}" ]]; then
+    echo "✅ [svr-upload] 进程检查: svr-upload 响应服务已成功启动并正在运行! (PID: ${PID})"
+else
+    echo "❌ [svr-upload] 错误: 未找到 svr-upload 进程，启动可能失败了。"
+    echo "   原因分析: 可能是 svr-upload 找不到/没有执行权限。"
 fi
 
 # ---------------------------------------------------------------------------

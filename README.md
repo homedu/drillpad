@@ -1,4 +1,4 @@
-# drillpad
+# Quiz Drill Pad
 
 ### to make sure sh is end of LF (bash)
 `find . -type f -name "*.sh" -exec dos2unix {} +` 
@@ -8,21 +8,17 @@
 
 ## deploy ##
 
-
-### in root, copy /scripts to remote ###
 add `export HISTCONTROL=ignoreboth` into ~/.bashrc
 ` export SSHPASS='password***'`
-`sshpass -e rsync -av --inplace --delete ./scripts root@192.168.1.159:/home/qmiao/qm1_share/drillpad`
-`sshpass -e rsync -av --inplace ./config/topic.json  root@192.168.1.159:/home/qmiao/qm1_share/drillpad/config/topic.json`
 
-### in /web_quiz, copy /dist to remote ###
-`sshpass -e rsync -av --inplace --delete ./dist root@192.168.1.159:/var/www/qdp_dist`
+### in root, copy `/scripts` `/web/service_upload` `/config/topic.json` to remote `drillpad` ###
+`sshpass -e rsync -av --inplace --delete ./web/web_quiz/dist root@192.168.1.159:/var/www/qdp_dist/`
+`sshpass -e rsync -av --inplace --delete ./scripts           root@192.168.1.159:/home/qmiao/qm1_share/drillpad/`
+`sshpass -e rsync -av --inplace ./web/service_upload         root@192.168.1.159:/home/qmiao/qm1_share/drillpad/`
+`sshpass -e rsync -av --inplace ./config/topic.json          root@192.168.1.159:/home/qmiao/qm1_share/drillpad/config/topic.json`
 
-
-### fetch back users data from server ###
+### fetch back `users data` `config` from server ###
 `sshpass -e rsync -av --inplace root@192.168.1.159:/home/qmiao/qm1_share/drillpad/users ./`
-
-### fetch back config from server ###
 `sshpass -e rsync -av --inplace root@192.168.1.159:/home/qmiao/qm1_share/drillpad/config ./`
 
 

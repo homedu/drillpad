@@ -158,3 +158,4 @@ web/web_quiz/svr-upload
 web/service_upload/.bun-cache
 web/service_upload/uploads
 web/service_upload/svr-upload
+scripts/deploy/uploads

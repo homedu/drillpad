@@ -29,7 +29,6 @@ defer_trap 'unset __ALLOWED_BY_STOP_SERVICES__' EXIT
 # ============================================================================
 
 SESSION_NAME="qdp-services"
-CONFIG_PATH="../../config/nats-server.conf"
 
 echo "--------------------------------------------------"
 echo "正在清理 tmux 会话 '${SESSION_NAME}' ..."
@@ -42,8 +41,9 @@ sleep 2
 
 # 需要精确匹配的进程特征（和启动脚本里 pgrep -f 用的一致）
 PATTERNS=(
-"nats-server -c ${CONFIG_PATH}"
+"nats-server"
 "EbbinghausRec"
+"svr-upload"
 )
 
 echo "正在停止 qdp 相关进程..."
@@ -73,4 +73,4 @@ for pattern in "${PATTERNS[@]}"; do
 done
 
 echo "完成。当前残留检查:"
-ps -A | grep -E "nats-server|EbbinghausRec" | grep -v grep || echo "🎉 无残留进程，清理干净"
+ps -A | grep -E "nats-server|EbbinghausRec|svr-upload" | grep -v grep || echo "🎉 无残留进程，清理干净"
