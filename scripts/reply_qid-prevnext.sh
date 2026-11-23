@@ -53,7 +53,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
         print ids[target_idx], target_idx, ids[prev_idx], prev_idx, ids[next_idx], next_idx
     }' "$QUIZ_FILE")
 
-    if [[ -z "$RESULT" ]] || [[ "$RESULT" = "NOTFOUND" ]]; then
+    if [[ -z "$RESULT" || "$RESULT" = "NOTFOUND" ]]; then
         jq -n --arg t "$QID" '{ success: false, status: "not found", error: ("NOTFOUND: " + $t)}'
         exit 1
     fi

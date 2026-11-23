@@ -32,9 +32,9 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     # CUR_USER should be extract from token
     CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
     QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
-    GROUP=$(jq -r '.group' <<< "${PARAM}")
-    GROUP_CONTENT=$(jq '.group_content' <<< "${PARAM}")
-    trim_inplace GROUP_CONTENT "\""                # trim "" auto-wrapped by jq without '-r'
+    GROUP=$(jq -r '.group // ""' <<< "${PARAM}")
+    CONTENT=$(jq '.content // ""' <<< "${PARAM}")
+    trim_inplace CONTENT "\""                # trim "" auto-wrapped by jq without '-r'
 
     [[ -z "${GROUP}" ]] && {
         jq -n --arg s "success" --arg p "" '{ status: $s, path: $p }'
@@ -48,13 +48,13 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
     ensure_file GROUP_CONTENT_FILE="${DIR_USER}/quiz_bank/${QUIZ}/group_ref/${GROUP}.html" || { echo $?; exit 1;}
 
-    [[ -z "${GROUP_CONTENT}" ]] && {
+    [[ -z "${CONTENT}" ]] && {
         rm -rf "${GROUP_CONTENT_FILE}"
         jq -n --arg s "success" --arg p "" '{ status: $s, path: $p }'
         exit 0
     }
 
-    cat <<< "${GROUP_CONTENT}" > "${GROUP_CONTENT_FILE}"
+    cat <<< "${CONTENT}" > "${GROUP_CONTENT_FILE}"
 
     jq -n --arg s "success" --arg p "${GROUP_CONTENT_FILE}" '{ status: $s, path: $p }'
 

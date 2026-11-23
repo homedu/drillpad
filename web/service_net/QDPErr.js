@@ -38,6 +38,22 @@ export class QuestionRateFetchError extends Error {
     }
 }
 
+export class QuestionNoteFetchError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionNoteFetchError";
+        this.stage = stage;
+    }
+}
+
+export class QuestionNoteSaveError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "QuestionNoteSaveError";
+        this.stage = stage;
+    }
+}
+
 export class QuestionDeleteError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);

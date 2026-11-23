@@ -32,7 +32,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     # CUR_USER should be extract from token
     CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
     QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
-    GROUP=$(jq -r '.group' <<< "${PARAM}")
+    GROUP=$(jq -r '.group // ""' <<< "${PARAM}")
 
     [[ -z "${GROUP}" ]] && {
         jq -n --arg s "success" '{ status: $s, content: "" }'

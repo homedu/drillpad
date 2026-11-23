@@ -27,7 +27,12 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
-    const { record_answer, rate_question, fetch_rate_question } = useNatsFetch();
+    const { record_answer,
+        rate_question,
+        fetch_rate_question,
+        fetch_question_note,
+        save_question_note
+    } = useNatsFetch();
     const hasOutAlerted = useRef(false);
     const [aiPrompt, setAiPrompt] = useState("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
@@ -159,7 +164,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         const dir_image = path.join(user, quiz, "QN", qid, "image");
         const dir_video = path.join(user, quiz, "QN", qid, "video");
         const result = await showWangEditorModal({
-            title: qid.part(5),
+            title: qid.part(1),
             defaultValue: note,
             editorConfig: makeUploadConfig(joinUrl(IP_SERVER_UPLOAD), { dir_image, dir_video }),
         })

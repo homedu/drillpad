@@ -450,12 +450,65 @@ export function useNatsFetch() {
         }
     }, []);
 
+    const fetch_question_note = useCallback(async (user, quiz, qid) => {
+        const topic = TOPIC.T_QUESTION_NOTE_FETCH;
+        const payload = { user, quiz, qid };
+        setLoading(true);
+        try {
+            const result = await reqNATS(topic, payload, { timeout: 10000 });
+            if (result === null || !result.status || !Object.hasOwn(result, 'note')) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 或 note 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.note; // both topics have .content
+        } catch (err) {
+            throw new QDPErr.QuestionNoteFetchError(
+                `题笔记获取失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const save_question_note = useCallback(async (user, quiz, qid, note) => {
+        const topic = TOPIC.T_QUESTION_NOTE_SAVE;
+        const payload = {
+            user,
+            quiz,
+            qid,
+            note: note.toLiteral(),
+        }
+        setLoading(true);
+        try {
+            const result = await reqNATS(topic, payload, { timeout: 10000 });
+            if (result === null || !result.status || !Object.hasOwn(result, 'path')) {
+                throw new NatsResponseParseError(
+                    "响应中缺少 status 或 path 字段",
+                    JSON.stringify(result)
+                );
+            }
+            return result.path;
+        } catch (err) {
+            throw new QDPErr.QuestionNoteSaveError(
+                `题笔记上传失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const save_group_content = useCallback(async (user, quiz, group, content) => {
         const payload = {
             user,
             quiz,
             group,
-            group_content: content.toLiteral(),
+            content: content.toLiteral(),
         };
         setLoading(true);
         try {
@@ -520,7 +573,9 @@ export function useNatsFetch() {
         delete_quiz,
         save_group_content,
         fetch_group_content,
-        list_group
+        list_group,
+        fetch_question_note,
+        save_question_note
     };
 }
 
