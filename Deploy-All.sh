@@ -23,14 +23,14 @@ deploy_all() {
         cd "${ROOT}"
         mkdir -p /var/www/qdp_dist
         mkdir -p ./config
-        mkdir -p ./web/service_upload
+        mkdir -p ./service_upload
         cd "${ROOT}"/scripts/deploy && ./Stop-Services.sh
 EOF
 
     sshpass -e rsync -av --inplace --delete ./web/web_quiz/dist    "${REMOTE}":/var/www/qdp_dist/
     sshpass -e rsync -av --inplace --delete ./scripts              "${REMOTE}":"${ROOT}"/
     sshpass -e rsync -av --inplace ./config/topic.json             "${REMOTE}":"${ROOT}"/config/
-    sshpass -e rsync -av --inplace ./web/service_upload/svr-upload "${REMOTE}":"${ROOT}"/web/service_upload/
+    sshpass -e rsync -av --inplace ./web/service_upload/svr-upload "${REMOTE}":"${ROOT}"/service_upload/
 
     sshpass -e ssh -o StrictHostKeyChecking=no "${REMOTE}" << EOF
         cd "${ROOT}"/scripts/deploy && ./Start-Services.sh --upload-server && systemctl restart caddy

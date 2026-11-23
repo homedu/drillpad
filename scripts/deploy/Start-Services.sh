@@ -54,7 +54,7 @@ WINDOW_CMDS=(
 "nats-server -c ${CONFIG_PATH}"
 "../EbbinghausRec.sh ../users/ 30"  # running *.sh with PWD step into its file directory, args should be relative to *.sh
 )
-[[ "${UPLOAD_SERVER}" == "true" ]] && WINDOW_CMDS+=("../../web/service_upload/svr-upload ../../uploads/")
+[[ "${UPLOAD_SERVER}" == "true" ]] && WINDOW_CMDS+=("../../service_upload/svr-upload ../../uploads/")
 
 echo "正在检查 tmux 会话..."
 

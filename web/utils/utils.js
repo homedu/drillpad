@@ -264,3 +264,9 @@ export function joinUrl(base, ...paths) {
     // 用 URL 做最终规范化（处理 ../、空格转义等）
     return new URL(path, base.replace(/\/+$/, "") + "/").href;
 }
+
+export function extractGuids(str) {
+    if (typeof str !== 'string') return [];
+    const guidRegex = /(?<![0-9a-fA-F-])[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(?![0-9a-fA-F-])/g;
+    return str.match(guidRegex) || [];
+}

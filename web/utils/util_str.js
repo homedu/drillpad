@@ -1,4 +1,4 @@
-import { expand, trimTail, caseVariants } from './utils.js';
+import { expand, trimTail, caseVariants, extractGuids } from './utils.js';
 
 if (!String.prototype.expand) {
     String.prototype.expand = function (...chars) {
@@ -53,6 +53,12 @@ if (!String.prototype.isValidGuid) {
         }
         return false
     };
+}
+
+if (!String.prototype.extractGuids) {
+    String.prototype.extractGuids = function () {
+        return extractGuids(this.toString());
+    }
 }
 
 if (!String.prototype.toLiteral) {

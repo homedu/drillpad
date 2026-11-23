@@ -71,8 +71,9 @@ const handleUpload = {
             const targetDir = path.join(UPLOAD_DIR, safeDir);
             await fs.mkdir(targetDir, { recursive: true });
 
+            const guid = targetDir.extractGuids()[0] ?? "";
             const ext = path.extname(file.name) || "";
-            const uniqueName = `${randomUUID()}${ext}`;
+            const uniqueName = `${guid ? Math.floor(Date.now() / 1000) : randomUUID()}${ext}`; // 前面路径有GUID，则文件名使用时间戳；否则再生成GUID命名文件
             const savedPath = path.join(targetDir, uniqueName)
             await Bun.write(savedPath, file);
 

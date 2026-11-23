@@ -429,8 +429,8 @@ export default function QuizEditor({ user, selectedQuiz }) {
                         const content = await fetch_group_content(user, selectedQuiz, group)
                         setGroupRef(content);
 
-                        const dir_image = path.join(user, selectedQuiz, group, "image");
-                        const dir_video = path.join(user, selectedQuiz, group, "video");
+                        const dir_image = path.join(user, selectedQuiz, "GC", group, "image");
+                        const dir_video = path.join(user, selectedQuiz, "GC", group, "video");
                         const result = await showWangEditorModal({
                             title: group,
                             defaultValue: content,

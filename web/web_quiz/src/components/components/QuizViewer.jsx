@@ -1,6 +1,7 @@
+import path from "path";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { styles as tw } from "./styles.js";
-import { cn } from "../../../../utils/utils.js";
+import { cn, joinUrl } from "../../../../utils/utils.js";
 import "../../../../utils/util_str.js";
 import { useNatsFetch } from "../../../../service_net/useNatsFetch.js";
 import { AnswerRecordError, QuestionRateError, QuestionRateFetchError } from "../../../../service_net/QDPErr.js";
@@ -9,6 +10,8 @@ import { getPrompt } from "../../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
 import { showFloatingWindow } from "../../utils/FloatingWindow";
 import { showRatingModal } from "../../utils/ShowRatingModal";
+import { showWangEditorModal, makeUploadConfig } from "../../utils/ShowWangEditorModal";
+import { IP_SERVER_UPLOAD } from "../../../../config.js";
 
 // 判定一道题的作答状态: "blank" | "correct" | "incorrect"
 // 题型未注册时按未作答处理
@@ -34,6 +37,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     const togglingBookmarkIndexRef = useRef(-1);
     const cardsRef = useRef({});
     const [ratings, setRatings] = useState({});
+    const [questionNote, setQuestionNote] = useState("");
 
     // 1. 解析 TSV 格式数据
     const questions = useMemo(() => {
@@ -148,8 +152,21 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         setAiPrompt(prompt);
     };
 
-    const handleNote = (qid, type, event) => {
-        console.log("question id:", qid, "; question type", type);
+    const handleNote = async (qid, type, event) => {
+        const note = await fetch_question_note(user, quiz, qid);
+        setQuestionNote(note);
+
+        const dir_image = path.join(user, quiz, "QN", qid, "image");
+        const dir_video = path.join(user, quiz, "QN", qid, "video");
+        const result = await showWangEditorModal({
+            title: qid.part(5),
+            defaultValue: note,
+            editorConfig: makeUploadConfig(joinUrl(IP_SERVER_UPLOAD), { dir_image, dir_video }),
+        })
+        if (result !== null) {
+            setQuestionNote(result.html);
+            await save_question_note(user, quiz, qid, result.html);
+        }
     };
 
     const handleBookmark = (qid, type, index, event) => {
