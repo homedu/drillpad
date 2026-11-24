@@ -6,6 +6,7 @@ import { AlertBanner } from "./utils/alert/AlertBanner.jsx";
 import { showSimpleInputModal } from "./utils/ShowSimpleInputModal.jsx";
 import { useNatsFetch } from "../../service_net/useNatsFetch.js";
 import { showConfirmModal } from "./utils/ShowConfirmModal.jsx";
+import { ContextMenu } from "./utils/ContextMenu.jsx";
 import Sidebar from "./components/Sidebar";
 import QuizPage from './components/QuizPage';
 import QuizEditor from "./components/QuizEditor";
@@ -130,6 +131,41 @@ export default function App() {
         </button>)
     }
 
+    function SlotUserBadge({ user = "" }) {
+        const [menu, setMenu] = useState(null); // { x, y } | null
+        const handleClick = (e) => {
+            // 再次点击按钮时：mousedown 已先关闭菜单，这里避免立刻重新打开
+            if (menu) return setMenu(null);
+            const r = e.currentTarget.getBoundingClientRect();
+            setMenu({ x: r.left, y: r.bottom + 4 });
+        };
+        const items = [
+            {
+                label: '复制链接',
+                onClick: async () => {
+                    await navigator.clipboard.writeText(location.href);
+                    alert('链接已复制');
+                },
+            },
+            { divider: true },
+            {
+                label: 'Logout',
+                // danger: true,
+                onClick: () => confirm('确定要删除吗？') && console.log('已删除'),
+            },
+        ];
+        return (
+            <div
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-800 text-xs font-semibold text-white uppercase cursor-pointer"
+                onClick={handleClick}>
+                {user?.trim()?.charAt(0) || "U"}
+                {menu && (
+                    <ContextMenu x={menu.x} y={menu.y} items={items} onClose={() => setMenu(null)}/>
+                )}
+            </div>
+        );
+    }
+
     return (
         <>
             <AlertBanner alert={alertState} onClose={hideAlert} />
@@ -147,6 +183,7 @@ export default function App() {
                     user={user}
                     slotBtn_NewQuiz={mode === "EDITOR" ? <SlotNewQuiz /> : null}
                     slotBtn_DelQuiz={mode === "EDITOR" ? <SlotDelQuiz quiz={quiz?.id} /> : null}
+                    slotBadge_UserCtx={< SlotUserBadge user={user} />}
                 />
                 <main className="min-w-0 flex-1 overflow-auto pt-6 pr-6">
                     {

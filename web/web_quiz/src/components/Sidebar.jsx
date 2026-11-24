@@ -37,6 +37,7 @@ export default function Sidebar({
     user = "",
     slotBtn_NewQuiz = null,
     slotBtn_DelQuiz = null,
+    slotBadge_UserCtx = null,
 }) {
     /* ---------- 显示 / 隐藏 ---------- */
     const [openState, setOpenState] = useState(defaultOpen);
@@ -131,9 +132,7 @@ export default function Sidebar({
                     <div className="flex h-12 shrink-0 items-center justify-between px-3">
                         <div className="flex items-center gap-2.5 py-1.5 min-w-0">
                             {/* 左侧首字母圆形微章 */}
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-800 text-xs font-semibold text-white uppercase">
-                                {user?.trim()?.charAt(0) || "U"}
-                            </div>
+                            <span>{slotBadge_UserCtx}</span>
                             {/* 右侧用户名 */}
                             <span className="font-mono text-xs font-semibold text-zinc-700 tracking-wider uppercase truncate">
                                 {user}

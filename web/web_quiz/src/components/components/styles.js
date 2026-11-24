@@ -49,12 +49,11 @@ export const styles = {
         "[transform:translateZ(-1px)]"
     ),
 
-    cardButtonGrp: "absolute top-0 left-full ml-6 flex flex-col items-center gap-3",
+    cardButtonGrp: "absolute top-0 left-full ml-3 flex flex-col items-center gap-3",
 
     cardButton: cn(
-        "inline-flex w-10 h-10 items-center justify-center rounded-lg cursor-pointer overflow-hidden",
-        "border-none bg-white text-sm font-medium text-gray-700",
-        "shadow-sm transition",
+        "inline-flex w-8 h-8 items-center justify-center rounded-lg cursor-pointer overflow-hidden",
+        "border-none bg-transparent text-sm font-medium text-gray-700",
         "hover:border-gray-500 hover:bg-gray-50",
         "active:scale-95",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"

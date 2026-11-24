@@ -346,7 +346,9 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                         <input type="hidden" name="udm" value="50" />
                                         <input type="hidden" name="btnK" value="Google Search" />
                                         <input type="hidden" name="hl" value="zh-CN" />
-                                        <button type="submit" className={tw.cardButton}> <AiHelpIcon /> </button>
+                                        <button type="submit" className={tw.cardButton}>
+                                            <AiHelpIcon />
+                                        </button>
                                     </form>
                                 </div>
                             )}
