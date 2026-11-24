@@ -53,7 +53,7 @@ export default function QuizPage({ user, selectedQuiz, onQuestionsReady, onSubmi
             const m = arrToMap(groups_content, groups[0]);
             setMapGroupContent(m);
 
-            const text = await fetch_quiz(user, selectedQuiz, 100);
+            const text = await fetch_quiz(user, selectedQuiz, 1000);
             setFileContent(text);
             setQuizKey((prev) => prev + 1); // 重新读取文件时也刷新组件
 

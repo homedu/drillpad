@@ -49,7 +49,7 @@ export function ContextMenu({ x, y, items, onClose }) {
                             item.onClick();
                             onClose();
                         }}
-                        className={`block w-full px-4 py-2 text-left ${item.danger
+                        className={`block w-full px-4 py-2 text-left cursor-pointer ${item.danger
                             ? 'text-red-600 hover:bg-red-50'
                             : 'text-gray-700 hover:bg-gray-100'
                             }`}

@@ -72,7 +72,7 @@ export default function App() {
             showAlert('⚠️ 无效用户, 跳转至登录页...')
             navigate('/'); // 刷新后，user 会变成 undefined，可在此做兜底处理
         }
-        if (user.part(-1) === "editor") {
+        if (user?.part(-1) === "editor") {
             setMode("EDITOR");
             setUser(user.replace(/\/editor$/, ""));
             return;
@@ -140,18 +140,21 @@ export default function App() {
             setMenu({ x: r.left, y: r.bottom + 4 });
         };
         const items = [
-            {
-                label: '复制链接',
-                onClick: async () => {
-                    await navigator.clipboard.writeText(location.href);
-                    alert('链接已复制');
-                },
-            },
-            { divider: true },
+            // {
+            //     label: '复制链接',
+            //     onClick: async () => {
+            //         await navigator.clipboard.writeText(location.href);
+            //         alert('链接已复制');
+            //     },
+            // },
+            // { divider: true },
             {
                 label: 'Logout',
-                // danger: true,
-                onClick: () => confirm('确定要删除吗？') && console.log('已删除'),
+                onClick: async () => {
+                    if (await showConfirmModal({ title: "Logout ?" })) {
+                        navigate('/')
+                    }
+                }
             },
         ];
         return (
@@ -160,7 +163,7 @@ export default function App() {
                 onClick={handleClick}>
                 {user?.trim()?.charAt(0) || "U"}
                 {menu && (
-                    <ContextMenu x={menu.x} y={menu.y} items={items} onClose={() => setMenu(null)}/>
+                    <ContextMenu x={menu.x} y={menu.y} items={items} onClose={() => setMenu(null)} />
                 )}
             </div>
         );
