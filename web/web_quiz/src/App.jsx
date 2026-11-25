@@ -54,6 +54,10 @@ export default function App() {
 
     // 挂载后立即用 replace: true 覆盖当前历史记录，清空 state
     useEffect(() => {
+        const navEntry = performance.getEntriesByType('navigation')[0];
+        if (navEntry?.type === 'reload' && location.state) {
+            navigate("/", { replace: true });
+        }
         if (location.state) {
             navigate(location.pathname + location.search, { replace: true, state: null });
         }

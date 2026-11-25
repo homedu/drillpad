@@ -8,29 +8,45 @@
 # this machine's public IP, then replace ":80" below with your
 # domain name.
 
+:80 {
+    # 设置静态资源的根目录
+    root * /var/www/qdp_dist/dist
+
+    # 启用静态文件服务
+    file_server
+
+    # 如果你的网页是单页应用（SPA，如 React/Vue 路由），
+    # 这一行可以将所有找不到的路径重定向到 index.html，防止刷新 404
+    try_files {path} /index.html
+    
+    header Access-Control-Allow-Origin "*"
+}
+
 :8080 {
-	# Set this path to your site's directory.
-	root * /var/www/qdp_users
+    # Set this path to your site's directory.
+    root * /var/www/qdp_users
+    
+    # Enable the static file server.
+    file_server
+    
+    # Another common task is to set up a reverse proxy:
+    # reverse_proxy localhost:8080
+    
+    # Or serve a PHP site through php-fpm:
+    # php_fastcgi localhost:9000
+    
+    # 允许所有来源跨域读取（本地开发推荐）
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, OPTIONS"
+    
+    # 针对所有请求禁用缓存
 
-	# Enable the static file server.
-	file_server
-
-	# Another common task is to set up a reverse proxy:
-	# reverse_proxy localhost:8080
-
-	# Or serve a PHP site through php-fpm:
-	# php_fastcgi localhost:9000
-	
-	# 允许所有来源跨域读取（本地开发推荐）
-	header Access-Control-Allow-Origin "*"
-	header Access-Control-Allow-Methods "GET, OPTIONS"
-
-	# 禁用所有缓存
+    # 禁用所有缓存
     header {
         Cache-Control "no-cache, no-store, must-revalidate"
         Pragma "no-cache"
         Expires "0"
-    }	
+    }
 }
 
 # Refer to the Caddy docs for more information:

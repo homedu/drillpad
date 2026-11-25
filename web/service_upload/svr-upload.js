@@ -17,9 +17,12 @@ const ALLOWED_ORIGINS = new Set([
     "http://localhost",
     "http://localhost:80",
     "http://localhost:3000",
+    "http://192.168.1.159", // local IP
     "http://192.168.1.159:80",
-    "http://192.168.1.159",
-    "http://192.168.1.159:3000"
+    "http://192.168.1.159:3000",
+    "http://100.115.50.31", // tailscale IP
+    "http://100.115.50.31:80",
+    "http://100.115.50.31:3000"
 ]);
 
 // 统一的 CORS 头生成

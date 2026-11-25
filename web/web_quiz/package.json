@@ -6,7 +6,7 @@
         "service_net": "workspace:*",
         "react": "^19.3.1",
         "react-dom": "^19.3.1",
-        "react-router-dom": "^7.18.6"
+        "react-router-dom": "^7.18.7"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.3.5",
@@ -18,9 +18,9 @@
         "dev:server": "bun --hot --port 3000 index.html",
         "dev:css": "bun tailwindcss -i ./global.css -o ./dist.css --watch=always",
         "dev:upload": "bun ../service_upload/svr-upload.js",
-        "build:html": "bun build index.html --outdir ./dist --define QDP_IP='\"192.168.1.159\"'",
+        "build:html": "bun build index.html --outdir ./dist --define QDP_IP='\"100.115.50.31\"'",
         "build:css": "bun tailwindcss -i ./global.css -o ./dist.css --minify",
-        "build:upload": "bun build ../service_upload/svr-upload.js --compile --target=bun-linux-x64 --outfile ../service_upload/svr-upload --define QDP_IP='\"192.168.1.159\"'",
+        "build:upload": "bun build ../service_upload/svr-upload.js --compile --target=bun-linux-x64 --outfile ../service_upload/svr-upload --define QDP_IP='\"100.115.50.31\"'",
         "build": "bun build:css && bun build:html && bun build:upload"
     }
 }
