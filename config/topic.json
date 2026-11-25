@@ -1,4 +1,5 @@
 {
+    "T_USER_CHECK": "user-check",
     "T_QUIZ_FETCH": "quiz-fetch",
     "T_QUIZ_LIST": "quiz-list",
     "T_ANS_REC": "answer-record",

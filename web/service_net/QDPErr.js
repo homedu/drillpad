@@ -1,3 +1,11 @@
+export class UserCheckError extends Error {
+    constructor(message, stage, options = {}) {
+        super(message, options);
+        this.name = "UserCheckError";
+        this.stage = stage;
+    }
+}
+
 export class QuizListError extends Error {
     constructor(message, stage, options = {}) {
         super(message, options);

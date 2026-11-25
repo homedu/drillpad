@@ -39,6 +39,7 @@ WAIT=2 # 启动后等待秒数
 
 # 新增服务只需加一行；脚本名默认 reply_<窗口名>.sh，不一致时用 "窗口名|脚本名" 指定
 SERVICES=(
+"${T_USER_CHECK}"
 "${T_QUIZ_FETCH}"
 "${T_QUIZ_LIST}"
 "${T_ANS_REC}"

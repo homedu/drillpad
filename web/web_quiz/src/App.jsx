@@ -72,7 +72,7 @@ export default function App() {
             showAlert('⚠️ 无效用户, 跳转至登录页...')
             navigate('/'); // 刷新后，user 会变成 undefined，可在此做兜底处理
         }
-        if (user?.part(-1) === "editor") {
+        if (user?.part(-1) === "editor" || user?.part(-1) === "EDITOR") {
             setMode("EDITOR");
             setUser(user.replace(/\/editor$/, ""));
             return;

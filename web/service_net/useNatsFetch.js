@@ -99,6 +99,32 @@ export function useNatsFetch() {
         };
     }, []);
 
+    const check_user = useCallback(async (user) => {
+        const payload = user;
+        setLoading(true);
+        try {
+            const result = await reqNATS(TOPIC.T_USER_CHECK, payload, { timeout: 10000 });
+            if (Array.isArray(result)) {
+                return result
+            }
+            if (result == true || result == false) {
+                return JSON.parse(result);
+            }
+            throw new NatsResponseParseError(
+                "返回格式错误",
+                JSON.stringify(result)
+            );
+        } catch (err) {
+            throw new QDPErr.UserCheckError(
+                `查询用户/列表失败: ${describeError(err)}`,
+                "request",
+                { cause: err }
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [])
+
     const list_quiz = useCallback(async (user) => {
         const payload = user;
         setLoading(true);
@@ -559,6 +585,7 @@ export function useNatsFetch() {
 
     return {
         status, loading, connError,
+        check_user,
         list_quiz,
         count_qa,
         fetch_question,
