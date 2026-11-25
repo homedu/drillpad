@@ -35,7 +35,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         save_question_note
     } = useNatsFetch();
     const hasOutAlerted = useRef(false);
-    const [aiPrompt, setAiPrompt] = useState("");
+    const inputPromptRef = useRef(null);
+    const aiPromptRef = useRef("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState([]);
     const curIdxRef = useRef(-1);
@@ -147,40 +148,33 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         console.log("evaluation mode:", evalMode);
     };
 
-    // const aiSubmittingRef = useRef(false);
+    const aiSubmittingRef = useRef(false);
     const handleAI = async (key, type, group_content, eval_mode, event) => {
         console.log("question id:", key, "; question type", type);
+
+        if (aiSubmittingRef.current) return;
         const question = questions.filter((q) => q.id === key)[0];
         if (question == null) {
             throw Error(`cannot find question - ${key}`);
         }
-        const prompt = getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode);
-        // console.log(prompt);
-        setAiPrompt(prompt);
-
-
-        // if (aiSubmittingRef.current) return;
-        // const question = questions.filter((q) => q.id === key)[0];
-        // if (question == null) {
-        //     throw Error(`cannot find question - ${key}`);
-        // }
-        // try {
-        //     event.preventDefault();
-        //     const form = event.currentTarget;
-        //     const r = await showInputModal({
-        //         title: "编辑提示词",
-        //         defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode),
-        //     });
-        //     if (r !== null) {
-        //         setAiPrompt(r)
-        //         aiSubmittingRef.current = true;
-        //         form.requestSubmit();
-        //     }
-        // } catch (err) {
-        //     throw err
-        // } finally {
-        //     aiSubmittingRef.current = false;
-        // }
+        try {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const r = await showInputModal({
+                title: "编辑提示词",
+                defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode),
+            });
+            if (r !== null) {
+                inputPromptRef.current.value = r.text;
+                aiSubmittingRef.current = true;
+                // console.log(r);
+                form.requestSubmit();
+            }
+        } catch (err) {
+            throw err
+        } finally {
+            aiSubmittingRef.current = false;
+        }
     };
 
     const handleNote = async (qid, type, event) => {
@@ -367,8 +361,11 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                     <button type="button" className={tw.cardButton} onClick={(e) => handleNote(q.id, q.type, e)}>
                                         <NoteIcon />
                                     </button>
-                                    <form action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")} onSubmit={(e) => handleAI(q.id, q.type, q.groupContent, q.evalMode === "SUB", e)}>
-                                        <input type="hidden" name="q" value={aiPrompt} />
+                                    <form
+                                        action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")}
+                                        onSubmit={(e) => handleAI(q.id, q.type, q.groupContent, q.evalMode === "SUB", e)}
+                                    >
+                                        <input type="hidden" name="q" ref={inputPromptRef} defaultValue={aiPromptRef.current} />
                                         <input type="hidden" name="udm" value="50" />
                                         <input type="hidden" name="btnK" value="Google Search" />
                                         <input type="hidden" name="hl" value="zh-CN" />
