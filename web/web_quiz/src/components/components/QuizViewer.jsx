@@ -10,6 +10,7 @@ import { getPrompt } from "../../../../prompts/prompt_util.js";
 import { questionTypes } from "./questionTypes/index.js";
 import { showFloatingWindow } from "../../utils/FloatingWindow";
 import { showRatingModal } from "../../utils/ShowRatingModal";
+import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { showWangEditorModal, makeUploadConfig } from "../../utils/ShowWangEditorModal";
 import { IP_SERVER_UPLOAD } from "../../../../config.js";
 
@@ -82,7 +83,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     groupContent: mGroupContent.get(qGroup) ?? "",
                     options: opts,
                     correctAnswer: ansMap.get(qType),
-                    humanReadableQuestion: `((${question})) [[${opts.map((o) => `${o.label}. ${o.text}`).join(";; ")}]]`,
+                    humanReadableQuestion: `${question}. 选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}`,
                     questionFieldType: qFieldType,
                     evalMode: qEvalMode // SUB, OBJ
                 };
@@ -146,7 +147,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         console.log("evaluation mode:", evalMode);
     };
 
-    const handleAI = (key, type, group_content, eval_mode, event) => {
+    // const aiSubmittingRef = useRef(false);
+    const handleAI = async (key, type, group_content, eval_mode, event) => {
         console.log("question id:", key, "; question type", type);
         const question = questions.filter((q) => q.id === key)[0];
         if (question == null) {
@@ -155,6 +157,30 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         const prompt = getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode);
         // console.log(prompt);
         setAiPrompt(prompt);
+
+
+        // if (aiSubmittingRef.current) return;
+        // const question = questions.filter((q) => q.id === key)[0];
+        // if (question == null) {
+        //     throw Error(`cannot find question - ${key}`);
+        // }
+        // try {
+        //     event.preventDefault();
+        //     const form = event.currentTarget;
+        //     const r = await showInputModal({
+        //         title: "编辑提示词",
+        //         defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode),
+        //     });
+        //     if (r !== null) {
+        //         setAiPrompt(r)
+        //         aiSubmittingRef.current = true;
+        //         form.requestSubmit();
+        //     }
+        // } catch (err) {
+        //     throw err
+        // } finally {
+        //     aiSubmittingRef.current = false;
+        // }
     };
 
     const handleNote = async (qid, type, event) => {

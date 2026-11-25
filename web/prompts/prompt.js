@@ -9,10 +9,10 @@ const qType = {
 // 默认【客观题，选择题】的提示词
 const prompt = {
     AZ_900: {
-        quiz_name: `这是关于 AZ-900 Microsoft Azure Fundamentals 方面的练习题,`,
+        quiz_name: `关于 AZ-900 Microsoft Azure Fundamentals 的练习题,`,
         question_type: "",
         question: "",
-        question_profile: "注意：双小括号内是问题，双中括号内是选项，选项间用双分号分隔。",
+        question_profile: "",
         question_eval: "",
         question_ref: "",
         correct_answer: "请问：正确答案是什么？",
@@ -22,10 +22,10 @@ const prompt = {
         other_notes: "其它应对考试的相关需要掌握了解或要注意的具体知识点还有哪些？"
     },
     wordly_wise: {
-        quiz_name: `这是关于英语词汇学习的练习题,`,
+        quiz_name: `关于英语词汇学习的练习题,`,
         question_type: "",
         question: "",
-        question_profile: "注意：双小括号内是问题，双中括号内是选项，选项间用双分号分隔",
+        question_profile: "",
         question_eval: "",
         question_ref: "",
         correct_answer: "请问：正确答案是什么？",
@@ -41,8 +41,8 @@ export const getPromptObject = (quiz, type, question, question_ref, isEval = fal
     const wrapper = (po => {
         return {
             ...po,
-            question_type: `题目类型是：${qType[type]},`,
-            question: `题目如下：${question}.`,
+            question_type: `题目为${qType[type]}。`,
+            question: `题目：${question}.`,
             ...(type === 'FILL' && { question_profile: "注意：双小括号内是问题; 双中括号内是作答; 若问题有多个空格需要填写，则对应空格的作答依ABC字母顺序填写，且双分号分隔。" }),
             ...(isEval && { question_eval: "该题为主观题。需要你作为考官，首先对作答进行'正确', '待改进', '错误'三种结论之一的判断。" }),
             ...(question_ref?.length && { question_ref: `同时：对该问题的作答正误判断或讲解，要参考双大括号内的材料内容(可能是HTML格式)：{{ ${question_ref} }}` }),

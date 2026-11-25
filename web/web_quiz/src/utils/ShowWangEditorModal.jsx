@@ -372,7 +372,7 @@ function Demo() {
  *
  * 用法（配合前面的弹窗）：
  *   import { makeUploadConfig } from "./wangEditorUploadConfig";
- *   const r = await showInputModal({
+ *   const r = await showWangEditorModal({
  *       title: "编辑备注",
  *       defaultValue: html,
  *       editorConfig: makeUploadConfig("http://localhost:8088"),
