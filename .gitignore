@@ -152,6 +152,7 @@ scripts/*.tsv
 debug.txt
 resource
 
+fetch/
 web/web_quiz/uploads
 web/web_quiz/.bun-cache
 web/web_quiz/svr-upload
