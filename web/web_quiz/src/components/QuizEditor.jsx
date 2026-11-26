@@ -120,7 +120,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
         const count = options.filter((opt) => opt.text.trim()).length;
         if (QType.OPT && count < 2) return "至少填写两个选项";
-        if (QType.FILL && count < 1) return "至少填写一个空格的答案";
+        if (evalMode !== "SUB" && QType.FILL && count < 1) return "至少填写一个空格的答案"; // 主观题可以不填写参考答案
 
         // 填空题都为正确答案
         const correctCount = QType.FILL ? count : options.filter((opt) => opt.isCorrect).length;

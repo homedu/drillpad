@@ -84,7 +84,9 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     groupContent: mGroupContent.get(qGroup) ?? "",
                     options: opts,
                     correctAnswer: ansMap.get(qType),
-                    humanReadableQuestion: `${question}. 选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}`,
+                    humanReadableQuestion: `${question}` + (qEvalMode !== "SUB" ?
+                        `选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}` :
+                        `作答内容如下(若多空格处需要填写,则双分号分隔多处对应空格的作答): ${opts.map((o) => `${(o.trim && o.text !== "AI") ? o.text : "[not answered]"}`).join(";; ")}`),
                     questionFieldType: qFieldType,
                     evalMode: qEvalMode // SUB, OBJ
                 };

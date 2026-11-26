@@ -21,5 +21,5 @@ const makePrompt = (p) => {
 
 export const getPrompt = (quiz, type, question, question_ref, isEval) => {
     const po = getPromptObject(quiz, type, question, question_ref, isEval)
-    return makePrompt(po);
+    return makePrompt(po).replace(/\n/g, '<br>');
 }
