@@ -316,7 +316,7 @@ export function useNatsFetch() {
             blank: ids_blank,
         };
 
-        console.log("record_answer payload:", payload);
+        // console.log("record_answer payload:", payload);
 
         setLoading(true);
         try {

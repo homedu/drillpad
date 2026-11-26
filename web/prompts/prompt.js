@@ -45,8 +45,8 @@ export const getPromptObject = (quiz, type, question, question_ref, isEval = fal
             ...(question_ref?.length && { question_ref: `首先，参考该题目的相关资料，即双大括号内的内容: {{ ${question_ref} }}` }),
             question: `题目如下：${question}.`,
             ...(type === 'FILL' && { question_profile: "" }),
-            ...(isEval && { question_eval: "首先对作答内容进行 '正确', '待改进', '错误' 三种结论之一的判断。" }),
-            ...(isEval && { correct_answer: "如果作答不完全正确，正确的答案是什么？并解释给出的正确答案的理由？" }),
+            ...(isEval && { question_eval: "首先对已作答内容进行 '正确', '待改进', '错误' 三种结论之一的判断。" }),
+            ...(isEval && { correct_answer: "如果作答不完全正确或未作答，那正确的答案是什么？并解释给出的正确答案的理由？" }),
             ...(isEval && { answer_explanation: "" }),
             ...(isEval && { incorrect_explanation: "" })
         }

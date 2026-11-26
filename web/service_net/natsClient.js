@@ -161,7 +161,7 @@ export async function reqNATS(subject, payload, opts = { timeout: 10000 }) {
         );
     }
 
-    console.log(subject, body);
+    // console.log(subject, body);
 
     let rawMsg;
     try {
@@ -212,7 +212,7 @@ export async function reqNATS(subject, payload, opts = { timeout: 10000 }) {
         }
     }
 
-    console.log("NATS RawMsg:", rawMsg);
+    // console.log("NATS RawMsg:", rawMsg);
 
     if (rawMsg === undefined || rawMsg === null || rawMsg === "") {
         return null;

@@ -86,7 +86,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `${question}` + (qEvalMode !== "SUB" ?
                         `选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}` :
-                        `作答内容如下(若多空格处需要填写,则双分号分隔多处对应空格的作答): ${opts.map((o) => `${(o.trim && o.text !== "AI") ? o.text : "[not answered]"}`).join(";; ")}`),
+                        `作答内容如下(若多空格处需要填写,则双分号分隔多处对应空格的作答. [NOT ANSWERED] 代表未作答): ${opts.map((o) => `${(o.text?.trim() && o.text !== "AI") ? o.text : "[NOT ANSWERED]"}`).join(";; ")}`),
                     questionFieldType: qFieldType,
                     evalMode: qEvalMode // SUB, OBJ
                 };
@@ -132,7 +132,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         try {
             // 等待后台保存完成
             const result = await record_answer(user, quiz, correct, incorrect, blank);
-            console.log(result);
+            // console.log(result);
 
             // record_answer 成功完成后，再通知父组件进行后续刷新
             onSubmit?.();
@@ -207,7 +207,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         let pMarked = prevBookmarked.findIndex(item => item === index);
         if (pMarked != -1) {
             curIdxRef.current = pMarked
-            console.log("curIdxRef", curIdxRef.current);
+            // console.log("curIdxRef", curIdxRef.current);
         } else {
             pMarked = prevBookmarked.findIndex(item => item > index);
             if (pMarked === -1) {
@@ -217,7 +217,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                 const p = pMarked - 1 < 0 ? prevBookmarked.length - 1 : pMarked - 1;
                 pMarked %= prevBookmarked.length
                 curIdxCandRef.current = [p, pMarked];
-                console.log("curIdxCandRef", curIdxCandRef.current);
+                // console.log("curIdxCandRef", curIdxCandRef.current);
             }
         }
     }
@@ -226,7 +226,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         let defaultRating = 0;
         try {
             const result = await fetch_rate_question(user, quiz, qid);
-            console.log(result)
+            // console.log(result)
             defaultRating = result?.rating ?? 0;
         } catch (err) {
             const message = err instanceof QuestionRateFetchError ? err.message : `未知错误: ${err?.message ?? err}`;
@@ -238,7 +238,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         if (rating === -1) return
         try {
             const result = await rate_question(user, quiz, qid, rating);
-            console.log(result);
+            // console.log(result);
             setRatings((prev) => ({ ...prev, [qid]: rating }))
         } catch (err) {
             const message = err instanceof QuestionRateError ? err.message : `未知错误: ${err?.message ?? err}`;
@@ -266,7 +266,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         const init = async () => {
             try {
                 const result = await fetch_rate_question(user, quiz);
-                console.log(result)
+                // console.log(result)
                 setRatings(result);
             } catch (err) {
                 const message = err instanceof QuestionRateFetchError ? err.message : `未知错误: ${err?.message ?? err}`;
@@ -285,7 +285,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         const targetElement = activeBookmarks[curIdxRef.current];
         targetElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
         targetElement.focus({ preventScroll: true });
-        console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
+        // console.log(`跳转到第 ${curIdxRef.current + 1} 个激活的书签`);
     }
 
     useEffect(() => {

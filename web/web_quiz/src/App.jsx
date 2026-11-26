@@ -98,7 +98,7 @@ export default function App() {
             onClick={async () => {
                 let qz = await showSimpleInputModal({ title: "新建题库名", label: "" });
                 if (!qz) return
-                console.log(qz)
+                // console.log(qz)
                 qz = qz.replace(/[\s-]+/g, '-');
                 await new_quiz(user, qz)
                 setQuiz(qz);
