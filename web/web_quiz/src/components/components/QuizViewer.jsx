@@ -84,9 +84,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     groupContent: mGroupContent.get(qGroup) ?? "",
                     options: opts,
                     correctAnswer: ansMap.get(qType),
-                    humanReadableQuestion: `${question}` + (qEvalMode !== "SUB" ?
-                        `选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}` :
-                        `作答内容如下(若多空格处需要填写,则双分号分隔多处对应空格的作答. [NOT ANSWERED] 代表未作答): ${opts.map((o) => `${(o.text?.trim() && o.text !== "AI") ? o.text : "[NOT ANSWERED]"}`).join(";; ")}`),
+                    humanReadableQuestion: `${question}` + (qEvalMode !== "SUB" ? `选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}` : ``),
                     questionFieldType: qFieldType,
                     evalMode: qEvalMode // SUB, OBJ
                 };
@@ -161,9 +159,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         }
         try {
             event.preventDefault();
+            const answered_sub = (userAnswers[key]?.map((a) => a.text.trim() ? a.text : "[NOT ANSWERED]"))?.join(" ;; ") ?? "[NOT ANSWERED]"
             const r = await showInputModal({
                 title: "编辑提示词",
-                defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode),
+                defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode, answered_sub),
             });
             if (r !== null) {
                 // console.log(r);
