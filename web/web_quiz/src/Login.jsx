@@ -15,7 +15,7 @@ export default function LoginPage() {
         const trimmed = username.trim();
         if (!trimmed) return;
         if (!(await check_user(trimmed))) {
-            showAlert(`无效用户 - ${trimmed}`, "warning");
+            showAlert(`无效登录信息 - ${trimmed}`, "warning");
             return;
         }
         navigate('/qdp', { state: { username: trimmed } });

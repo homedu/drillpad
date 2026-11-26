@@ -35,8 +35,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         save_question_note
     } = useNatsFetch();
     const hasOutAlerted = useRef(false);
+    const formAIRef = useRef(null);
     const inputPromptRef = useRef(null);
-    const aiPromptRef = useRef("");
     const [questionMod, setQuestionMod] = useState({}); // 填空题交互时候花样翻新
     const [bookmarked, setBookmarked] = useState([]);
     const curIdxRef = useRef(-1);
@@ -159,16 +159,15 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
         }
         try {
             event.preventDefault();
-            const form = event.currentTarget;
             const r = await showInputModal({
                 title: "编辑提示词",
                 defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode),
             });
             if (r !== null) {
+                // console.log(r);
                 inputPromptRef.current.value = r.text;
                 aiSubmittingRef.current = true;
-                // console.log(r);
-                form.requestSubmit();
+                formAIRef.current.requestSubmit();
             }
         } catch (err) {
             throw err
@@ -362,10 +361,11 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                         <NoteIcon />
                                     </button>
                                     <form
+                                        ref={formAIRef}
                                         action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")}
                                         onSubmit={(e) => handleAI(q.id, q.type, q.groupContent, q.evalMode === "SUB", e)}
                                     >
-                                        <input type="hidden" name="q" ref={inputPromptRef} defaultValue={aiPromptRef.current} />
+                                        <input type="hidden" name="q" ref={inputPromptRef} />
                                         <input type="hidden" name="udm" value="50" />
                                         <input type="hidden" name="btnK" value="Google Search" />
                                         <input type="hidden" name="hl" value="zh-CN" />
