@@ -190,7 +190,7 @@ export function useNatsFetch() {
             return result;
         } catch (err) {
             throw new QDPErr.QuestionRateError(
-                `题目重要度标注失败: ${describeError(err)}`,
+                `题目权重标注失败: ${describeError(err)}`,
                 "request",
                 { cause: err }
             );

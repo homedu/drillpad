@@ -45,7 +45,7 @@ export function showRatingModal(options = {}) {
     });
 }
 
-const DEFAULT_LABELS = ["很差", "较差", "一般", "满意", "非常满意"];
+const DEFAULT_LABELS = ["下月再现", "半月再现", "下周再现", "三日再现", "明日再现"];
 
 const CSS = `
 .srm-backdrop {

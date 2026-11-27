@@ -121,7 +121,8 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             const status = judge(q, userAnswers[q.id]);
             if (status === "correct") correct.push(q.id);
             else if (status === "incorrect") incorrect.push(q.id);
-            else blank.push(q.id);
+            else if (status === "blank") blank.push(q.id);
+            else return;
         });
 
         // 先让 UI 进入“已提交”状态
@@ -233,7 +234,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             return;
         }
 
-        const rating = (await showRatingModal({ title: `题目(${index + 1})重要度`, defaultValue: defaultRating })) ?? -1;
+        const rating = (await showRatingModal({ title: `题目(${index + 1})权重`, defaultValue: defaultRating })) ?? -1;
         if (rating === -1) return
         try {
             const result = await rate_question(user, quiz, qid, rating);

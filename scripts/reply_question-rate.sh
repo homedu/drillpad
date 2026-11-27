@@ -44,15 +44,14 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     tmp=$(mktemp "${QUESTION_RATING_FILE}.XXXXXX")
     defer_trap 'rm -f "$tmp"' EXIT
 
-    awk -v OFS='\t' -v qid="${QID}" -v rating="${RATING}" '
+    awk -v OFS='\t' -v qid="${QID}" -v rating="${RATING}" -v tm="${CURRENT_TIME}" '
         BEGIN {
             found = 0
         }
 
         $1 == qid {
             found = 1
-
-            print qid, rating
+            print qid, rating, tm
         }
         $1 != qid {
             print $0
@@ -60,7 +59,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
         END {
             if (!found) {
-                print qid, rating
+                print qid, rating, tm
             }
         }
     ' "${QUESTION_RATING_FILE}" > "$tmp" && mv "$tmp" "${QUESTION_RATING_FILE}"

@@ -34,7 +34,7 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     # CUR_USER should be extract from token
     CUR_USER=$(jq -r '.user // ""' <<< "${PARAM}")
     QUIZ=$(jq -r '.quiz // ""' <<< "${PARAM}")
-    COUNT=$(jq -r '.count' <<< "${PARAM}")
+    COUNT=$(jq -r '.count // "1000"' <<< "${PARAM}")
 
     require_dir DIR_USER="../users/${CUR_USER}" || {
         echo "错误: 用户目录不存在: ${DIR_USER}" >&2
@@ -56,6 +56,9 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
     ensure_file REC_INCORRECT="${PATH_REC}/incorrect.tsv" || { echo $?; exit 1;}
     ensure_file REC_BLANK="${PATH_REC}/blank.tsv" || { echo $?; exit 1;}
 
+    PATH_RAT="${DIR_USER}/rating"
+    ensure_file RATING="${PATH_RAT}/${QUIZ}.tsv" || { echo $?; exit 1;}
+
     # file lock
     ensure_file LOCK_FILE="${PATH_REC}/rec.lock" || { echo $?; exit 1;} # echo "${LOCK_FILE} --- reply_quiz-fetch" >> debug.txt
 
@@ -68,11 +71,28 @@ if jq -e . <<< "${PARAM}" >/dev/null 2>&1; then
 
         IDS_INC_1=$(cat "${REC_INCORRECT}" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
         IDS_INC_2=$(cat "${REC_BLANK}" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
-        IDS_INC="${IDS_INC_1} ${IDS_INC_2}"
-        IDS_EXC=$(cat "${REC_CORRECT}" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+        #
+        # by default, all questions are fetched.
+        # we excluded all rated questions into IDS_EXC.
+        # only select questions by its importance and append them into IDS_INC
+        #
+        IDS_INC_3=$(awk -F'\t' -v now="$(date +%s)" '
+        BEGIN { th[1]=30; th[2]=15; th[3]=7; th[4]=3; th[5]=1 }
+        {
+            id=$1; w=$2; dt=$3
+            if (id == "" || !(w in th)) next
+            split(dt, d, /[- :]/)
+            ts = mktime(d[1] " " d[2] " " d[3] " " d[4] " " d[5] " " d[6])
+            if (ts < 0) next
+            if ((now - ts) > th[w] * 86400) printf "%s ", id
+        }' "${RATING}")
+        #
 
-        export IDS_INC
-        export IDS_EXC
+        IDS_EXC_1=$(cat "${REC_CORRECT}" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ')
+        IDS_EXC_2=$(cat "${RATING}" 2>/dev/null | awk -F'\t' '{print $1}' | tr '\n' ' ') # by default, exclude all rated questions.
+
+        export IDS_INC="${IDS_INC_1% } ${IDS_INC_2% } ${IDS_INC_3% }"
+        export IDS_EXC="${IDS_EXC_1% } ${IDS_EXC_2% }"
 
         # generate quiz here
         ./QuizGen.sh "${QUIZ_BANK}" "${QUIZ_OUT_ABS}" "${COUNT}"
