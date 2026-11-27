@@ -16,6 +16,7 @@ const prompt = {
         question_profile: "",
         question: "",
         answer_profile: "",
+        answer_ref: "",
         answered_sub: "",
         correct_answer: "请问：正确答案是什么？",
         answer_explanation: "解释为什么这个选项是正确答案？",
@@ -31,6 +32,7 @@ const prompt = {
         question_profile: "",
         question: "",
         answer_profile: "",
+        answer_ref: "",
         answered_sub: "",
         correct_answer: "请问：正确答案是什么？",
         answer_explanation: "解释为什么这个选项是正确答案？",
@@ -40,20 +42,21 @@ const prompt = {
     }
 }
 
-export const getPromptObject = (quiz, type, question, question_ref, isEval = false, answered_sub = "") => {
+export const getPromptObject = (quiz, type, question, question_ref, isEval = false, answered_sub = "", answer_ref = "") => {
 
     const wrapper = (po => {
         return {
             ...po,
             question_type: `题目为${isEval ? "主观" : ""}${qType[type]}。`,
-            ...(question_ref?.length && { question_ref: `首先，读一下该题目的参考文章，即双大括号内的内容: {{ ${question_ref} }}` }),
+            ...(question_ref?.length && { question_ref: `首先，阅读该题目的参考文章，即双大括号内的内容: {{ ${question_ref} }}` }),
             ...(type === 'FILL' && { question_profile: "" }),
             question: `题目如下：${question}`,
-            ...(isEval && { answer_profile: "注意：若需要填写多空格处,使用双分号分隔多处空格所对应的作答。且[NOT ANSWERED]代表未作答。" }),
-            ...(isEval && { answered_sub: `作答内容如下：${answered_sub}` }),
-            ...(isEval && { question_eval: "首先对已作答内容进行 '正确', '待改进', '错误', '未作答' 四种结论之一的判断。" }),
-            ...(isEval && { correct_answer: "如果作答不完全正确或未作答，那正确的答案是什么？并解释给出的正确答案的理由？" }),
-            ...(isEval && { answer_explanation: "" }),
+            ...(isEval && { answer_profile: "注意,若有多处需要填写,则使用双分号分隔每个填写位置所对应的作答。[NOT ANSWERED]代表未作答。" }),
+            ...(isEval && answer_ref?.length && { answer_ref: `同时,该题附带参考答案(同样使用双分号分隔需多处填写的对应答案): ${answer_ref}` }),
+            ...(isEval && { answered_sub: `考生实际作答内容如下：${answered_sub}` }),
+            ...(isEval && { question_eval: "首先,对作答内容进行 '正确', '待改进', '错误', '未作答' 四种结论之一的判断。" }),
+            ...(isEval && { correct_answer: "其次,若作答不完全正确或未作答，你经过思考，给出正确答案。" }),
+            ...(isEval && { answer_explanation: "最后,解释所给正确答案的理由？" }),
             ...(isEval && { incorrect_explanation: "" })
         }
     })

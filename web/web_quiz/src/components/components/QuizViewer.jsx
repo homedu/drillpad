@@ -85,6 +85,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     options: opts,
                     correctAnswer: ansMap.get(qType),
                     humanReadableQuestion: `${question}` + (qEvalMode !== "SUB" ? `选项: ${opts.map((o) => `${o.label}. ${o.text}`).join("; ")}` : ``),
+                    answerRef: opts.map((o) => o.text).join(";; "),
                     questionFieldType: qFieldType,
                     evalMode: qEvalMode // SUB, OBJ
                 };
@@ -150,7 +151,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
     };
 
     const aiSubmittingRef = useRef(false);
-    const handleAI = async (key, type, group_content, eval_mode, event) => {
+    const handleAI = async (key, type, group_content, eval_mode, answer_ref, event) => {
         console.log("question id:", key, "; question type", type);
 
         if (aiSubmittingRef.current) return;
@@ -163,7 +164,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
             const answered_sub = (userAnswers[key]?.map((a) => a.text.trim() ? a.text : "[NOT ANSWERED]"))?.join(" ;; ") ?? "[NOT ANSWERED]"
             const r = await showInputModal({
                 title: "编辑提示词",
-                defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode, answered_sub),
+                defaultValue: getPrompt(quiz, type, question.humanReadableQuestion, group_content, eval_mode, answered_sub, answer_ref),
             });
             if (r !== null) {
                 // console.log(r);
@@ -365,7 +366,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                     <form
                                         ref={formAIRef}
                                         action="https://www.google.com/search" method="get" target="_blank" className={cn(tw.cardButton, "inline")}
-                                        onSubmit={(e) => handleAI(q.id, q.type, q.groupContent, q.evalMode === "SUB", e)}
+                                        onSubmit={(e) => handleAI(q.id, q.type, q.groupContent, q.evalMode === "SUB", q.answerRef, e)}
                                     >
                                         <input type="hidden" name="q" ref={inputPromptRef} />
                                         <input type="hidden" name="udm" value="50" />
