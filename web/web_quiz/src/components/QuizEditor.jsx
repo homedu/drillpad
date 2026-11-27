@@ -299,6 +299,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
     useEffect(() => {
         const func = async () => {
+            if (qid === "##") { setQid(`#${questionCount}`) }
             const r = await fetch_prevnext_qid(user, selectedQuiz, qid);
             if (r.success === true && r.status === "found") {
                 if (!qid.isValidGuid()) {
@@ -313,7 +314,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
             const timer = setTimeout(() => func(), 1500);
             return () => clearTimeout(timer);
         }
-        if (qid.isValidGuid() || qid.isValidGuid(5)) func()
+        if (qid.isValidGuid() || qid.isValidGuid(5) || qid === "##") func()
     }, [qid])
 
     useEffect(() => {
@@ -534,9 +535,8 @@ export default function QuizEditor({ user, selectedQuiz }) {
                         return (
                             <div key={index} className={tw.optionRow}>
                                 <span className={tw.optionIndex}>{String.fromCharCode(65 + index)}</span>
-                                <input
+                                <textarea
                                     className={tw.optionInput}
-                                    type="text"
                                     value={opt.text}
                                     disabled={!canEdit}
                                     onChange={(e) => handleOptionTextChange(index, e.target.value)}

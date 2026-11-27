@@ -31,7 +31,7 @@ export const styles = {
     optionIndex: "w-[20px] text-[14px] font-semibold text-[#6b7280] text-center",
 
     optionInput: cn(
-        "flex-1 box-border py-[6px] px-[10px] text-[14px]",
+        "flex-1 box-border py-[6px] px-[10px] text-[15px] h-9",
         "border border-solid border-[#d1d5db] rounded-[6px]",
         "disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
     ),
