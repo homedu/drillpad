@@ -24,7 +24,7 @@ const judge = (q, answer) => {
 };
 
 // 选择题渲染与交互组件
-export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, filter = { evalMode: "", rating: 0 }, onSubmit, onReset, onNoQuestions, onQuestionsReady }) {
+export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent, filter = { evalMode: "", rating: 0 }, onSubmit, onInvalidSubmit, onNoQuestions, onQuestionsReady, onReset }) {
     // userAnswers: { [questionId]: 由各题型自己定义形状的作答状态 }
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
@@ -66,14 +66,14 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                     text: opt
                 }));
 
-                if (qType === 'MCSA' && answers.length > 1) {
+                if (qType === 'SS' && answers.length > 1) {
                     throw Error(`Question - ${id} is Multiple Choice Single Answer, but got Multiple Answers from Quiz Bank`);
                 }
 
                 const ansMap = new Map([
-                    ['MCSA', answers[0]],   // multiple choice, single answer
+                    ['SS', answers[0]],   // multiple choice, single answer
                     ['MS', answers],        // multiple select, array answer
-                    ['FILL', answers]       // fill, array answer
+                    ['FI', answers]       // fill, array answer
                 ]);
 
                 return {
@@ -113,6 +113,16 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
 
     // 4. 提交答案
     const handleSubmit = useCallback(async () => {
+
+        // validate...
+        for (const q of questions) {
+            // 作文题目必须作答
+            if (q.type === 'WR' && !userAnswers[q.id]) {
+                onInvalidSubmit?.("作文题目必须作答，不可为空")
+                return;
+            }
+        }
+
         // 统计答案, 根据当前 userAnswers 直接计算答案分类
         const correct = [];
         const incorrect = [];

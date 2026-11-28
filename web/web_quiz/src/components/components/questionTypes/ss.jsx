@@ -1,12 +1,12 @@
 import { Option } from "./components/OptionFill.jsx";
 
-export const MCSA = {
+export const SS = {
     label: "单选",
 
     // 从 TSV 的非空答案列得到 correctAnswer（字符串）
     parseAnswer: (answers, id) => {
         if (answers.length > 1) {
-            throw Error(`question - ${id} is MCSA, but has multiple answers`);
+            throw Error(`question - ${id} is SS, but has multiple answers`);
         }
         return answers[0] ?? "";
     },

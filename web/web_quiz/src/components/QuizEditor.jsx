@@ -44,8 +44,8 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
     const isQuizReady = !!selectedQuiz && selectedQuiz?.trim() !== "";
 
-    const [selectedQuestionType, setSelectedQuestionType] = useState('MCSA'); // 'MCSA', 'MS', 'FILL'
-    const [QType, setQType] = useState({ MCSA: true, MS: false, FILL: false, OPT: true });
+    const [selectedQuestionType, setSelectedQuestionType] = useState('SS'); // 'SS', 'MS', 'FI', 'WR'
+    const [QType, setQType] = useState({ SS: true, MS: false, FI: false, OPT: true, WR: false });
     const [questionCount, setQuestionCount] = useState(0);
     const [qid, setQid] = useState("");
     const [qnum, setQnum] = useState(0);
@@ -96,7 +96,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
         setOptions((prev) =>
             prev.map((opt, i) => {
                 // radio 模式下，当前选项无法被取消勾选；下面逻辑无法执行
-                if (QType.MCSA) {
+                if (QType.SS) {
                     return i === index ? { ...opt, isCorrect: !opt.isCorrect } : { ...opt, isCorrect: false };
                 }
                 return i === index ? { ...opt, isCorrect: !opt.isCorrect } : opt;
@@ -119,12 +119,14 @@ export default function QuizEditor({ user, selectedQuiz }) {
         if (!question.trim()) return "输入题目内容";
 
         const count = options.filter((opt) => opt.text.trim()).length;
-        if (QType.OPT && count < 2) return "至少填写两个选项";
-        if (evalMode !== "SUB" && QType.FILL && count < 1) return "至少填写一个空格的答案"; // 主观题可以不填写参考答案
 
-        // 填空题都为正确答案
-        const correctCount = QType.FILL ? count : options.filter((opt) => opt.isCorrect).length;
-        if (correctCount === 0) return "至少勾选一个正确答案";
+        if (QType.OPT && count < 2) return "至少填写两个选项";
+        if (evalMode !== "SUB" && QType.FI && count < 1) return "至少填写一个空格的答案"; // 主观题可以不填写参考答案
+
+        // 填空题选项内容为正确答案
+        const correctCount = QType.FI || QType.WR ? count : options.filter((opt) => opt.isCorrect).length;
+        if (correctCount === 0) return "至少勾选/填写一个正确答案";
+        if (QType.WR && correctCount > 1) return "写作题目最多只能填写一个参考答案";
 
         const hasGap = options.some((opt, i) => opt.text.trim() && options.slice(0, i).some((o) => !o.text.trim()));
         if (hasGap) return "选项必须从上到下依次填写";
@@ -146,7 +148,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
         }
 
         const opts = options.filter((opt) => opt.text.trim()).map((opt) => opt.text);
-        const answers = options.filter((opt) => QType.FILL ? opt.text.trim() : opt.isCorrect).map((opt) => opt.text);
+        const answers = options.filter((opt) => QType.FI || QType.WR ? opt.text.trim() : opt.isCorrect).map((opt) => opt.text);
         const type = selectedQuestionType;
         const skills = skillStr.trim().replace(/^;+|;+$/g, '').split(";").filter(s => s.trim()).map(s => s.trim());
 
@@ -259,16 +261,17 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
     useEffect(() => {
         setQType({
-            MCSA: selectedQuestionType === 'MCSA',
+            SS: selectedQuestionType === 'SS',
             MS: selectedQuestionType === 'MS',
-            FILL: selectedQuestionType === 'FILL',
-            OPT: selectedQuestionType === 'MCSA' || selectedQuestionType === 'MS'
+            FI: selectedQuestionType === 'FI',
+            WR: selectedQuestionType === 'WR',
+            OPT: selectedQuestionType === 'SS' || selectedQuestionType === 'MS'
         })
     }, [selectedQuestionType]);
 
     useEffect(() => {
         // 变为单选题，只保留第一个正确答案
-        if (QType.MCSA) {
+        if (QType.SS) {
             setOptions((prev) => {
                 const correctCount = prev.filter((o) => o.isCorrect).length;
                 if (correctCount <= 1) return prev;
@@ -288,10 +291,12 @@ export default function QuizEditor({ user, selectedQuiz }) {
     }, [QType]);
 
     useEffect(() => {
-        if (QType.FILL) {
+        if (QType.FI) {
             const matches = question.match(/_{4,}/g);
             const n = matches ? matches.length : 0;
             setFillCount(n);
+        } else if (QType.WR) {
+            setFillCount(1);
         } else {
             setFillCount(0);
         }
@@ -389,15 +394,21 @@ export default function QuizEditor({ user, selectedQuiz }) {
                         <label className={cn(tw.label, "font-bold")}>题型</label>
                         <select
                             value={selectedQuestionType}
-                            onChange={(e) => setSelectedQuestionType(e.target.value)}
+                            onChange={(e) => {
+                                setSelectedQuestionType(e.target.value)
+                                if (e.target.value === 'WR') { // 写作题肯定是主观题
+                                    setEvalMode("SUB")
+                                }
+                            }}
                             disabled={connError || loading || !selectedQuiz?.trim()}
                             className={cn(tw.input, "w-45 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed")}
                         >
                             <>
                                 <option value='' disabled hidden>题型</option>
-                                <option value='MCSA'>单选题</option>
+                                <option value='SS'>单选题</option>
                                 <option value='MS'>多选题</option>
-                                <option value='FILL'>填空题</option>
+                                <option value='FI'>填空题</option>
+                                <option value='WR'>写作题</option>
                             </>
                         </select>
                     </div>
@@ -484,9 +495,9 @@ export default function QuizEditor({ user, selectedQuiz }) {
                         <input
                             type='checkbox'
                             name="subjective-answer"
-                            disabled={QType.OPT} // 选择题只能是客观题
-                            checked={QType.FILL && evalMode === "SUB"}
-                            onChange={(e) => setEvalMode(e.target.checked ? "SUB" : "OBJ")}
+                            disabled={QType.OPT || QType.WR} // 选择题只能是客观题；写作题只能是主观题；两种情况都不可更改
+                            checked={evalMode === "SUB"}
+                            onChange={(e) => setEvalMode(QType.FI && e.target.checked ? "SUB" : "OBJ")} // 只可针对填空题设置主客观
                         />
                     </label>
                     <div className="ml-auto">
@@ -515,7 +526,7 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
                 <div className="flex items-center mt-2 mb-2">
                     <label className={cn(tw.label, "block font-bold")}>
-                        {QType.FILL ? "答案（该项内容即为对应空位的答案）" : "选项（勾选表示该项为正确答案）"}
+                        {QType.FI || QType.WR ? "答案（该项内容即为对应空位的参考答案）" : "选项（勾选表示该项为正确答案）"}
                     </label>
                     <label className={cn(tw.label, "block font-bold ml-auto")}>
                         <span className="me-1">提交后保留内容</span>
@@ -547,9 +558,9 @@ export default function QuizEditor({ user, selectedQuiz }) {
                                 />
                                 <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "先填写选项内容"}>
                                     <input
-                                        type={QType.MCSA ? 'radio' : 'checkbox'}
+                                        type={QType.SS ? 'radio' : 'checkbox'}
                                         name="correct-option"
-                                        checked={QType.FILL ? true : opt.isCorrect}
+                                        checked={QType.FI || QType.WR ? true : opt.isCorrect}
                                         disabled={!opt.text.trim()}
                                         onChange={() => handleOptionCheck(index)}
                                     />

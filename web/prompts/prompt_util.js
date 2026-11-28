@@ -11,7 +11,7 @@ const makePrompt = (p) => {
         p?.answer_profile,        // 主观题作答说明
         p?.answer_ref,            // 主观题的参考答案
         p?.answered_sub,          // 主观题作答
-        p?.question_eval,         // 先给结论
+        p?.answer_eval,           // 先给作答的评价
         p?.correct_answer,        // 正确答案是什么？
         p?.answer_explanation,    // 为什么这个是正确答案？
         p?.incorrect_explanation, // 错误答案或选项，为什么错了？

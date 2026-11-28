@@ -80,6 +80,10 @@ export default function QuizPage({ user, selectedQuiz, onQuestionsReady, onSubmi
         await showQACount();
     };
 
+    const handleInvalidSubmit = async (msg) => {
+        showAlert(msg, "warning");
+    }
+
     const handleNoQuestions = () => {
         if (!alertState.visible) {
             setAnswering(false)
@@ -158,9 +162,10 @@ export default function QuizPage({ user, selectedQuiz, onQuestionsReady, onSubmi
                     mGroupContent={mapGroupContent}
                     filter={filter}
                     onSubmit={handleSubmit}
-                    onReset={handleResetQuiz}
+                    onInvalidSubmit={handleInvalidSubmit}
                     onNoQuestions={handleNoQuestions}
                     onQuestionsReady={handleQuestionsReady}
+                    onReset={handleResetQuiz}
                 />
             )}
         </div>

@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const normalize = (arr) => arr.map((a) => a.trim());
 
-export const FILL = {
+export const FI = {
     label: "填空",
 
     parseAnswer: (answers) => answers,

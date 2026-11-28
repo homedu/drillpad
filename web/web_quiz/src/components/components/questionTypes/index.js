@@ -1,10 +1,7 @@
 // questionTypes/index.js
-import { MCSA } from "./mcsa.jsx";
+import { SS } from "./ss.jsx";
 import { MS } from "./ms.jsx";
-import { FILL } from "./fill.jsx";
+import { FI } from "./fill.jsx";
+const WR = FI;
 
-export const questionTypes = {
-    MCSA,
-    MS,
-    FILL,
-};
+export const questionTypes = { SS, MS, FI, WR };
