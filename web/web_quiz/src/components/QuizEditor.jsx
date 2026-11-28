@@ -541,8 +541,12 @@ export default function QuizEditor({ user, selectedQuiz }) {
 
                 <div className={tw.optionsList}>
                     {options.map((opt, index) => {
-                        // 选择题：前面所有选项都已填写，当前行才可编辑；填空题：根据下划线判断 （ [].every() is true ）
-                        const canEdit = QType.OPT ? options.slice(0, index).every((o) => o.text.trim()) : index < fillCount;
+
+                        let canEdit = false;
+                        if (QType.OPT) canEdit = options.slice(0, index).every((o) => o.text.trim()); // 选择题：前面所有选项都已填写，当前行才可编辑；
+                        if (QType.FI) canEdit = index < fillCount; // 填空题：根据下划线判断
+                        if (QType.WR) canEdit = index === 0; // 作文题: 仅第一项可以编辑
+
                         return (
                             <div key={index} className={tw.optionRow}>
                                 <span className={tw.optionIndex}>{String.fromCharCode(65 + index)}</span>
@@ -553,8 +557,8 @@ export default function QuizEditor({ user, selectedQuiz }) {
                                     onChange={(e) => handleOptionTextChange(index, e.target.value)}
                                     onBlur={(e) => handleOptionTextChange(index, e.target.value, true)}
                                     placeholder={canEdit ?
-                                        (QType.OPT ? `选项 ${index + 1} 内容` : `第 ${index + 1} 空格处答案内容`) :
-                                        (QType.OPT ? `先填写选项 ${String.fromCharCode(64 + index)}` : "匹配题目中的待填空'____'")}
+                                        (QType.OPT ? `选项 ${index + 1} 内容` : (QType.FI ? `第 ${index + 1} 空格处答案内容` : "参考样文")) :
+                                        (QType.OPT ? `先填写选项 ${String.fromCharCode(64 + index)}` : (QType.FI ? "匹配题目中的待填空'____'" : ""))}
                                 />
                                 <label className={tw.checkLabel(!opt.text.trim())} title={opt.text.trim() ? "" : "先填写选项内容"}>
                                     <input

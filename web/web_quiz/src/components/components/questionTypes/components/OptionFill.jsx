@@ -41,7 +41,7 @@ export function Fill({
 }) {
     return (
         <label className={tw.fill({ submitted, isBlankFilled: filled, isThisFilledCorrect: isCorrect, isSubEval })}>
-            <strong className="me-2">{opt.label}.</strong>
+            {!isSubEval && (<strong className="me-2">{opt.label}.</strong>)}
             <textarea
                 name={`question-${questionId}-${opt.label}`}
                 disabled={submitted}

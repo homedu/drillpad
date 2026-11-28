@@ -403,7 +403,7 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                             onClick={(e) => { showFloatingWindow(q.groupContent, { title: q.group }) }} >...
                                         </span>
                                     )}
-                                    {/* 提示label 单选/多选/填空 (主观题) */}
+                                    {/* 提示label 单选/多选/填空/作文 (主观题) */}
                                     {handler && (
                                         <span className="text-sm text-zinc-500 ml-auto me-2">{handler.label} {q.evalMode === "SUB" && "(主观题)"}</span>
                                     )}
@@ -435,8 +435,9 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                                         onChangeToSetAnswer={(a) => setAnswer(q.id, a)}
                                         onFocus={(n) => {
                                             // HERE is only for Fill-Type
-                                            const qMod = q.question.replaceNth("____", n, "___🖊___")
-                                            setQuestionMod(prev => ({ ...prev, [index]: qMod }))
+                                            const currBlank = q.evalMode !== "SUB" ? `___${String.fromCharCode(65 + n)} 🖊___` : "___🖊___";
+                                            const qMod = q.question.replaceNth("____", n, currBlank);
+                                            setQuestionMod(prev => ({ ...prev, [index]: qMod }));
                                             // For all Types
                                             cardsRef.current?.[q.id]?.focus();
                                         }}
@@ -446,10 +447,10 @@ export default function QuizViewer({ user, quiz, quizFileContent, mGroupContent,
                         </div>
 
                         {/* 对错提示 */}
-                        {submitted && handler && q.correctAnswer && (
+                        {submitted && handler && (
                             <div className="mt-3 text-sm">
-                                {status === "correct" && (<span className="text-green-500 font-bold"> ✅ 正确 </span>)}
-                                {status === "incorrect" && (<span className="text-red-500"> ❌ 错误 (正确答案：{handler.formatCorrect(q)})  </span>)}
+                                {q.correctAnswer && status === "correct" && (<span className="text-green-500 font-bold"> ✅ 正确 </span>)}
+                                {q.correctAnswer && status === "incorrect" && (<span className="text-red-500"> ❌ 错误 (正确答案：{handler.formatCorrect(q)})  </span>)}
                                 {status === "blank" && (<span className="text-zinc-500"> ⚠️ 未作答 (正确答案：{handler.formatCorrect(q)})  </span>)}
                                 {status === "AI-judge" && (<span className="text-blue-500"> 🤖 点击右侧AI按钮，由AI评判结果，根据结果进行星号标注... </span>)}
                             </div>
