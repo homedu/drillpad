@@ -22,7 +22,8 @@ const ALLOWED_ORIGINS = new Set([
     "http://192.168.1.159:3000",
     "http://100.115.50.31", // tailscale IP
     "http://100.115.50.31:80",
-    "http://100.115.50.31:3000"
+    "http://100.115.50.31:3000",
+    "http://quizpad" // tailscale Magic DNS
 ]);
 
 // 统一的 CORS 头生成

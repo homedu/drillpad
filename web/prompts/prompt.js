@@ -41,7 +41,7 @@ const prompt = {
         tested_topic: "",
         other_notes: "通过该题的考察，有哪些相关知识点需要掌握或注意的？"
     },
-    video_description: {
+    writing_describe_scene: {
         quiz_name: `这是一道英文写作练习题`,
         question_type: "关于视频情节的真实生动的还原描述",
         question_ref: "如果此处没有提供原视频,但后面给出了参考答案,你就根据参考答案进行原视频的合理脑补。",

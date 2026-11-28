@@ -14,10 +14,10 @@ import { showInputModal } from "../../utils/ShowInputModal.jsx";
 import { showWangEditorModal, makeUploadConfig } from "../../utils/ShowWangEditorModal";
 import { IP_SERVER_UPLOAD } from "../../../../config.js";
 
-// 判定一道题的作答状态: "blank" | "correct" | "incorrect"
+// 判定一道题的作答状态: "blank" | "correct" | "incorrect" | "AI-judge"
 // 题型未注册时按未作答处理
 const judge = (q, answer) => {
-    if (q.evalMode === "SUB") return "AI-judge"; // 主观题交给AI评判
+    if (q.evalMode === "SUB" || q.type === "WR") return "AI-judge"; // 主观题交给AI评判
     const handler = questionTypes[q.type];
     if (!handler || !handler.hasAnswered(q, answer)) return "blank";
     return handler.isCorrect(q, answer) ? "correct" : "incorrect";
